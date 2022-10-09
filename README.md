@@ -25,6 +25,8 @@ Portanto, este trabalho busca desenvolver uma ferramenta usando tecnologias Web 
 
 - Os arquivos com extensões .docx e .pptx da documentação foram criados usando as aplicações do Google (Documentos e Apresentações), logo caso queria alterar algo ou copiar algum modelo, pode surbir o arquivo em seu Google Drive e usar as mesmas aplicações.
 
+- Os arquivos com extensão .violet.html da documentação foram criados usando a aplicação Violet 2.1.0 que pode ser acessada através do repositório https://github.com/violetumleditor/violetumleditor ou pode ser baixada pelo https://sourceforge.net/projects/violet/.
+
 ### ___Contribuições___
 
 Por se tratar de uma repositório de estudo, ele não está aberto a contribuições, porém, fique à vontade para copiar, melhorar e utilizar qualquer trecho deste repositório seguindo a lincença dele, e claro se precisar pode entrar em contato comigo, será um prazer conversar sobre o projeto ou ajudar de alguma forma.
