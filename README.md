@@ -17,7 +17,13 @@ Portanto, este trabalho busca desenvolver uma ferramenta usando tecnologias Web 
 
 ### ___Estrutura do repositório___
 
-- **Docs** : Encontrará os arquivos que compõe a documentação do software e as imagens usadas na documentação.
+- **Docs** : Encontrará os arquivos que compõe a documentação do software.
+
+    - **Base** : São os arquivos criados previamente e depois usados para construir o documento principal "Controle_de_Apontamentos-DesenvWebFullStack-PucMinas.docx"
+
+### ___Instruções básicas___
+
+- Os arquivos com extensões .docx e .pptx da documentação foram criados usando as aplicações do Google (Documentos e Apresentações), logo caso queria alterar algo ou copiar algum modelo, pode surbir o arquivo em seu Google Drive e usar as mesmas aplicações.
 
 ### ___Contribuições___
 
