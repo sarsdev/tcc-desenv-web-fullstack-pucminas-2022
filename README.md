@@ -27,6 +27,8 @@ Portanto, este trabalho busca desenvolver uma ferramenta usando tecnologias Web 
 
 - Os arquivos com extensão .violet.html da documentação foram criados usando a aplicação Violet 2.1.0 que pode ser acessada através do repositório https://github.com/violetumleditor/violetumleditor ou pode ser baixada pelo https://sourceforge.net/projects/violet/.
 
+- Os arquivos com extensão .drawio da documentação foram criados usando a extensão do Google Drive Diagrams.net.
+
 ### ___Contribuições___
 
 Por se tratar de uma repositório de estudo, ele não está aberto a contribuições, porém, fique à vontade para copiar, melhorar e utilizar qualquer trecho deste repositório seguindo a lincença dele, e claro se precisar pode entrar em contato comigo, será um prazer conversar sobre o projeto ou ajudar de alguma forma.
