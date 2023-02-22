@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Modal from 'react-bootstrap/Modal'
 import Alert from 'react-bootstrap/Alert'
-import Servico from '../../service/servico'
+import Servico from './../../../../service/servico'
 
 
 function RecuperacaoSenha(props) {

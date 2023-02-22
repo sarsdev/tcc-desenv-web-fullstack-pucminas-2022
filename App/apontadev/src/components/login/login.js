@@ -5,8 +5,8 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Alert from 'react-bootstrap/Alert'
 import Servico from '../../service/servico'
-import CriacaoSenha from './../criacao-senha/criacao-senha'
-import RecuperacaoSenha from '../recuperacao-senha/recuperacao-senha'
+import CriacaoSenha from './components/criacao-senha/criacao-senha'
+import RecuperacaoSenha from './components/recuperacao-senha/recuperacao-senha'
 
 function Login() {
     const [formUsuario, setFormUsuario] = useState('')
