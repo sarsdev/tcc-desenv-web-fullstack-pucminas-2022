@@ -1,122 +1,146 @@
 import './login.css'
-import { Component } from 'react';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import Button from 'react-bootstrap/Button'
+import Form from 'react-bootstrap/Form'
+import Alert from 'react-bootstrap/Alert'
+import Servico from '../../service/servico'
+import CriacaoSenha from './../criacao-senha/criacao-senha'
+import RecuperacaoSenha from '../recuperacao-senha/recuperacao-senha'
 
-class Login extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            formUsuario: '',
-            usuarioValido: false,
-            formSenha: '',
-            senhaValida: false,
-            formGoogleAuth: '',
-            googleAuthValido: false,
-            permiteAcesso: false
+function Login() {
+    const [formUsuario, setFormUsuario] = useState('')
+    const [usuarioValido, setUsuarioValido] = useState(false)
+    const [formSenha, setFormSenha] = useState('')
+    const [senhaValida, setSenhaValida] = useState(false)
+    const [formGoogleAuth, setFormGoogleAuth] = useState('')
+    const [googleAuthValido, setGoogleAuthValido] = useState(false)
+    const [mostrarCriacaoSenha, setMostrarCriacaoSenha] = useState(false)
+    const [mostrarRecuperacaoSenha, setMostrarRecuperacaoSenha] = useState(false)
+    const [mostrarAlerta, setmostrarAlerta] = useState(false)
+
+    function EnvioDadosForm(e) {
+        e.preventDefault()
+        const dados = {
+            usuario: formUsuario,
+            senha: formSenha,
+            googleAuth: formGoogleAuth
+        }
+        if(Servico.ValidarAcesso(dados)) {
+            lnkInicial.click()
+        } else {
+            setmostrarAlerta(true)
         }
     }
 
-    ValidaCampoForm = (e) => {
+    function ValidaCampoForm(e) {
         const campo = e.target.id
         const valor = e.target.value
-        this.setState({
-            [campo]: valor
-        }, () => {
-            this.Validacao(campo, valor)
-        })
+        Validacao(campo, valor)
     }
 
-    Validacao(campo, valor) {
-        let usuarioValido = this.state.usuarioValido
-        let senhaValida = this.state.senhaValida
-        let googleAuthValido = this.state.googleAuthValido
-
+    function Validacao(campo, valor) {
         switch(campo) {
             case 'formUsuario':
-                usuarioValido = valor.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i)
+                setFormUsuario(valor)
+                setUsuarioValido(valor.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i) ? true : false)
                 break
             case 'formSenha':
-                senhaValida = valor.length >= 6
+                setFormSenha(valor)
+                setSenhaValida(valor.length >= 6)
                 break
             case 'formGoogleAuth':
-                googleAuthValido = valor.length >= 6
+                setFormGoogleAuth(valor)
+                setGoogleAuthValido(valor.length >= 6)
                 break
             default:
                 break
+        }        
+    }
+
+    function AcessarComGmail() {
+        if(Servico.DeveCriarSenha()) {
+            setMostrarCriacaoSenha(true)
         }
-        
-        this.setState({
-            usuarioValido: usuarioValido,
-            senhaValida: senhaValida,
-            googleAuthValido: googleAuthValido
-          },
-          this.AtualizaPermiteAcesso)
     }
+    
+    return (
+        <div className='retangulo-externo col-xxl-3 col-lg-4 col-md-6 col-sm-8 mx-auto'>
+            <Form onSubmit={EnvioDadosForm} noValidate>
+                <h3>Acesso</h3>
+                <hr />
+                <Form.Group className='mb-2' controlId='formUsuario'>
+                    <Form.Label>Usuário</Form.Label>
+                    <Form.Control
+                        type='email'
+                        value={formUsuario}
+                        onChange={(evento) => ValidaCampoForm(evento)}
+                        isInvalid={!usuarioValido}
+                        required/>
+                    <Form.Control.Feedback type='invalid'>O e-mail deve estar em um padrão válido</Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group className='mb-2' controlId='formSenha'>
+                    <Form.Label>Senha</Form.Label>
+                    <Form.Control 
+                        type='password'
+                        value={formSenha}
+                        onChange={(evento) => ValidaCampoForm(evento)}
+                        isInvalid={!senhaValida}
+                        required/>
+                    <Form.Control.Feedback type='invalid'>A senha deve ter 6 digitos ou mais</Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group className='mb-2' controlId='formGoogleAuth'>
+                    <Form.Label>Google Authenticador</Form.Label>
+                    <Form.Control
+                        type='number'
+                        value={formGoogleAuth}
+                        onChange={(evento) => ValidaCampoForm(evento)}
+                        isInvalid={!googleAuthValido}
+                        required/>
+                    <Form.Control.Feedback type='invalid'>O código deve ter 6 digitos ou mais</Form.Control.Feedback>
+                </Form.Group>
+                <Button
+                    className='col-sm-12 mx-auto'
+                    type='submit'
+                    disabled={!(usuarioValido && senhaValida && googleAuthValido)}>Acessar</Button>
+                <div className='d-flex flex-row-reverse'>
+                    <a 
+                        href='#'
+                        onClick={() => setMostrarRecuperacaoSenha(true)}>Esqueci minha senha</a>
+                </div>
+                <hr />
+                <Button 
+                    variant='danger'
+                    className='col-sm-12 mx-auto'
+                    onClick={() => AcessarComGmail()}>Acessar com GMail</Button>
+            </Form>
 
-    AtualizaPermiteAcesso() {
-        this.setState({
-            permiteAcesso: this.state.usuarioValido && this.state.senhaValida && this.state.googleAuthValido
-        })
-    }
+            {/* Alertas */}
+            <Alert
+                variant='danger'
+                className='mt-2'
+                show={mostrarAlerta}
+                onClose={() => setmostrarAlerta(false)}
+                dismissible>Acesso negado! Dados inválidos.</Alert>
 
-    EnvioDadosForm(e) {
-        console.log(e)
-        e.preventDefault();
-        e.stopPropagation();
-    }
+            {/* Modais */}
+            <CriacaoSenha
+                show={mostrarCriacaoSenha}
+                onHide={() => setMostrarCriacaoSenha(false)}
+            />
+            <RecuperacaoSenha 
+                show={mostrarRecuperacaoSenha}
+                onHide={() => setMostrarRecuperacaoSenha(false)}/>
+                
+            {/* Lista oculta para permitir a navegação, pois não foi possível usando o useNavegate */}
+            <ul id='listaNavegacao'>
+                <li>
+                    <Link to={'/app/inicial'} id='lnkInicial' />
+                </li>
+            </ul>
 
-    render() {
-        return (
-            <div className="retangulo-externo col-xxl-3 col-lg-4 col-md-6 col-sm-8 mx-auto">
-                <Form onSubmit={this.EnvioDadosForm} noValidate>
-                    <h3>Acesso</h3>
-                    <hr />
-                    <Form.Group className="mb-2" controlId="formUsuario">
-                        <Form.Label>Usuário</Form.Label>
-                        <Form.Control
-                            type="email"
-                            value={this.state.usuario}
-                            onChange={this.ValidaCampoForm}
-                            isInvalid={!this.state.usuarioValido}
-                            required/>
-                        <Form.Control.Feedback type="invalid">O e-mail deve estar em um padrão válido</Form.Control.Feedback>
-                    </Form.Group>
-                    <Form.Group className="mb-2" controlId="formSenha">
-                        <Form.Label>Senha</Form.Label>
-                        <Form.Control 
-                            type="password"
-                            value={this.state.senha}
-                            onChange={this.ValidaCampoForm}
-                            isInvalid={!this.state.senhaValida}
-                            required/>
-                        <Form.Control.Feedback type="invalid">A senha deve ter 6 digitos ou mais</Form.Control.Feedback>
-                    </Form.Group>
-                    <Form.Group className="mb-2" controlId="formGoogleAuth">
-                        <Form.Label>Google Authenticador</Form.Label>
-                        <Form.Control
-                            type="number"
-                            value={this.state.googleAuth}
-                            onChange={this.ValidaCampoForm}
-                            isInvalid={!this.state.googleAuthValido}
-                            required/>
-                        <Form.Control.Feedback type="invalid">O código deve ter 6 digitos ou mais</Form.Control.Feedback>
-                    </Form.Group>
-                    <Button
-                        className="col-sm-12 mx-auto"
-                        type="submit"
-                        disabled={!this.state.permiteAcesso}>Acessar</Button>
-                    <div className="d-flex flex-row-reverse">
-                        <a href='#'>Esqueci minha senha</a>
-                    </div>
-                    <hr />
-                    <Button 
-                        variant="danger"
-                        className="col-sm-12 mx-auto">Acessar com GMail</Button>
-                </Form>
-            </div>
-        )
-    }
+        </div>
+    )
 }
   
 export default Login

@@ -1,3 +1,8 @@
+#listaNavegacao {
+    visibility: hidden;
+    display: none;
+}
+
 .retangulo-externo {
     margin-top: 3em;
     margin: 20px;
