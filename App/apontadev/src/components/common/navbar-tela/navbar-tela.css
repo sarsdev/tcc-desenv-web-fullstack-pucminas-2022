@@ -1,0 +1,18 @@
+.BarraSuperiorTela {
+    margin: 0.1em;
+    padding: 0.8em;
+    background-color: #4b49c9;
+    border-radius: 5px;
+}
+
+.TitulosMenu {
+    margin: 0em 2.5em;
+}
+
+.TitulosMenuInativo {
+    color: lightgray;
+}
+
+.TitulosMenuAtivo {
+    color: white;
+}

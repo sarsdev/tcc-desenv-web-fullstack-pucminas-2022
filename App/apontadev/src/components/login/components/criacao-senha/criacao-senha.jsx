@@ -1,13 +1,12 @@
-import './recuperacao-senha.css'
+import './criacao-senha.css'
 import { useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Modal from 'react-bootstrap/Modal'
 import Alert from 'react-bootstrap/Alert'
-import Servico from './../../../../service/servico'
+import Servico from '../../../../service/servico'
 
-
-function RecuperacaoSenha(props) {
+function CriacaoSenha(props) {
     const [modalUsuario, setModalUsuario] = useState('')
     const [usuarioValido, setUsuarioValido] = useState(false)
     const [modalSenha, setModalSenha] = useState('')
@@ -16,12 +15,12 @@ function RecuperacaoSenha(props) {
     const [confirmacaoValida, setConfirmacaoValida] = useState(false)
     const [mostrarAlerta, setmostrarAlerta] = useState(false)
 
-    function TrocarSenha() {
+    function CriarSenha() {
         const dados = {
             usuario: modalUsuario,
             senha: modalSenha
         }
-        if(!Servico.DefinirNovaSenha(dados)) {
+        if(!Servico.CriarSenha(dados)) {
             setmostrarAlerta(true)
             return
         }
@@ -60,7 +59,7 @@ function RecuperacaoSenha(props) {
             aria-labelledby='contained-modal-title-vcenter'
             centered>
             <Modal.Header closeButton>
-                <Modal.Title id='contained-modal-title-vcenter'>Trocar senha</Modal.Title>
+                <Modal.Title id='contained-modal-title-vcenter'>Crie sua senha</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form>
@@ -75,7 +74,7 @@ function RecuperacaoSenha(props) {
                         <Form.Control.Feedback type='invalid'>O e-mail deve estar em um padrão válido</Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group className='mb-2' controlId='modalSenha'>
-                        <Form.Label>Nova senha</Form.Label>
+                        <Form.Label>Senha</Form.Label>
                         <Form.Control
                             type='password'
                             value={modalSenha}
@@ -85,7 +84,7 @@ function RecuperacaoSenha(props) {
                         <Form.Control.Feedback type='invalid'>A senha deve ter 6 digitos ou mais</Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group className='mb-2' controlId='modalConfirmaSenha'>
-                        <Form.Label>Confirme a nova senha</Form.Label>
+                        <Form.Label>Confirme a senha</Form.Label>
                         <Form.Control
                             type='password'
                             value={modalConfirmacao}
@@ -99,7 +98,7 @@ function RecuperacaoSenha(props) {
             <Modal.Footer>
                 <Button
                     disabled={!(usuarioValido && senhaValida && confirmacaoValida)}
-                    onClick={() => TrocarSenha()}>Salvar</Button>
+                    onClick={() => CriarSenha()}>Salvar</Button>
             </Modal.Footer>
 
             {/* Alertas */}
@@ -111,6 +110,6 @@ function RecuperacaoSenha(props) {
                 dismissible>Falha ao atualizar os dados no servidor</Alert>
         </Modal>
     )
-}
+  }
   
-export default RecuperacaoSenha
+  export default CriacaoSenha
