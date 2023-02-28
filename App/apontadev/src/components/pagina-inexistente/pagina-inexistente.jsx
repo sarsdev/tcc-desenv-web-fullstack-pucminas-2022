@@ -1,4 +1,5 @@
 import './pagina-inexistente.css'
+import React from 'react';
 import Figure from 'react-bootstrap/Figure'
 import FigureImage from 'react-bootstrap/FigureImage'
 import emotionTired from './../../img/emotion-tired.jpg'

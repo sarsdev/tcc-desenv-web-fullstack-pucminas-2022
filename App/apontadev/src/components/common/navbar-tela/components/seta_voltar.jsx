@@ -1,3 +1,5 @@
+import React from 'react';
+
 function SetaVoltar(props) {
     const largura = props.largura
     const altura = props.altura

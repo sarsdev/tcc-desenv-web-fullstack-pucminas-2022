@@ -1,15 +1,12 @@
-const dadosAcesso = {
-    usuario: 'admin@gmail.com',
-    senha: '123456',
-    googleAuth: '000000'
-}
+import axios from 'axios'
 
 const Servico = {
-    ValidarAcesso: function(dadosForm) {
-        console.log(`ValidarAcesso: ${dadosForm}`)
-        return dadosAcesso.usuario === dadosForm.usuario
-            && dadosAcesso.senha === dadosForm.senha
-            && dadosAcesso.googleAuth === dadosForm.googleAuth
+    ValidarAcesso: async function(dadosForm) {
+        return axios.post('http://localhost:3001/usuario/acesso/autenticacao', {
+            nome_usuario: dadosForm.usuario,
+            senha: dadosForm.senha,
+            codigo_google: dadosForm.googleAuth
+        })
     },
     DeveCriarSenha: function(dadosModal) {
         return true

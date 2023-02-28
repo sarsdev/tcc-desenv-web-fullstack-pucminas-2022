@@ -1,3 +1,5 @@
+import React from 'react';
+
 function Projeto(props) {
     return (
         <div>

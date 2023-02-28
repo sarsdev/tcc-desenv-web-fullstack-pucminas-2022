@@ -1,4 +1,5 @@
 import './navbar-tela.css'
+import React from 'react';
 import Stack from 'react-bootstrap/Stack';
 import SetaVoltar from './components/seta_voltar'
 

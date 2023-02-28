@@ -1,3 +1,5 @@
+import React from 'react';
+
 function Acompanhamento(props) {
     return (
         <div>

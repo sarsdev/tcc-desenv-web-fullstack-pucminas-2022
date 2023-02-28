@@ -1,5 +1,5 @@
 import './login.css'
-import { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
@@ -19,6 +19,8 @@ function Login() {
     const [mostrarRecuperacaoSenha, setMostrarRecuperacaoSenha] = useState(false)
     const [mostrarAlerta, setmostrarAlerta] = useState(false)
 
+    const linkRef = useRef()
+
     function EnvioDadosForm(e) {
         e.preventDefault()
         const dados = {
@@ -26,11 +28,22 @@ function Login() {
             senha: formSenha,
             googleAuth: formGoogleAuth
         }
-        if(Servico.ValidarAcesso(dados)) {
-            lnkInicial.click()
-        } else {
+        console.log('teste1')
+        Servico.ValidarAcesso(dados)
+        .then((resposta) => {
+            console.log(resposta)
+            if(resposta.status === 200) {
+                console.log('teste6')
+                linkRef.current.click()
+            } else {
+                console.log('teste7')
+                setmostrarAlerta(true)
+            }
+        }).catch(function() {
+            console.log('teste8')
             setmostrarAlerta(true)
-        }
+        })
+        console.log('teste9')
     }
 
     function ValidaCampoForm(e) {
@@ -104,9 +117,8 @@ function Login() {
                     type='submit'
                     disabled={!(usuarioValido && senhaValida && googleAuthValido)}>Acessar</Button>
                 <div className='d-flex flex-row-reverse'>
-                    <a 
-                        href='#'
-                        onClick={() => setMostrarRecuperacaoSenha(true)}>Esqueci minha senha</a>
+                    <Button 
+                        onClick={() => setMostrarRecuperacaoSenha(true)}>Esqueci minha senha</Button>
                 </div>
                 <hr />
                 <Button 
@@ -135,7 +147,7 @@ function Login() {
             {/* Lista oculta para permitir a navegação, pois não foi possível usando o useNavegate */}
             <ul id='listaNavegacao'>
                 <li>
-                    <Link to={'/app/inicial'} id='lnkInicial' />
+                    <Link to={'/app/inicial'} ref={linkRef} />
                 </li>
             </ul>
 
