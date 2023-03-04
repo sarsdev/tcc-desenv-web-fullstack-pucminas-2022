@@ -112,3 +112,132 @@ exports.AtualizaSenhaUsuario = (pUsuario) => {
 exports.AtualizaDadosUsuario = (pUsuario) => {
     return true
 }
+
+exports.ListaPermissoes = () => {
+    return {
+        usuario_cadastrado: [
+            {
+                tela: "permissao",
+                funcionalidade: ["incluir","excluir","atualizar"],
+                Equipe: ["Equipe A","Equipe B"],
+                Funcao: ["Coordenação","Analista","Desenvolvedor"],
+                Usuario: [],
+                Acesso: "bloqueio"
+            },
+            {
+                tela: "simulador",
+                funcionalidade: ["incluir"],
+                Equipe: ["Equipe B"],
+                Funcao: ["Coordenação"],
+                Usuario: [],
+                Acesso: "acesso"
+            }
+        ],
+        usuario_autonomo: [
+            {
+                tela: "permissao",
+                funcionalidade: ["incluir","excluir","atualizar"],
+                Equipe: ["Equipe A","Equipe B"],
+                Funcao: ["Coordenação","Analista","Desenvolvedor"],
+                Usuario: [],
+                Acesso: "bloqueio"
+            }
+        ]
+    }        
+}
+
+exports.AtualizaPermissao = (pPermissao) => {
+    return true
+}
+
+exports.RemovePermissao = (pSeqPermissao) => {
+    return true
+}
+
+exports.ListaPadroesAcessibilidade = (pEmailUsuario) => {
+    return {
+        nome_usuario: pEmailUsuario,
+        modo_visual: true,
+        modo_atalho_unico: true,
+        tema_aplicacao: "Tema padrão"
+      }      
+}
+
+exports.AtualizaPadroesAcessibilidade = (pPermissao) => {
+    return true
+}
+
+exports.ListaFuncoes = (pParams) => {
+    return [
+        {
+            sequencial: 1,
+            funcao: "Função A",
+            percentual_simulacao: 100,
+            fator_estimativa: 1,
+            situacao: "ativo"
+        },
+        {
+            sequencial: 2,
+            funcao: "Função B",
+            percentual_simulacao: 90,
+            fator_estimativa: 0.9,
+            situacao: "inativo"
+        }
+    ]   
+}
+
+exports.AtualizaFuncao = (pFuncao) => {
+    return true
+}
+
+exports.ListaEquipes = (pParams) => {
+    return [
+        {
+            sequencial: 1,
+            equipe: "Equipe A",
+            descricao: "Time que atente as demandas iniciais",
+            situacao: "Ativo"
+        },
+        {
+            sequencial: 2,
+            equipe: "Equipe B",
+            descricao: "Time de demandas internas",
+            situacao: "Ativo"
+        }
+    ]   
+}
+
+exports.AtualizaEquipe = (pEquipe) => {
+    return true
+}
+
+exports.ListaUsuariosEquipe = (pParams) => {
+    return [
+        {
+            email: "usuario@host.com.br",
+            nome: "usuario",
+            cargo: "desenvolvedor junior",
+            funcao: "desenvolvedor",
+            equipe: "equipe 001",
+            fator_produtividade: 1.36,
+            situacao: "ativo"
+        },
+        {
+            email: "usuario2@gmail.com.br",
+            nome: "usuario",
+            cargo: "desenvolvedor senior",
+            funcao: "desenvolvedor",
+            equipe: "equipe 001",
+            fator_produtividade: 1.15,
+            situacao: "ativo"
+        }
+    ]   
+}
+
+exports.AtualizaUsuarioEquipe = (pParams, pUsuarioEquipe) => {
+    return true
+}
+
+exports.RemoveUsuarioEquipe = (pParams) => {
+    return true
+}

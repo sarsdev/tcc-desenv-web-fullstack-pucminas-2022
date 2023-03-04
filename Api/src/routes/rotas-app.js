@@ -16,5 +16,24 @@ router.post("/usuario/acesso", Controlador.setAcessoUsuario);
 router.post("/usuario/acesso/log", Controlador.setLogAcessoUsuario);
 router.post("/usuario/acesso/autenticacao", Controlador.AutenticacaoUsuario);
 
+// Permissão
+router.get("/permissao", Controlador.getPermissao);
+router.post("/permissao", Controlador.setPermissao);
+router.delete("/permissao", Controlador.removePermissao);
+
+// Acessibilidade
+router.get("/acessibilidade", Controlador.getAcessibilidade);
+router.post("/acessibilidade", Controlador.setAcessibilidade);
+
+// Função
+router.get("/funcao", Controlador.getFuncao);
+router.post("/funcao", Controlador.setFuncao);
+
+// Equipe
+router.get("/equipe", Controlador.getEquipe);
+router.get("/equipe/usuario", Controlador.getUsuarioEquipe);
+router.post("/equipe", Controlador.setEquipe);
+router.post("/equipe/usuario", Controlador.setUsuarioEquipe);
+router.delete("/equipe/usuario", Controlador.removeUsuarioEquipe);
 
 module.exports = router;
