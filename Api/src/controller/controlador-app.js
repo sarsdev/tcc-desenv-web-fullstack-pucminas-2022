@@ -1,4 +1,6 @@
-const Servico = require('../service/servico-app');
+const Servico = require('../service/servico-app')
+
+// Inicial
 
 exports.getTesteInicial = async (req, res) => {
     await Servico
@@ -6,6 +8,8 @@ exports.getTesteInicial = async (req, res) => {
         .then((retorno) => res.send(retorno))
         .catch((erro) => res.send(erro))
 }
+
+// Usuário
 
 exports.getUsuario = (req, res) => {
     res.send(Servico.ListaUsuarios())
@@ -55,6 +59,8 @@ exports.AutenticacaoUsuario = (req, res) => {
     }
 }
 
+// Permissão
+
 exports.getPermissao = (req, res) => {
     res.send(Servico.ListaPermissoes())
 }
@@ -75,6 +81,8 @@ exports.removePermissao = (req, res) => {
     }
 }
 
+// Acessibilidade
+
 exports.getAcessibilidade = (req, res) => {
     res.send(Servico.ListaPadroesAcessibilidade(req.query.email))
 }
@@ -87,17 +95,33 @@ exports.setAcessibilidade = (req, res) => {
     }
 }
 
-exports.getFuncao = (req, res) => {
-    res.send(Servico.ListaFuncoes(req.query))
+// Função
+
+exports.getFuncao = async (req, res) => {
+    let retorno = await Servico.ListaFuncoes(req.query)
+    if(retorno.erro) {
+        res.json({ MsgErro: retorno.msg })
+    }
+    res.json(retorno.dados)
 }
 
-exports.setFuncao = (req, res) => {
-    if(Servico.AtualizaFuncao(req.body)) {
-        res.sendStatus(200)
-    } else {
-        res.sendStatus(400)
+exports.postFuncao = async (req, res) => {
+    let retorno = await Servico.InsereFuncao(req.body)
+    if(retorno.erro) {
+        res.json({ MsgErro: retorno.msg })
     }
+    res.json(retorno.dados)
 }
+
+exports.putFuncao = async (req, res) => {
+    let retorno = await Servico.AtualizaFuncao(req.body)
+    if(retorno.erro) {
+        res.json({ MsgErro: retorno.msg })
+    }
+    res.json(retorno.dados)
+}
+
+// Equipe
 
 exports.getEquipe = (req, res) => {
     res.send(Servico.ListaEquipes(req.query))

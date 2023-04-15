@@ -2,14 +2,20 @@ require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const rotas = require('./routes/rotas-app')
+const rotasApp = require('./routes/rotas-app')
+const rotasDev = require('./routes/rotas-dev')
+const mongoose = require('mongoose')
 
 const app = express()
 
+mongoose.connect(process.env.DB_CONNECTION).then(() => console.info('DB Connected'))
+mongoose.connection.on('error', err => console.error(`DB connection error: ${err.message}`))
+
 app.use(cors())
 app.use(bodyParser.json())
-app.use("/", rotas);
+app.use('/', rotasApp)
+app.use('/dev', rotasDev)
 
 app.listen(process.env.PORT, () => {
-    console.info(`Servidor ativo na porta ${process.env.PORT}`);
+    console.info(`Servidor ativo na porta ${process.env.PORT}`)
 })
