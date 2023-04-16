@@ -18,8 +18,8 @@ router.post('/usuario/acesso/autenticacao', Controlador.AutenticacaoUsuario)
 
 // Permissão
 router.get('/permissao', Controlador.getPermissao)
-router.post('/permissao', Controlador.setPermissao)
-router.delete('/permissao', Controlador.removePermissao)
+router.post('/permissao', Controlador.postPermissao)
+router.delete('/permissao', Controlador.deletePermissao)
 
 // Acessibilidade
 router.get('/acessibilidade', Controlador.getAcessibilidade)

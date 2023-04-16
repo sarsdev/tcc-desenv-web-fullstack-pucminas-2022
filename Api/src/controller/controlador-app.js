@@ -61,24 +61,19 @@ exports.AutenticacaoUsuario = (req, res) => {
 
 // Permissão
 
-exports.getPermissao = (req, res) => {
-    res.send(Servico.ListaPermissoes())
+exports.getPermissao = async (req, res) => {
+    let retorno = await Servico.ListaPermissoes(req.query)
+    RetornaRequisicao(res, retorno)
 }
 
-exports.setPermissao = (req, res) => {
-    if(Servico.AtualizaPermissao(req.body)) {
-        res.sendStatus(200)
-    } else {
-        res.sendStatus(400)
-    }
+exports.postPermissao = async (req, res) => {
+    let retorno = await Servico.InserePermissao(req.body)
+    RetornaRequisicao(res, retorno)
 }
 
-exports.removePermissao = (req, res) => {
-    if(Servico.RemovePermissao(req.query.sequencial)) {
-        res.sendStatus(200)
-    } else {
-        res.sendStatus(400)
-    }
+exports.deletePermissao = async (req, res) => {
+    let retorno = await Servico.RemovePermissao(req.query)
+    RetornaRequisicao(res, retorno)
 }
 
 // Acessibilidade

@@ -107,18 +107,47 @@ exports.AtualizaDadosUsuario = (pUsuario) => {
 
 // Permissão
 
-exports.ListaPermissoes = async () => {
-    await ModelPermissao.find()
-        .then(info => { return { erro: false, dados: info } })
-        .catch(err => { return { erro: true, msg: err } })
+exports.ListaPermissoes = async (params) => {
+    let filtro = {}
+    let retorno = {}
+    if(params.id){
+        filtro = { _id: params.id }
+    }
+    if(params.tipo){
+        filtro = { ...filtro, tipo: params.tipo }
+    }
+    if(params.idusuario){
+        filtro = { ...filtro, "usuario.selecionados.id": params.idusuario }
+    }
+    if(params.tela){
+        filtro = { ...filtro, "usuario.tela.id": params.tela }
+    }
+    await ModelPermissao.find(filtro)
+        .then(info => { retorno = { erro: false, dados: info } })
+        .catch(err => { retorno = { erro: true, msg: err } })
+    return retorno
 }
 
-exports.AtualizaPermissao = (pPermissao) => {
-    return true
+exports.InserePermissao = async (dados) => {
+    let retorno = {}
+    const permissao = new ModelPermissao(dados)
+    await permissao.save()
+        .then(info => { retorno = { erro: false, dados: info } })
+        .catch(err => { retorno = { erro: true, msg: err} })
+    return retorno
 }
 
-exports.RemovePermissao = (pSeqPermissao) => {
-    return true
+exports.RemovePermissao = async (params) => {
+    let retorno = {}
+    if(params.id) {
+        let filtro = { _id: params.id }
+        await ModelPermissao.deleteOne(filtro)
+            .then(info => { retorno = { erro: false, dados: info } })
+            .catch(err => { retorno = { erro: true, msg: err} })
+    } else {
+        retorno = { erro: true, msg: 'O parâmetro id do documento não foi informado na requisição' }
+    }
+    return retorno
 }
 
 // Acessibilidade
@@ -132,7 +161,6 @@ exports.ListaPadroesAcessibilidade = async (params) => {
     if(params.email){
         filtro = { ...filtro, "usuario.email": params.email }
     }
-    console.log(filtro)
     await ModelAcessibilidade.find(filtro)
         .then(info => { retorno = { erro: false, dados: info } })
         .catch(err => { retorno = { erro: true, msg: err } })

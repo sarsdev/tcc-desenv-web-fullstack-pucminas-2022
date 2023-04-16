@@ -1,7 +1,4 @@
 const mongoose = require('mongoose')
-const { SchemaAplicacao } = require('./aplicacao')
-const { SchemaFuncao } = require('./funcao')
-const { SchemaEquipe } = require('./equipe')
 
 const permissaoSchema = new mongoose.Schema({
     tipo: {
@@ -10,13 +7,40 @@ const permissaoSchema = new mongoose.Schema({
         enum: ['nao_cadastrado', 'cadastrado']
     },
     tela: {
-        type: SchemaAplicacao,
-        required: true
+        id: mongoose.Types.ObjectId,
+        titulo: String
     },
-    funcionalidade: [String],
-    equipe: [SchemaEquipe],
-    funcao: [SchemaFuncao],
-    usuario: [String],
+    funcionalidade: {
+        todos: Boolean,
+        selecionados: [String]
+    },
+    equipe: {
+        todos: Boolean,
+        selecionados: [
+            {
+                id: mongoose.Types.ObjectId,
+                nome: String
+            }
+        ]
+    },
+    funcao: {
+        todos: Boolean,
+        selecionados: [
+            {
+                id: mongoose.Types.ObjectId,
+                nome: String
+            }
+        ]
+    },
+    usuario: {
+        todos: Boolean,
+        selecionados: [
+            {
+                id: mongoose.Types.ObjectId,
+                nome: String
+            }
+        ]
+    },
     acesso: {
         type: String,
         required: true,
