@@ -1,16 +1,24 @@
 const mongoose = require('mongoose')
-const { SchemaUsuario } = require('./usuario')
-const { SchemaTema } = require('./tema')
 
 const acessibilidadeSchema = new mongoose.Schema({
-    usuario: SchemaUsuario,
+    usuario: {
+        id: mongoose.Types.ObjectId,
+        email: {
+            type: String,
+            required: true,
+            lowercase: true,
+            trim: true
+        }
+    },
     modo_leitura: {
         type: Boolean
     },
     modo_atalho_unico: {
         type: Boolean
     },
-    tema: SchemaTema
+    tema: {
+        id: mongoose.Types.ObjectId
+    }
 }, 
 { collection: 'Acessibilidade' })
 

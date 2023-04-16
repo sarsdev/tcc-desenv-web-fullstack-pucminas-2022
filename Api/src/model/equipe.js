@@ -20,7 +20,16 @@ const equipeSchema = new mongoose.Schema({
         type: String,
         required: true,
         enum: ['ativo', 'inativo']
-    }
+    },
+    integrantes: [{
+        id: mongoose.Types.ObjectId,
+        nome: String,
+        cargo: String,
+        funcao: {
+            id: mongoose.Types.ObjectId,
+            nome: String
+        }
+    }]
 }, 
 { collection: 'Equipe' })
 

@@ -7,8 +7,7 @@ const usuarioSchema = new mongoose.Schema({
         type: String,
         required: true,
         lowercase: true,
-        trim: true,
-        match: '^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'
+        trim: true
     },
     situacao: {
         type: String,

@@ -123,14 +123,42 @@ exports.RemovePermissao = (pSeqPermissao) => {
 
 // Acessibilidade
 
-exports.ListaPadroesAcessibilidade = async (pEmailUsuario) => {
-    await ModelAcessibilidade.find()
-        .then(info => { return { erro: false, dados: info } })
-        .catch(err => { return { erro: true, msg: err } })   
+exports.ListaPadroesAcessibilidade = async (params) => {
+    let filtro = {}
+    let retorno = {}
+    if(params.id){
+        filtro = { _id: params.id }
+    }
+    if(params.email){
+        filtro = { ...filtro, "usuario.email": params.email }
+    }
+    console.log(filtro)
+    await ModelAcessibilidade.find(filtro)
+        .then(info => { retorno = { erro: false, dados: info } })
+        .catch(err => { retorno = { erro: true, msg: err } })
+    return retorno
 }
 
-exports.AtualizaPadroesAcessibilidade = (pPermissao) => {
-    return true
+exports.InserePadroesAcessibilidade = async (dados) => {
+    let retorno = {}
+    const padrao = new ModelAcessibilidade(dados)
+    await padrao.save()
+        .then(info => { retorno = { erro: false, dados: info } })
+        .catch(err => { retorno = { erro: true, msg: err} })
+    return retorno
+}
+
+exports.AtualizaPadroesAcessibilidade = async (dados) => {
+    let retorno = {}
+    if(dados._id) {
+        let filtro = { _id: dados._id }
+        await ModelAcessibilidade.updateOne(filtro, dados)
+            .then(info => { retorno = { erro: false, dados: info } })
+            .catch(err => { retorno = { erro: true, msg: err} })
+    } else {
+        retorno = { erro: true, msg: 'O campo _id do documento não foi informado no body da requisição' }
+    }
+    return retorno
 }
 
 // Função
@@ -174,43 +202,39 @@ exports.AtualizaFuncao = async (dados) => {
 
 // Equipe
 
-exports.ListaEquipes = async (pParams) => {
-    await ModelEquipe.find()
-        .then(info => { return { erro: false, dados: info } })
-        .catch(err => { return { erro: true, msg: err } })   
+exports.ListaEquipes = async (params) => {
+    let filtro = {}
+    let retorno = {}
+    if(params.id){
+        filtro = { _id: params.id }
+    }
+    if(params.nome){
+        filtro = { ...filtro, nome: { '$regex': params.nome, '$options': 'i' } }
+    }
+    await ModelEquipe.find(filtro)
+        .then(info => { retorno = { erro: false, dados: info } })
+        .catch(err => { retorno = { erro: true, msg: err } })
+    return retorno  
 }
 
-exports.AtualizaEquipe = (pEquipe) => {
-    return true
+exports.InsereEquipe = async (dados) => {
+    let retorno = {}
+    const equipe = new ModelEquipe(dados)
+    await equipe.save()
+        .then(info => { retorno = { erro: false, dados: info } })
+        .catch(err => { retorno = { erro: true, msg: err} })
+    return retorno
 }
 
-exports.ListaUsuariosEquipe = (pParams) => {
-    return [
-        {
-            email: 'usuario@host.com.br',
-            nome: 'usuario',
-            cargo: 'desenvolvedor junior',
-            funcao: 'desenvolvedor',
-            equipe: 'equipe 001',
-            fator_produtividade: 1.36,
-            situacao: 'ativo'
-        },
-        {
-            email: 'usuario2@gmail.com.br',
-            nome: 'usuario',
-            cargo: 'desenvolvedor senior',
-            funcao: 'desenvolvedor',
-            equipe: 'equipe 001',
-            fator_produtividade: 1.15,
-            situacao: 'ativo'
-        }
-    ]   
-}
-
-exports.AtualizaUsuarioEquipe = (pParams, pUsuarioEquipe) => {
-    return true
-}
-
-exports.RemoveUsuarioEquipe = (pParams) => {
-    return true
+exports.AtualizaEquipe = async (dados) => {
+    let retorno = {}
+    if(dados._id) {
+        let filtro = { _id: dados._id }
+        await ModelEquipe.updateOne(filtro, dados)
+            .then(info => { retorno = { erro: false, dados: info } })
+            .catch(err => { retorno = { erro: true, msg: err} })
+    } else {
+        retorno = { erro: true, msg: 'O campo _id do documento não foi informado no body da requisição' }
+    }
+    return retorno
 }

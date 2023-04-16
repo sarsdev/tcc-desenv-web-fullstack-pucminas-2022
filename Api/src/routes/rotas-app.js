@@ -23,7 +23,8 @@ router.delete('/permissao', Controlador.removePermissao)
 
 // Acessibilidade
 router.get('/acessibilidade', Controlador.getAcessibilidade)
-router.post('/acessibilidade', Controlador.setAcessibilidade)
+router.post('/acessibilidade', Controlador.postAcessibilidade)
+router.put('/acessibilidade', Controlador.putAcessibilidade)
 
 // Função
 router.get('/funcao', Controlador.getFuncao)
@@ -32,9 +33,7 @@ router.put('/funcao', Controlador.putFuncao)
 
 // Equipe
 router.get('/equipe', Controlador.getEquipe)
-router.get('/equipe/usuario', Controlador.getUsuarioEquipe)
-router.post('/equipe', Controlador.setEquipe)
-router.post('/equipe/usuario', Controlador.setUsuarioEquipe)
-router.delete('/equipe/usuario', Controlador.removeUsuarioEquipe)
+router.post('/equipe', Controlador.postEquipe)
+router.put('/equipe', Controlador.putEquipe)
 
 module.exports = router
