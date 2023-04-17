@@ -3,6 +3,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const mongoose = require('mongoose')
+const { rotasSegur } = require('./routes/rotas-segur')
 const rotasApp = require('./routes/rotas-app')
 const rotasDev = require('./routes/rotas-dev')
 
@@ -13,7 +14,7 @@ mongoose.connection.on('error', err => console.error(`DB connection error: ${err
 
 app.use(cors())
 app.use(bodyParser.json())
-app.use('/', rotasApp)
+app.use('/', [rotasApp, rotasSegur])
 app.use('/dev', rotasDev)
 
 app.listen(process.env.PORT, () => {

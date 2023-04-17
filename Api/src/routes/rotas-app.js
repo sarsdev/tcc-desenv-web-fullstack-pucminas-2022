@@ -1,5 +1,6 @@
 const express = require('express')
 const Controlador = require('../controller/controlador-app')
+const ControladorSegur = require('../controller/controlador-segur')
 
 const router = express.Router()
 
@@ -7,28 +8,28 @@ const router = express.Router()
 router.get('/', Controlador.getTesteInicial)
 
 // Usuário
-router.get('/usuario', Controlador.getUsuario)
-router.post('/usuario', Controlador.postUsuario)
-router.put('/usuario', Controlador.putUsuario)
+router.get('/usuario', ControladorSegur.validaToken, Controlador.getUsuario)
+router.post('/usuario', ControladorSegur.validaToken, Controlador.postUsuario)
+router.put('/usuario', ControladorSegur.validaToken, Controlador.putUsuario)
 
 // Permissão
-router.get('/permissao', Controlador.getPermissao)
-router.post('/permissao', Controlador.postPermissao)
-router.delete('/permissao', Controlador.deletePermissao)
+router.get('/permissao', ControladorSegur.validaToken, Controlador.getPermissao)
+router.post('/permissao', ControladorSegur.validaToken, Controlador.postPermissao)
+router.delete('/permissao', ControladorSegur.validaToken, Controlador.deletePermissao)
 
 // Acessibilidade
-router.get('/acessibilidade', Controlador.getAcessibilidade)
-router.post('/acessibilidade', Controlador.postAcessibilidade)
-router.put('/acessibilidade', Controlador.putAcessibilidade)
+router.get('/acessibilidade', ControladorSegur.validaToken, Controlador.getAcessibilidade)
+router.post('/acessibilidade', ControladorSegur.validaToken, Controlador.postAcessibilidade)
+router.put('/acessibilidade', ControladorSegur.validaToken, Controlador.putAcessibilidade)
 
 // Função
-router.get('/funcao', Controlador.getFuncao)
-router.post('/funcao', Controlador.postFuncao)
-router.put('/funcao', Controlador.putFuncao)
+router.get('/funcao', ControladorSegur.validaToken, Controlador.getFuncao)
+router.post('/funcao', ControladorSegur.validaToken, Controlador.postFuncao)
+router.put('/funcao', ControladorSegur.validaToken, Controlador.putFuncao)
 
 // Equipe
-router.get('/equipe', Controlador.getEquipe)
-router.post('/equipe', Controlador.postEquipe)
-router.put('/equipe', Controlador.putEquipe)
+router.get('/equipe', ControladorSegur.validaToken, Controlador.getEquipe)
+router.post('/equipe', ControladorSegur.validaToken, Controlador.postEquipe)
+router.put('/equipe', ControladorSegur.validaToken, Controlador.putEquipe)
 
 module.exports = router
