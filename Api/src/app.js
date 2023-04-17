@@ -2,9 +2,9 @@ require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const mongoose = require('mongoose')
 const rotasApp = require('./routes/rotas-app')
 const rotasDev = require('./routes/rotas-dev')
-const mongoose = require('mongoose')
 
 const app = express()
 

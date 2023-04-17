@@ -11,52 +11,19 @@ exports.getTesteInicial = async (req, res) => {
 
 // Usuário
 
-exports.getUsuario = (req, res) => {
-    res.send(Servico.ListaUsuarios())
+exports.getUsuario = async (req, res) => {
+    let retorno = await Servico.ListaUsuarios(req.query)
+    RetornaRequisicao(res, retorno)
 }
 
-exports.setUsuario = (req, res) => {
-    if(Servico.AtualizaDadosUsuario(req.body)) {
-        res.sendStatus(200)
-    } else {
-        res.sendStatus(400)
-    }
+exports.postUsuario = async (req, res) => {
+    let retorno = await Servico.InsereUsuario(req.body)
+    RetornaRequisicao(res, retorno)
 }
 
-exports.getAcessoUsuario = (req, res) => {
-    res.send(Servico.RetornaAcessoUsuario(req.query.email))
-}
-
-exports.setAcessoUsuario = (req, res) => {
-    if(Servico.AtualizaSenhaUsuario(req.body)) {
-        res.sendStatus(200)
-    } else {
-        res.sendStatus(400)
-    }
-}
-
-exports.getLogAcessoUsuario = (req, res) => {
-    res.send(Servico.ListaLogAcessoUsuarios())
-}
-
-exports.setLogAcessoUsuario = (req, res) => {
-    if(Servico.AtualizaLogAcessoUsuario(req.body)) {
-        res.sendStatus(200)
-    } else {
-        res.sendStatus(400)
-    }
-}
-
-exports.getProjetosUsuario = (req, res) => {
-    res.send(Servico.RetornaProjetosUsuario(req.query.email))
-}
-
-exports.AutenticacaoUsuario = (req, res) => {
-    if(Servico.UsuarioAutenticado(req.body)) {
-        res.sendStatus(200)
-    } else {
-        res.sendStatus(400)
-    }
+exports.putUsuario = async (req, res) => {
+    let retorno = await Servico.AtualizaUsuario(req.body)
+    RetornaRequisicao(res, retorno)
 }
 
 // Permissão

@@ -1,6 +1,4 @@
 const mongoose = require('mongoose')
-const { SchemaFuncao } = require('./funcao')
-const { SchemaEquipe } = require('./equipe')
 
 const usuarioSchema = new mongoose.Schema({
     email: {
@@ -37,7 +35,7 @@ const usuarioSchema = new mongoose.Schema({
         },
         situacao: {
             type: String,
-            enum: ['pentende', 'aprovado', 'rejeitado']
+            enum: ['pendente', 'aprovado', 'rejeitado']
         }
     },
     dados_colaborador: {
@@ -45,8 +43,14 @@ const usuarioSchema = new mongoose.Schema({
             type: String,
             lowercase: true
         },
-        funcao: SchemaFuncao,
-        equipe: SchemaEquipe,
+        funcao: {
+            id: mongoose.Types.ObjectId,
+            nome: String
+        },
+        equipe: {
+            id: mongoose.Types.ObjectId,
+            nome: String
+        },
         fator_produtividade: {
             type: Number,
             min: 0.00,
