@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Alert from 'react-bootstrap/Alert'
+import Spinner from 'react-bootstrap/Spinner'
 import Servico from '../../service/servico'
 import CriacaoSenha from './components/criacao-senha/criacao-senha'
 import RecuperacaoSenha from './components/recuperacao-senha/recuperacao-senha'
@@ -13,37 +14,47 @@ function Login() {
     const [usuarioValido, setUsuarioValido] = useState(false)
     const [formSenha, setFormSenha] = useState('')
     const [senhaValida, setSenhaValida] = useState(false)
-    const [formGoogleAuth, setFormGoogleAuth] = useState('')
-    const [googleAuthValido, setGoogleAuthValido] = useState(false)
     const [mostrarCriacaoSenha, setMostrarCriacaoSenha] = useState(false)
     const [mostrarRecuperacaoSenha, setMostrarRecuperacaoSenha] = useState(false)
-    const [mostrarAlerta, setmostrarAlerta] = useState(false)
+    const [mostrarAlerta, setMostrarAlerta] = useState(false)
+    const [textoAlerta, setTextoAlerta] = useState('')
+    const [mostraLoading, setMostraLoading] = useState(false)
 
     const linkRef = useRef()
 
-    function EnvioDadosForm(e) {
+    function LimpaTelaLogin() {
+        setFormUsuario('')
+        setUsuarioValido(false)
+        setFormSenha('')
+        setSenhaValida(false)
+        setMostrarCriacaoSenha(false)
+        setMostrarRecuperacaoSenha(false)
+    }
+
+    function BuscaDadosUsuario(e) {
         e.preventDefault()
+        if(!(usuarioValido && senhaValida)) {
+            return
+        }
+        setMostraLoading(true)
         const dados = {
             usuario: formUsuario,
-            senha: formSenha,
-            googleAuth: formGoogleAuth
+            senha: formSenha
         }
-        console.log('teste1')
         Servico.ValidarAcesso(dados)
-        .then((resposta) => {
-            console.log(resposta)
-            if(resposta.status === 200) {
-                console.log('teste6')
-                linkRef.current.click()
+        .then((resp) => {
+            if(resp.erro) {
+                setTextoAlerta(resp.msgErro)
+                setMostrarAlerta(true)
             } else {
-                console.log('teste7')
-                setmostrarAlerta(true)
+                linkRef.current.click()
             }
-        }).catch(function() {
-            console.log('teste8')
-            setmostrarAlerta(true)
         })
-        console.log('teste9')
+        .catch((err) => {
+            setTextoAlerta(err)
+            setMostrarAlerta(true)
+        })
+        .finally(() => setMostraLoading(false))
     }
 
     function ValidaCampoForm(e) {
@@ -62,10 +73,6 @@ function Login() {
                 setFormSenha(valor)
                 setSenhaValida(valor.length >= 6)
                 break
-            case 'formGoogleAuth':
-                setFormGoogleAuth(valor)
-                setGoogleAuthValido(valor.length >= 6)
-                break
             default:
                 break
         }        
@@ -79,7 +86,7 @@ function Login() {
     
     return (
         <div className='retangulo-externo col-xxl-3 col-lg-4 col-md-6 col-sm-8 mx-auto'>
-            <Form onSubmit={EnvioDadosForm} noValidate>
+            <Form onSubmit={BuscaDadosUsuario} noValidate>
                 <h3>Acesso</h3>
                 <hr />
                 <Form.Group className='mb-2' controlId='formUsuario'>
@@ -102,38 +109,43 @@ function Login() {
                         required/>
                     <Form.Control.Feedback type='invalid'>A senha deve ter 6 digitos ou mais</Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group className='mb-2' controlId='formGoogleAuth'>
-                    <Form.Label>Google Authenticador</Form.Label>
-                    <Form.Control
-                        type='number'
-                        value={formGoogleAuth}
-                        onChange={(evento) => ValidaCampoForm(evento)}
-                        isInvalid={!googleAuthValido}
-                        required/>
-                    <Form.Control.Feedback type='invalid'>O código deve ter 6 digitos ou mais</Form.Control.Feedback>
-                </Form.Group>
                 <Button
                     className='col-sm-12 mx-auto'
                     type='submit'
-                    disabled={!(usuarioValido && senhaValida && googleAuthValido)}>Acessar</Button>
+                    disabled={!(usuarioValido && senhaValida)||mostraLoading}>
+                        <Spinner
+                            hidden={!mostraLoading}
+                            as="span"
+                            animation='border'
+                            size='sm'
+                            variant='light'
+                            role='status'
+                        />
+                        Acessar
+                </Button>
                 <div className='d-flex flex-row-reverse'>
                     <Button 
-                        onClick={() => setMostrarRecuperacaoSenha(true)}>Esqueci minha senha</Button>
+                        className='recupera-senha'
+                        disabled={mostraLoading}
+                        onClick={() => setMostrarRecuperacaoSenha(true)}>
+                        Esqueci minha senha
+                    </Button>
                 </div>
                 <hr />
                 <Button 
                     variant='danger'
                     className='col-sm-12 mx-auto'
+                    disabled={true}
                     onClick={() => AcessarComGmail()}>Acessar com GMail</Button>
             </Form>
-
+                        
             {/* Alertas */}
             <Alert
                 variant='danger'
                 className='mt-2'
                 show={mostrarAlerta}
-                onClose={() => setmostrarAlerta(false)}
-                dismissible>Acesso negado! Dados inválidos.</Alert>
+                onClose={() => setMostrarAlerta(false)}
+                dismissible>{textoAlerta}</Alert>
 
             {/* Modais */}
             <CriacaoSenha
@@ -142,15 +154,14 @@ function Login() {
             />
             <RecuperacaoSenha 
                 show={mostrarRecuperacaoSenha}
-                onHide={() => setMostrarRecuperacaoSenha(false)}/>
-                
+                onHide={() => LimpaTelaLogin()}/>
+
             {/* Lista oculta para permitir a navegação, pois não foi possível usando o useNavegate */}
             <ul id='listaNavegacao'>
                 <li>
                     <Link to={'/app/inicial'} ref={linkRef} />
                 </li>
             </ul>
-
         </div>
     )
 }

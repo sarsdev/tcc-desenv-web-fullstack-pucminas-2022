@@ -10,6 +10,14 @@
     border: 2px solid black;
 }
 
+.recupera-senha {
+    margin-top: 0.5em;
+    padding: 1px 5px;
+    background-color: white;
+    border-color: white;
+    color: black;
+}
+
 @media (max-width: 576px) {
     .retangulo-externo {
         margin: 20px;

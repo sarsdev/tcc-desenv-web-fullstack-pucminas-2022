@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Modal from 'react-bootstrap/Modal'
 import Alert from 'react-bootstrap/Alert'
+import Spinner from 'react-bootstrap/Spinner'
 import Servico from '../../../../service/servico'
 
 
@@ -15,17 +16,45 @@ function RecuperacaoSenha(props) {
     const [modalConfirmacao, setModalConfirmacao] = useState('')
     const [confirmacaoValida, setConfirmacaoValida] = useState(false)
     const [mostrarAlerta, setmostrarAlerta] = useState(false)
+    const [textoAlertaModal, setTextoAlertaModal] = useState('')
+    const [tipoAlertaModal, setTipoAlertaModal] = useState('danger')
+    const [mostraLoadingModal, setMostraLoadingModal] = useState(false)
+
+    function LimpaModal() {
+        setModalUsuario('')
+        setUsuarioValido(false)
+        setModalSenha('')
+        setSenhaValida(false)
+        setModalConfirmacao('')
+        setConfirmacaoValida(false)
+    }
 
     function TrocarSenha() {
         const dados = {
             usuario: modalUsuario,
             senha: modalSenha
         }
-        if(!Servico.DefinirNovaSenha(dados)) {
+        setMostraLoadingModal(true)
+        Servico.DefinirNovaSenha(dados)
+        .then((resp) => {
+            if(resp.erro) {
+                setTipoAlertaModal('danger')
+                setTextoAlertaModal(resp.msgErro)
+                setmostrarAlerta(true)
+            } else {
+                setTipoAlertaModal('success')
+                setTextoAlertaModal('Senha atualizada com sucesso!')
+                setmostrarAlerta(true)
+                LimpaModal()
+            }
+        })
+        .catch((err) => {
+            setTextoAlertaModal(err)
             setmostrarAlerta(true)
-            return
-        }
-        props.onHide()
+        })
+        .finally(() => {
+            setMostraLoadingModal(false)
+        })        
     }
 
     function ValidaCampoModal(e) {
@@ -98,17 +127,27 @@ function RecuperacaoSenha(props) {
             </Modal.Body>
             <Modal.Footer>
                 <Button
-                    disabled={!(usuarioValido && senhaValida && confirmacaoValida)}
-                    onClick={() => TrocarSenha()}>Salvar</Button>
+                    disabled={!(usuarioValido && senhaValida && confirmacaoValida)||mostraLoadingModal}
+                    onClick={() => TrocarSenha()}>
+                    <Spinner
+                        hidden={!mostraLoadingModal}
+                        as="span"
+                        animation='border'
+                        size='sm'
+                        variant='light'
+                        role='status'
+                    />
+                    Salvar
+                </Button>
             </Modal.Footer>
 
             {/* Alertas */}
             <Alert
-                variant='danger'
+                variant={tipoAlertaModal}
                 className='m-2'
                 show={mostrarAlerta}
                 onClose={() => setmostrarAlerta(false)}
-                dismissible>Falha ao atualizar os dados no servidor</Alert>
+                dismissible>{textoAlertaModal}</Alert>
         </Modal>
     )
 }
