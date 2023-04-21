@@ -23,6 +23,8 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/app/" element={<Login />} />
         <Route path="/app/acesso" element={<Login />} />
         <Route path="/app/inicial" element={<Inicial />} />
         <Route path="/app/permissao" element={<Permissao />} />
