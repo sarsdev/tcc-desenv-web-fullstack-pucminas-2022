@@ -1,39 +1,30 @@
-import React from 'react';
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
+import './inicial.css'
+import React, { useRef, useEffect } from 'react'
+import { useLocation, Link } from 'react-router-dom'
+import Container from 'react-bootstrap/Container'
+import Menu from './../common/menu-principal/menu-principal'
 
 function Inicial(props) {
+    const linkRefLogin = useRef()
+    let { state } = useLocation()
+
+    useEffect(() => {
+        if(!state) {
+            linkRefLogin.current.click()
+        }
+    }, [])
+
     return (
-        <Navbar bg="light" expand="lg">
-            <Container>
-                <Navbar.Brand>ApontaDev</Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                <Navbar.Collapse id="basic-navbar-nav">
-                    <Nav className="me-auto">
-                        <NavDropdown title="Parâmetro">
-                            <NavDropdown.Item href="permissao">Permissão</NavDropdown.Item>
-                            <NavDropdown.Item href="acessibilidade">Acessibilidade</NavDropdown.Item>
-                        </NavDropdown>
-                        <NavDropdown title="Cadastro">
-                            <NavDropdown.Item href="usuario">Usuário</NavDropdown.Item>
-                            <NavDropdown.Item href="funcao">Função</NavDropdown.Item>
-                            <NavDropdown.Item href="equipe">Equipe</NavDropdown.Item>
-                            <NavDropdown.Item href="projeto">Projeto</NavDropdown.Item>
-                        </NavDropdown>
-                        <NavDropdown title="Apontamento">
-                            <NavDropdown.Item href="agenda">Agenda</NavDropdown.Item>
-                            <NavDropdown.Item href="manutencao">Manutenção</NavDropdown.Item>
-                        </NavDropdown>
-                        <NavDropdown title="Análise">
-                            <NavDropdown.Item href="acompanhamento">Acompanhamento</NavDropdown.Item>
-                            <NavDropdown.Item href="simulador">Simulador</NavDropdown.Item>
-                        </NavDropdown>
-                    </Nav>
-                </Navbar.Collapse>
-            </Container>
-        </Navbar>
+        <Container>
+            <Menu usuarioLogado={state}/>
+
+            {/* Lista oculta para permitir a navegação, pois não foi possível usando o useNavegate */}
+            <ul id='listaNavegacao'>
+                <li>
+                    <Link to={'/app/acesso'} ref={linkRefLogin} />
+                </li>
+            </ul>
+        </Container>
     )
 }
   
