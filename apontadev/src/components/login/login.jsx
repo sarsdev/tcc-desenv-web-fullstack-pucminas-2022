@@ -1,11 +1,11 @@
 import './login.css'
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Alert from 'react-bootstrap/Alert'
 import Spinner from 'react-bootstrap/Spinner'
-import Servico from '../../service/servico'
+import { ServicoLogin } from '../../service/servico'
 import CriacaoSenha from './components/criacao-senha/criacao-senha'
 import RecuperacaoSenha from './components/recuperacao-senha/recuperacao-senha'
 
@@ -20,7 +20,17 @@ function Login() {
     const [textoAlerta, setTextoAlerta] = useState('')
     const [mostraLoading, setMostraLoading] = useState(false)
 
-    const linkRef = useRef()
+    const [paramUsuario, setParamUsuario] = useState({})
+    const linkRefInicial = useRef()
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if(paramUsuario && paramUsuario._id) {
+                linkRefInicial.current.click()
+            }
+        }, 500)
+        return () => clearInterval(interval)
+    }, [paramUsuario]);
 
     function LimpaTelaLogin() {
         setFormUsuario('')
@@ -41,13 +51,14 @@ function Login() {
             usuario: formUsuario,
             senha: formSenha
         }
-        Servico.ValidarAcesso(dados)
+        ServicoLogin.ValidarAcesso(dados)
         .then((resp) => {
             if(resp.erro) {
                 setTextoAlerta(resp.msgErro)
                 setMostrarAlerta(true)
             } else {
-                linkRef.current.click()
+                let resp = ServicoLogin.RetornaDadosUsuario()
+                setParamUsuario(resp.dados)
             }
         })
         .catch((err) => {
@@ -79,7 +90,7 @@ function Login() {
     }
 
     function AcessarComGmail() {
-        if(Servico.DeveCriarSenha()) {
+        if(ServicoLogin.DeveCriarSenha()) {
             setMostrarCriacaoSenha(true)
         }
     }
@@ -159,7 +170,7 @@ function Login() {
             {/* Lista oculta para permitir a navegação, pois não foi possível usando o useNavegate */}
             <ul id='listaNavegacao'>
                 <li>
-                    <Link to={'/app/inicial'} ref={linkRef} />
+                    <Link to={'/app/inicial'} state={paramUsuario} ref={linkRefInicial} />
                 </li>
             </ul>
         </div>

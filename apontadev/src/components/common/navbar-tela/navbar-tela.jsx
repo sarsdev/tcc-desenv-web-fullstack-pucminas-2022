@@ -1,26 +1,19 @@
 import './navbar-tela.css'
 import React from 'react';
-import Stack from 'react-bootstrap/Stack';
-import SetaVoltar from './components/seta_voltar'
+import Stack from 'react-bootstrap/Stack'
 
 function NavBarTela(props) {
-    const larguraSeta = 50
-    const alturaSeta = 35
     const abas = props.abas.map((aba) =>
-        <h5
+        <h6
             id={aba.id}
             key={aba.id}
             className={`TitulosMenu ${props.abaInicial === aba.id ? 'TitulosMenuAtivo' : 'TitulosMenuInativo'}`}
-            onClick={props.eventoAbaAlterada}>{aba.texto}</h5>
+            onClick={props.eventoAbaAlterada}>{aba.texto}</h6>
     )
 
     return (
         <div className="BarraSuperiorTela">
             <Stack direction="horizontal">
-                <SetaVoltar
-                    largura={larguraSeta}
-                    altura={alturaSeta}
-                    eventoClique={props.eventoVoltarClicado}/>
                 {abas}
             </Stack>
         </div>

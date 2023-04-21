@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Modal from 'react-bootstrap/Modal'
 import Alert from 'react-bootstrap/Alert'
-import Servico from '../../../../service/servico'
+import { ServicoLogin } from '../../../../service/servico'
 
 function CriacaoSenha(props) {
     const [modalUsuario, setModalUsuario] = useState('')
@@ -20,7 +20,7 @@ function CriacaoSenha(props) {
             usuario: modalUsuario,
             senha: modalSenha
         }
-        if(!Servico.CriarSenha(dados)) {
+        if(!ServicoLogin.CriarSenha(dados)) {
             setmostrarAlerta(true)
             return
         }

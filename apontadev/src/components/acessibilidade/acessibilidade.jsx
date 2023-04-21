@@ -2,6 +2,7 @@ import React from 'react';
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
+import Menu from './../common/menu-principal/menu-principal'
 import NavBarTela from "../common/navbar-tela/navbar-tela"
 import AcessibilidadeManutencao from './components/acessibilidade-manutencao'
 
@@ -21,7 +22,8 @@ function Acessibilidade(props) {
     }
 
     return (
-        <Container fluid>
+        <Container>
+            <Menu />
             <Row>
                 <Col>
                     <NavBarTela

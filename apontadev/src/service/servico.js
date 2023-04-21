@@ -1,5 +1,9 @@
 import axios from 'axios'
 
+/* CONSTANTES E FUNÇÕES INTERNAS */
+
+let objUsuario = {}
+
 // local: http://localhost:3001
 // remoto: https://tcc-pucminas-fullstackweb-api.onrender.com
 const urlBase = 'https://tcc-pucminas-fullstackweb-api.onrender.com'
@@ -19,7 +23,7 @@ async function GeraToken(dadosForm) {
         erro: false,
         msgErro: ''
     }
-    if(!(objToken.token !== '' && objToken.dataHoraGeracao > new Date())) {
+    if(!(objToken.token !== '' && objToken.dataHoraExpira > new Date())) {
         try {
             let url = `${urlBase}/token`
             let resposta = await axios.post(url, {
@@ -55,6 +59,7 @@ async function BuscaUsuarioPorEmail(dadosForm) {
         let url = `${urlBase}/usuario?email=${dadosForm.usuario}`
         let resposta = await axios.get(url, { headers: {'Authorization': objToken.token} })
         if(resposta && resposta.data && resposta.data.length > 0) {
+            objUsuario = resposta.data[0]
             retorno.dados = resposta.data[0]
         } else if(resposta && resposta.data && resposta.data.msg) {
             retorno.erro = true
@@ -91,7 +96,101 @@ async function AtualizaUsuario(dados) {
     return retorno
 }
 
-const Servico = {
+async function BuscaTemas() {
+    let retorno = {
+        erro: false,
+        msgErro: '',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/dev/tema`
+        let resposta = await axios.get(url, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.length > 0) {
+            retorno.dados = resposta.data
+        } else if(resposta && resposta.data && resposta.data.msg) {
+            retorno.erro = true
+            retorno.msgErro = resposta.data.msg
+        } else {
+            retorno.erro = true
+            retorno.msgErro = 'Ocorreu um erro inesperado ao buscar os dados de temas!'
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function BuscaPadraoAcessibilidade(usuario) {
+    let retorno = {
+        erro: false,
+        msgErro: '',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/acessibilidade?email=${usuario.usuario}`
+        let resposta = await axios.get(url, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.length > 0) {
+            retorno.dados = resposta.data[0]
+        } else if(resposta && resposta.data && resposta.data.msg) {
+            retorno.erro = true
+            retorno.msgErro = resposta.data.msg
+        } else {
+            retorno.erro = true
+            retorno.msgErro = 'Ocorreu um erro inesperado ao buscar os dados de acessibilidade!'
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function AtualizaPadrao(dados) {
+    let retorno = {
+        erro: true,
+        msgErro: 'Ocorreu um erro ao atualizar as definições de acessibilidade!'
+    }
+    try {
+        let url = `${urlBase}/acessibilidade`
+        let resposta = await axios.put(url, dados, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.matchedCount > 0) {
+            retorno.erro = false
+            retorno.msgErro = ''
+        } else if(resposta && resposta.data && resposta.data.matchedCount === 0) {
+            retorno.msgErro = 'Padrão de acessibilidade não foi encontrado!'
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function InserePadrao(dados) {
+    let retorno = {
+        erro: true,
+        msgErro: 'Ocorreu um erro ao inserir as definições de acessibilidade!',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/acessibilidade`
+        let resposta = await axios.post(url, dados, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data._id) {
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = resposta.data
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+/* SERVIÇOS EXPOSTOS PARA AS TELAS */
+
+export const ServicoLogin = {
     ValidarAcesso: async function(dadosForm) {
         let retorno = {
             erro: true,
@@ -152,7 +251,102 @@ const Servico = {
             retorno.msgErro = err
             throw retorno
         }
+    },
+    RetornaDadosUsuario: function() {
+        if(objUsuario) {
+            return {
+                erro: false,
+                msgErro: '',
+                dados: objUsuario
+            }
+        } else {
+            return {
+                erro: true,
+                msgErro: 'Não há dados do usuário carregados!',
+                dados: {}
+            }
+        }
     }
 }
 
-export default Servico
+export const ServicoAcessibilidade = {
+    RetornaListaTemas: async function(usuarioLogado) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao buscar os temas!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respTemas = await BuscaTemas()
+            if(respTemas.erro) { return respTemas }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respTemas.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    RetornaPadraoAcessibilidade: async function(usuarioLogado) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao buscar as configurações de acessibilidade!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respAcessibilidade = await BuscaPadraoAcessibilidade(usuarioLogado)
+            if(respAcessibilidade.erro) { return respAcessibilidade }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respAcessibilidade.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    InserePadrao: async function(usuarioLogado, dados) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao inserir as configurações de acessibilidade!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respAcessibilidade = await InserePadrao(dados)
+            if(respAcessibilidade.erro) { return respAcessibilidade }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respAcessibilidade.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    AtualizaPadrao: async function(usuarioLogado, dados) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao atualizar as configurações de acessibilidade!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respAcessibilidade = await AtualizaPadrao(dados)
+            if(respAcessibilidade.erro) { return respAcessibilidade }
+            retorno.erro = false
+            retorno.msgErro = ''
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    }
+}

@@ -5,7 +5,7 @@ import Form from 'react-bootstrap/Form'
 import Modal from 'react-bootstrap/Modal'
 import Alert from 'react-bootstrap/Alert'
 import Spinner from 'react-bootstrap/Spinner'
-import Servico from '../../../../service/servico'
+import { ServicoLogin } from '../../../../service/servico'
 
 
 function RecuperacaoSenha(props) {
@@ -35,7 +35,7 @@ function RecuperacaoSenha(props) {
             senha: modalSenha
         }
         setMostraLoadingModal(true)
-        Servico.DefinirNovaSenha(dados)
+        ServicoLogin.DefinirNovaSenha(dados)
         .then((resp) => {
             if(resp.erro) {
                 setTipoAlertaModal('danger')
