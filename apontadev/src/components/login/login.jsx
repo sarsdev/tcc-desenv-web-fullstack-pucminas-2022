@@ -1,6 +1,6 @@
 import './login.css'
-import React, { useState, useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Alert from 'react-bootstrap/Alert'
@@ -10,6 +10,8 @@ import CriacaoSenha from './components/criacao-senha/criacao-senha'
 import RecuperacaoSenha from './components/recuperacao-senha/recuperacao-senha'
 
 function Login() {
+    const navigate = useNavigate()
+
     const [formUsuario, setFormUsuario] = useState('')
     const [usuarioValido, setUsuarioValido] = useState(false)
     const [formSenha, setFormSenha] = useState('')
@@ -19,18 +21,14 @@ function Login() {
     const [mostrarAlerta, setMostrarAlerta] = useState(false)
     const [textoAlerta, setTextoAlerta] = useState('')
     const [mostraLoading, setMostraLoading] = useState(false)
-
     const [paramUsuario, setParamUsuario] = useState({})
-    const linkRefInicial = useRef()
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            if(paramUsuario && paramUsuario._id) {
-                linkRefInicial.current.click()
-            }
-        }, 500)
-        return () => clearInterval(interval)
-    }, [paramUsuario]);
+        if(paramUsuario._id) {
+            sessionStorage.setItem('usuariologin', JSON.stringify(paramUsuario))
+            navigate('/app/inicial')
+        }        
+    }, [paramUsuario])
 
     function LimpaTelaLogin() {
         setFormUsuario('')
@@ -167,12 +165,6 @@ function Login() {
                 show={mostrarRecuperacaoSenha}
                 onHide={() => LimpaTelaLogin()}/>
 
-            {/* Lista oculta para permitir a navegação, pois não foi possível usando o useNavegate */}
-            <ul id='listaNavegacao'>
-                <li>
-                    <Link to={'/app/inicial'} state={paramUsuario} ref={linkRefInicial} />
-                </li>
-            </ul>
         </div>
     )
 }

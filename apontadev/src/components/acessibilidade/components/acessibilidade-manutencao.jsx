@@ -1,6 +1,5 @@
 import './acessibilidade-manutencao.css'
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
 import Container from 'react-bootstrap/Container'
 import Stack from 'react-bootstrap/Stack'
 import Row from 'react-bootstrap/Row'
@@ -10,21 +9,18 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import { ServicoAcessibilidade } from './../../../service/servico'
 
-function AcessibilidadeManutencao(props) {
+function AcessibilidadeManutencao({usuariologin}) {
     const [listaTemas, setListaTemas] = useState([])
     const [configAtual, setConfigAtual] = useState({})
     const [modoLeitura, setModoLeitura] = useState(false)
     const [modoAtalho, setModoAtalho] = useState(false)
     const [tema, setTema] = useState('Dia')
 
-    let { state } = useLocation()
-
     useEffect(() => {
         CarregaTemas()
         .then(() => {
             CarregaDadosAcessibilidade()
             .then((retorno) => {
-                console.log(retorno)
                 setConfigAtual(retorno.config)
                 setModoLeitura(retorno.modo_leitura)
                 setModoAtalho(retorno.modo_atalho_unico)
@@ -40,26 +36,25 @@ function AcessibilidadeManutencao(props) {
     async function CarregaTemas() {
         try {
             let retorno = await ServicoAcessibilidade.RetornaListaTemas({
-                usuario: state.email,
-                senha: state.dados_acesso.senha
+                usuario: usuariologin.email,
+                senha: usuariologin.dados_acesso.senha
             })
             if(retorno.erro) {
-                console.error(retorno.msgErro)
-                setListaTemas([])
+                throw new Error(retorno.msgErro)
             } else {
                 setListaTemas(retorno.dados)
             }
         } catch (err) {
-            console.error(err)
             setListaTemas([])
+            throw new Error(err)
         }    
     }
 
     async function CarregaDadosAcessibilidade() {
         try {
             let retorno = await ServicoAcessibilidade.RetornaPadraoAcessibilidade({
-                usuario: state.email,
-                senha: state.dados_acesso.senha
+                usuario: usuariologin.email,
+                senha: usuariologin.dados_acesso.senha
             })
             if(retorno.erro) {
                 console.error(retorno.msgErro)
@@ -84,10 +79,10 @@ function AcessibilidadeManutencao(props) {
     }
 
     async function AtualizaPadraoAcessibilidade() {
-        try {            
+        try {        
             let retorno = await ServicoAcessibilidade.AtualizaPadrao({
-                usuario: state.email,
-                senha: state.dados_acesso.senha
+                usuario: usuariologin.email,
+                senha: usuariologin.dados_acesso.senha
             }, configAtual)
             return retorno  
         } catch (err) {
@@ -103,8 +98,8 @@ function AcessibilidadeManutencao(props) {
                 modo_leitura: modoLeitura,
                 modo_atalho_unico: modoAtalho,
                 usuario: {
-                    id: state._id,
-                    email: state.email
+                    id: usuariologin._id,
+                    email: usuariologin.email
                 },
                 tema: {
                     id: temaSelecionado._id,
@@ -113,8 +108,8 @@ function AcessibilidadeManutencao(props) {
             }
             console.log('InserePadraoAcessibilidade', padrao)
             let retorno = await ServicoAcessibilidade.InserePadrao({
-                usuario: state.email,
-                senha: state.dados_acesso.senha
+                usuario: usuariologin.email,
+                senha: usuariologin.dados_acesso.senha
             }, padrao)
             if(retorno.erro) {
                 return retorno

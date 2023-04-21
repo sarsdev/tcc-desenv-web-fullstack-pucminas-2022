@@ -1,29 +1,26 @@
 import './inicial.css'
-import React, { useRef, useEffect } from 'react'
-import { useLocation, Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Container from 'react-bootstrap/Container'
 import Menu from './../common/menu-principal/menu-principal'
 
 function Inicial(props) {
-    const linkRefLogin = useRef()
-    let { state } = useLocation()
+    const navigate = useNavigate()
+
+    const [nomeUsuario, setNomeUsuario] = useState('')
 
     useEffect(() => {
-        if(!state) {
-            linkRefLogin.current.click()
+        let usuariologin = JSON.parse(sessionStorage.getItem('usuariologin'))
+        if(usuariologin && usuariologin._id) {
+            setNomeUsuario(usuariologin.dados_pessoais.nome)     
+        } else {
+            navigate('/app/acesso')
         }
     }, [])
 
     return (
         <Container>
-            <Menu usuarioLogado={state}/>
-
-            {/* Lista oculta para permitir a navegação, pois não foi possível usando o useNavegate */}
-            <ul id='listaNavegacao'>
-                <li>
-                    <Link to={'/app/acesso'} ref={linkRefLogin} />
-                </li>
-            </ul>
+            <Menu usuario={nomeUsuario} />
         </Container>
     )
 }

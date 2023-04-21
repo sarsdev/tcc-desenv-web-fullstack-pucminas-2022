@@ -6,20 +6,20 @@ import Navbar from 'react-bootstrap/Navbar'
 import NavDropdown from 'react-bootstrap/NavDropdown'
 import { Link } from 'react-router-dom'
 
-function MenuPrincipal({usuarioLogado}) {
+function MenuPrincipal({usuario}) {
     return (
         <Navbar bg="light" expand="lg">
             <Container>
-                <Navbar.Brand>ApontaDev</Navbar.Brand>
+                <Navbar.Brand href='/app/inicial'>ApontaDev</Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-auto">
                         <NavDropdown title="Parâmetro">
                             <NavDropdown.Item as={'div'}>
-                                <Link to={'/app/permissao'} state={usuarioLogado} className='link-menu'>Permissão</Link>
+                                <Link to={'/app/permissao'} className='link-menu'>Permissão</Link>
                             </NavDropdown.Item>
                             <NavDropdown.Item as={'div'}>
-                                <Link to={'/app/acessibilidade'} state={usuarioLogado} className='link-menu'>Acessibilidade</Link>
+                                <Link to={'/app/acessibilidade'} className='link-menu'>Acessibilidade</Link>
                             </NavDropdown.Item>
                         </NavDropdown>
                         <NavDropdown title="Cadastro">
@@ -37,6 +37,11 @@ function MenuPrincipal({usuarioLogado}) {
                             <NavDropdown.Item href="simulador">Simulador</NavDropdown.Item>
                         </NavDropdown>
                     </Nav>
+                </Navbar.Collapse>
+                <Navbar.Collapse className="justify-content-end">
+                    <Navbar.Text>
+                        Usuário: {usuario}
+                    </Navbar.Text>
                 </Navbar.Collapse>
             </Container>
         </Navbar>
