@@ -75,27 +75,6 @@ async function BuscaUsuarioPorEmail(dadosForm) {
     return retorno
 }
 
-async function AtualizaUsuario(dados) {
-    let retorno = {
-        erro: true,
-        msgErro: 'Ocorreu um erro ao atualizar a senha!'
-    }
-    try {
-        let url = `${urlBase}/usuario?email=${dados.email}`
-        let resposta = await axios.put(url, dados, { headers: {'Authorization': objToken.token} })
-        if(resposta && resposta.data && resposta.data.matchedCount > 0) {
-            retorno.erro = false
-            retorno.msgErro = ''
-        } else if(resposta && resposta.data && resposta.data.matchedCount === 0) {
-            retorno.msgErro = 'Usuário informado não foi encontrado!'
-        }
-    } catch (err) {
-        retorno.erro = true
-        retorno.msgErro = err
-    }
-    return retorno
-}
-
 async function BuscaTemas() {
     let retorno = {
         erro: false,
@@ -138,6 +117,102 @@ async function BuscaPadraoAcessibilidade(usuario) {
         } else {
             retorno.erro = true
             retorno.msgErro = 'Ocorreu um erro inesperado ao buscar os dados de acessibilidade!'
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function BuscaTodasEquipes() {
+    let retorno = {
+        erro: false,
+        msgErro: '',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/equipe`
+        let resposta = await axios.get(url, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.length > 0) {
+            retorno.dados = resposta.data
+        } else if(resposta && resposta.data && resposta.data.msg) {
+            retorno.erro = true
+            retorno.msgErro = resposta.data.msg
+        } else {
+            retorno.erro = true
+            retorno.msgErro = 'Ocorreu um erro inesperado ao buscar os dados de equipes!'
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function BuscaTodasFuncoes() {
+    let retorno = {
+        erro: false,
+        msgErro: '',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/funcao`
+        let resposta = await axios.get(url, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.length > 0) {
+            retorno.dados = resposta.data
+        } else if(resposta && resposta.data && resposta.data.msg) {
+            retorno.erro = true
+            retorno.msgErro = resposta.data.msg
+        } else {
+            retorno.erro = true
+            retorno.msgErro = 'Ocorreu um erro inesperado ao buscar os dados de funções!'
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function BuscaTodosUsuarios() {
+    let retorno = {
+        erro: false,
+        msgErro: '',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/usuario`
+        let resposta = await axios.get(url, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.length > 0) {
+            retorno.dados = resposta.data
+        } else if(resposta && resposta.data && resposta.data.msg) {
+            retorno.erro = true
+            retorno.msgErro = resposta.data.msg
+        } else {
+            retorno.erro = true
+            retorno.msgErro = 'Ocorreu um erro inesperado ao buscar os dados de usuários!'
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function AtualizaUsuario(dados) {
+    let retorno = {
+        erro: true,
+        msgErro: 'Ocorreu um erro ao atualizar a senha!'
+    }
+    try {
+        let url = `${urlBase}/usuario?email=${dados.email}`
+        let resposta = await axios.put(url, dados, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.matchedCount > 0) {
+            retorno.erro = false
+            retorno.msgErro = ''
+        } else if(resposta && resposta.data && resposta.data.matchedCount === 0) {
+            retorno.msgErro = 'Usuário informado não foi encontrado!'
         }
     } catch (err) {
         retorno.erro = true
@@ -343,6 +418,69 @@ export const ServicoAcessibilidade = {
             if(respAcessibilidade.erro) { return respAcessibilidade }
             retorno.erro = false
             retorno.msgErro = ''
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    }
+}
+
+export const ServicoPermissao = {
+    RetornaListaEquipes: async function(usuarioLogado) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao buscar as equipes!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respEquipes = await BuscaTodasEquipes()
+            if(respEquipes.erro) { return respEquipes }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respEquipes.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    RetornaListaFuncoes: async function(usuarioLogado) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao buscar as funções!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respFuncoes = await BuscaTodasFuncoes()
+            if(respFuncoes.erro) { return respFuncoes }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respFuncoes.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    RetornaListaUsuarios: async function(usuarioLogado) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao buscar os usuários!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respUsuarios = await BuscaTodosUsuarios()
+            if(respUsuarios.erro) { return respUsuarios }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respUsuarios.dados
             return retorno
         } catch (err) {
             retorno.msgErro = err

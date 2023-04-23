@@ -1,48 +1,109 @@
 import './permissao-manutencao.css'
-import React from 'react';
+import React, { useState } from 'react'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import Stack from 'react-bootstrap/Stack';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Table from 'react-bootstrap/Table';
-import Pagination from 'react-bootstrap/Pagination';
-import Badge from 'react-bootstrap/Badge';
+import Stack from 'react-bootstrap/Stack'
+import Button from 'react-bootstrap/Button'
+import Form from 'react-bootstrap/Form'
+import InputGroup from 'react-bootstrap/InputGroup'
+import Table from 'react-bootstrap/Table'
+import Pagination from 'react-bootstrap/Pagination'
+import Badge from 'react-bootstrap/Badge'
+import ModalPesquisa from '../modal-pesquisa/modal-pesquisa'
 
-function PermissaoManutencao(props) {
+function PermissaoManutencao({usuariologin}) {
+    const [tipoPermissao, setTipoPermissao] = useState('cadastrado')
+    const [tituloModal, setTituloModal] = useState('')
+    const [mostrarModalPesquisa, setMostrarModalPesquisa] = useState(false)
+
+    function AbreModalPesquisa(pesquisarPor) {
+        switch (pesquisarPor) {
+            case 'botao_equipes':
+                setTituloModal('Equipes')
+                setMostrarModalPesquisa(!mostrarModalPesquisa)
+                break
+            case 'botao_funcoes':
+                setTituloModal('Funções')
+                setMostrarModalPesquisa(!mostrarModalPesquisa)
+                break
+            case 'botao_usuarios':
+                setTituloModal('Usuários')
+                setMostrarModalPesquisa(!mostrarModalPesquisa)
+                break
+            default:
+                break
+        }
+    }
+
+    function ValidaCampoForm(e) {       
+        const campo = e.target.id
+        const valor = campo==='tipopermissao' ? e.target.selectedOptions[0].value : e.target.checked
+        Validacao(campo, valor)
+    }
+
+    function Validacao(campo, valor) {
+        switch(campo) {
+            case 'tipopermissao':
+                setTipoPermissao(valor)
+                break
+            case 'modoatalho':
+                break
+            case 'tema':
+                break
+            default:
+                break
+        }        
+    }
+
     return (
-        <Container fluid>
+        <Container>
             <Row>
                 <Col>
                     <Stack>
-                        <Form.Select aria-label="Default select example">
-                            <option>Open this select menu</option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
+                        <Form.Select  
+                            id='tipopermissao'
+                            size='sm'
+                            value={tipoPermissao}
+                            onChange={(e) => ValidaCampoForm(e)} >
+                            <option key='1001' value='cadastrado'>Permissão para usuários cadastrados</option>
+                            <option key='1002' value='nao_cadastrado'>Permissão para usuários autônomos</option>
                         </Form.Select>
                         <InputGroup>
                             <Form.Control
-                                placeholder="Recipient's username"
-                                aria-label="Recipient's username"
-                                aria-describedby="basic-addon2" />
-                            <Button variant="outline-secondary" id="button-addon2">Button</Button>
+                                id='equipes'
+                                disabled={true}
+                                placeholder="Escolha a equipe..." />
+                            <Button 
+                                id="botao_equipes"
+                                variant="outline-secondary"
+                                onClick={(e) => AbreModalPesquisa(e.target.id)} >
+                                Pesquisar
+                            </Button>
                         </InputGroup>
                         <InputGroup>
                             <Form.Control
-                                placeholder="Recipient's username"
-                                aria-label="Recipient's username"
-                                aria-describedby="basic-addon2" />
-                            <Button variant="outline-secondary" id="button-addon2">Button</Button>
+                                id='funcoes'
+                                disabled={true}
+                                placeholder="Escolha a função..." />
+                            <Button 
+                                id="botao_funcoes" 
+                                variant="outline-secondary"
+                                onClick={(e) => AbreModalPesquisa(e.target.id)} >
+                                Pesquisar
+                            </Button>
                         </InputGroup>
                         <InputGroup>
                             <Form.Control
-                                placeholder="Recipient's username"
-                                aria-label="Recipient's username"
-                                aria-describedby="basic-addon2" />
-                            <Button variant="outline-secondary" id="button-addon2">Button</Button>
+                                id='usuarios'
+                                disabled={true}
+                                placeholder="Escolha o usuário..." />
+                            <Button 
+                                id="botao_usuarios" 
+                                variant="outline-secondary"
+                                onClick={(e) => AbreModalPesquisa(e.target.id)} >
+                                Pesquisar
+                            </Button>
                         </InputGroup>
                     </Stack>
                 </Col>
@@ -120,6 +181,14 @@ function PermissaoManutencao(props) {
                     </Stack>
                 </Col>
             </Row>
+
+            {/* Modais */}
+            <ModalPesquisa
+                usuario={usuariologin}
+                titulo={tituloModal}
+                show={mostrarModalPesquisa}
+                onHide={() => setMostrarModalPesquisa(false)}
+            />
         </Container>
     )
 }
