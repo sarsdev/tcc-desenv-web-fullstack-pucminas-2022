@@ -36,7 +36,6 @@ function ModalPesquisa(props) {
                         console.error(resp.msgErro)
                         setDadosTabela([])
                     } else {
-                        console.log(props.selecionados)
                         let dados = resp.dados.map((v) => {
                             let indMarcado = props.selecionados.filter((valor, i, o) => valor.codigo === v._id).length > 0
                             return { marcado: indMarcado, codigo: v._id, descricao: v.nome } 
