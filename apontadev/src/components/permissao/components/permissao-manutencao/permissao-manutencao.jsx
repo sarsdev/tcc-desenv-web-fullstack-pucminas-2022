@@ -10,7 +10,9 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import Table from 'react-bootstrap/Table'
 import Pagination from 'react-bootstrap/Pagination'
 import Badge from 'react-bootstrap/Badge'
+import { NodeMinus, NodePlus } from 'react-bootstrap-icons'
 import ModalPesquisa from '../modal-pesquisa/modal-pesquisa'
+import { ServicoPermissao } from '../../../../service/servico'
 
 function PermissaoManutencao({usuariologin}) {
     const [tipoPermissao, setTipoPermissao] = useState('cadastrado')
@@ -20,8 +22,14 @@ function PermissaoManutencao({usuariologin}) {
     const [funcoesSelec, setFuncoesSelec] = useState([])
     const [usuarios, setUsuarios] = useState('')
     const [usuariosSelec, setUsuariosSelec] = useState([])
+    const [treeViewAplic, setTreeViewAplic] = useState([])
+    const [treeViewSelec, setTreeViewSelect] = useState([])
     const [tituloModal, setTituloModal] = useState('')
     const [mostrarModalPesquisa, setMostrarModalPesquisa] = useState(false)
+
+    useEffect(() => {
+        ListaAplicacoes()
+    }, [])
 
     useEffect(() => {
         if(equipesSelec.length === 1) {
@@ -52,6 +60,32 @@ function PermissaoManutencao({usuariologin}) {
             setUsuarios('')
         }     
     }, [usuariosSelec])
+
+    function ListaAplicacoes() {
+        let dadosLogin = {
+            usuario: usuariologin.email,
+            senha: usuariologin.dados_acesso.senha
+        }
+        ServicoPermissao
+        .RetornaListaAplicacoes(dadosLogin)
+        .then((resp) => {
+            if(resp.erro) {
+                console.error(resp.msgErro)
+                setTreeViewAplic([])
+            } else {
+                let dados = resp.dados.map((v) => { return { noAberto: false, valor: v } })
+                let dadosOrdenados = dados.sort(function(a, b) {
+                    if(a.valor.titulo < b.valor.titulo) return -1
+                    if(a.valor.titulo > b.valor.titulo) return 1
+                    return 0
+                })
+                setTreeViewAplic(dadosOrdenados)
+            }
+        }).catch((err) => {
+            console.error(err)
+            setTreeViewAplic([])
+        })
+    }
 
     function AbreModalPesquisa(pesquisarPor) {
         switch (pesquisarPor) {
@@ -112,6 +146,123 @@ function PermissaoManutencao({usuariologin}) {
         }        
     }
 
+    function CarregaTreeView(dados) {
+        if(!dados) {
+            return
+        }
+        return dados.map((v, i, o) => {
+            return (
+                <div 
+                    key={'top'+v.valor._id} >
+                    <Stack
+                        key={'stck'+v.valor._id} 
+                        direction='horizontal' 
+                        className='treeViewCheckAplic'>
+                        <div
+                            key={'divIcon'+v.valor._id} 
+                            onClick={(e) => AbreFechaNodesTreeView(e)} >
+                            <NodePlus
+                                id={'plus_'+v.valor._id}
+                                key={'plus'+v.valor._id}
+                                display={v.noAberto ? 'none' : 'block'}                            
+                                visibility={v.valor.funcionalidades && v.valor.funcionalidades.length > 0 ? 'visible': 'hidden'}
+                                size={20} />
+                            <NodeMinus
+                                id={'minus_'+v.valor._id}
+                                key={'minus'+v.valor._id}
+                                display={v.noAberto ? 'block' : 'none'}
+                                visibility={v.valor.funcionalidades && v.valor.funcionalidades.length > 0 ? 'visible': 'hidden'}
+                                size={20} />                            
+                        </div>
+                        <Form.Check 
+                            id={'chk_'+v.valor._id}
+                            key={'chk'+v.valor._id}
+                            type='checkbox'
+                            label={v.valor.titulo}
+                            checked={CheckPaiMarcado(v.valor)}
+                            onChange={(e) => SelecionaNodesTreeView(e)} />
+                    </Stack>
+                    {
+                        (v.valor.funcionalidades && v.valor.funcionalidades.length > 0) ?
+                        <div
+                            key={'div'+v.valor._id}
+                            hidden={!v.noAberto}
+                            className='treeViewCheckFunc'> {
+                            v.valor.funcionalidades.map((val, ind, obj) =>                           
+                                <Form.Check
+                                    id={'func_'+v.valor._id+'_'+val}
+                                    key={'func'+v.valor._id+val}
+                                    type='checkbox'
+                                    label={val}
+                                    checked={treeViewSelec.find((vlr, i, o) => vlr.id === v.valor._id && vlr.func === val) ? true : false}
+                                    onChange={(e) => SelecionaNodesTreeView(e)} />
+                            ) 
+                        } </div> :
+                        null
+                    }
+                </div>
+            )
+        })
+    }
+
+    function AbreFechaNodesTreeView(e) {
+        let operacao = e.target.id.split('_')[0]
+        console.log('AbreFechaNodesTreeView', e)
+        if(operacao) {
+            let idAplicacao = e.target.id.split('_')[1]
+            let indiceAplic = treeViewAplic.findIndex((v, i, o) => v.valor._id === idAplicacao)
+            treeViewAplic[indiceAplic].noAberto = operacao === 'plus'
+            setTreeViewAplic([...treeViewAplic])
+        }
+    }
+
+    function SelecionaNodesTreeView(e) {        
+        let tipoCheck = e.target.id.split('_')[0]
+        if(tipoCheck) {
+            let indMarcado = e.target.checked
+            let idAplicacao = e.target.id.split('_')[1]
+
+            if(tipoCheck==='chk') {
+                if(indMarcado) {
+                    let checkPai = treeViewAplic.filter((v, i, o) => v.valor._id === idAplicacao)[0]
+                    if(!(checkPai.valor && checkPai.valor.funcionalidades)) {
+                        return
+                    }
+                    checkPai.valor.funcionalidades.forEach((v, i, o) => treeViewSelec.push({ id: idAplicacao, func: v, obj: checkPai.valor }))
+                    setTreeViewSelect([...treeViewSelec])
+                } else {
+                    let nodesSelec = treeViewSelec.filter((v, i, o) => v.id !== idAplicacao)
+                    setTreeViewSelect([...nodesSelec])
+                }
+            }
+
+            if(tipoCheck==='func') {
+                let funcAplicacao = e.target.id.split('_')[2]
+                if(indMarcado) {
+                    let checkPai = treeViewAplic.filter((v, i, o) => v.valor._id === idAplicacao)[0]
+                    treeViewSelec.push({ id: idAplicacao, func: funcAplicacao, obj: checkPai.valor })
+                    setTreeViewSelect([...treeViewSelec])
+                } else {
+                    let nodesSelec = treeViewSelec.filter((v, i, o) => v.id === idAplicacao && v.func !== funcAplicacao)
+                    console.log('Desmarcar', treeViewSelec, nodesSelec, idAplicacao, funcAplicacao)
+                    setTreeViewSelect([...nodesSelec])
+                }
+            }
+        }
+    }
+
+    function CheckPaiMarcado(valor) {
+        if(valor && valor.funcionalidades && valor.funcionalidades.length > 0) {
+            for (let index = 0; index < valor.funcionalidades.length; index++) {
+                let funcionalidade = valor.funcionalidades[index]
+                if(treeViewSelec.find((v, i, o) => v.id === valor._id && v.func === funcionalidade)) {
+                    return true
+                }
+            }
+        }        
+        return false
+    }
+
     return (
         <Container>
             <Row>
@@ -167,7 +318,9 @@ function PermissaoManutencao({usuariologin}) {
                     </Stack>
                 </Col>
                 <Col>
-                    <h1>Filtros 2</h1>
+                    <div className='treeViewCheck'>
+                        {CarregaTreeView(treeViewAplic)}
+                    </div>
                 </Col>
             </Row>
             <Row>
@@ -175,6 +328,7 @@ function PermissaoManutencao({usuariologin}) {
                     <Table striped>
                         <thead>
                             <tr>
+                                <th>*</th>
                                 <th>Tela</th>
                                 <th>Funcionalidade</th>
                                 <th>Equipe</th>
@@ -234,8 +388,8 @@ function PermissaoManutencao({usuariologin}) {
             <Row>
                 <Col>
                     <Stack direction="horizontal" className='d-flex flex-row-reverse' gap={2}>
-                        <Button variant="danger">Excluir</Button>
-                        <Button variant="light">Limpar</Button>
+                        <Button variant="danger" onClick={() => console.log(treeViewSelec)}>Excluir</Button>
+                        <Button variant="light" onClick={() => console.log(treeViewAplic)}>Limpar</Button>
                         <Button variant="primary">Adicionar</Button>
                     </Stack>
                 </Col>

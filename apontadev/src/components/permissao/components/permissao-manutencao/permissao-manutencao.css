@@ -1,7 +1,26 @@
-.ConteudoPermissao {
-    background-color: white;
-}
-
 .input-group {
     margin-top: 5px;
+}
+
+.treeViewCheckAplic > div {
+    margin-right: 3px;
+}
+
+.treeViewCheck {
+    border-color: silver;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 5px;
+    padding: 1em;
+    height: 10em;
+    overflow: auto;
+}
+
+.treeViewCheckAplic {
+    display: flex;
+    align-items: center;
+}
+
+.treeViewCheckFunc {
+    margin-left: 3em;
 }

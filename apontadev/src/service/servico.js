@@ -200,6 +200,31 @@ async function BuscaTodosUsuarios() {
     return retorno
 }
 
+async function BuscaTodasAplicacoes() {
+    let retorno = {
+        erro: false,
+        msgErro: '',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/dev/aplicacao`
+        let resposta = await axios.get(url, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.length > 0) {
+            retorno.dados = resposta.data
+        } else if(resposta && resposta.data && resposta.data.msg) {
+            retorno.erro = true
+            retorno.msgErro = resposta.data.msg
+        } else {
+            retorno.erro = true
+            retorno.msgErro = 'Ocorreu um erro inesperado ao buscar os dados das aplicações!'
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
 async function AtualizaUsuario(dados) {
     let retorno = {
         erro: true,
@@ -481,6 +506,26 @@ export const ServicoPermissao = {
             retorno.erro = false
             retorno.msgErro = ''
             retorno.dados = respUsuarios.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    RetornaListaAplicacoes: async function(usuarioLogado) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao buscar as aplicações!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respAplic = await BuscaTodasAplicacoes()
+            if(respAplic.erro) { return respAplic }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respAplic.dados
             return retorno
         } catch (err) {
             retorno.msgErro = err
