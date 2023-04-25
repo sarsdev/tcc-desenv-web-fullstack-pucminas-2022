@@ -225,6 +225,31 @@ async function BuscaTodasAplicacoes() {
     return retorno
 }
 
+async function BuscaTodasPermissoes() {
+    let retorno = {
+        erro: false,
+        msgErro: '',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/permissao`
+        let resposta = await axios.get(url, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.length > 0) {
+            retorno.dados = resposta.data
+        } else if(resposta && resposta.data && resposta.data.msg) {
+            retorno.erro = true
+            retorno.msgErro = resposta.data.msg
+        } else {
+            retorno.erro = true
+            retorno.msgErro = 'Ocorreu um erro inesperado ao buscar os dados das permissões!'
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
 async function AtualizaUsuario(dados) {
     let retorno = {
         erro: true,
@@ -277,6 +302,48 @@ async function InserePadrao(dados) {
         let url = `${urlBase}/acessibilidade`
         let resposta = await axios.post(url, dados, { headers: {'Authorization': objToken.token} })
         if(resposta && resposta.data && resposta.data._id) {
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = resposta.data
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function InserePermissao(dados) {
+    let retorno = {
+        erro: true,
+        msgErro: 'Ocorreu um erro ao inserir a permissão!',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/permissao`
+        let resposta = await axios.post(url, dados, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data._id) {
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = resposta.data
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function RemovePermissao(id) {
+    let retorno = {
+        erro: true,
+        msgErro: 'Ocorreu um erro ao excluir a permissão!',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/permissao?id=${id}`
+        let resposta = await axios.delete(url, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data) {
             retorno.erro = false
             retorno.msgErro = ''
             retorno.dados = resposta.data
@@ -526,6 +593,66 @@ export const ServicoPermissao = {
             retorno.erro = false
             retorno.msgErro = ''
             retorno.dados = respAplic.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    RetornaListaPermissoes: async function(usuarioLogado) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao buscar as permissões!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respPerm = await BuscaTodasPermissoes()
+            if(respPerm.erro) { return respPerm }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respPerm.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    AdicionarPermissao: async function(usuarioLogado, dadosPermissao) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao adicionar a permissão!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respPerm = await InserePermissao(dadosPermissao)
+            if(respPerm.erro) { return respPerm }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respPerm.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    RemoverPermissao: async function(usuarioLogado, id) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao excluir a permissão!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respPerm = await RemovePermissao(id)
+            if(respPerm.erro) { return respPerm }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respPerm.dados
             return retorno
         } catch (err) {
             retorno.msgErro = err

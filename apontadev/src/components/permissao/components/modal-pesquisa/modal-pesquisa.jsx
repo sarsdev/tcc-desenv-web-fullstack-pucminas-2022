@@ -23,6 +23,10 @@ function ModalPesquisa(props) {
 
     useEffect(() => {
         setLinhasMarcadas([...props.selecionados])
+        CarregaDadosModal()
+    }, [props.titulo])
+
+    function CarregaDadosModal() {
         setPaginaAtual(1)
         let dadosLogin = {
             usuario: props.usuario.email,
@@ -87,7 +91,7 @@ function ModalPesquisa(props) {
                 setDadosTabela([])
                 break
         }
-    }, [props.titulo])
+    }
 
     function valorAlfanumerico(str, campo){
         switch (campo) {
@@ -101,7 +105,12 @@ function ModalPesquisa(props) {
     }
 
     function RetornarSelecionados() {
-        props.onHide({ campo: props.titulo, selecionados: linhasMarcadas })
+        let todosMarcados = false
+        let naoMarcados = dadosTabela.filter(v => !v.marcado)
+        if(!(naoMarcados && naoMarcados.length > 0)) {
+            todosMarcados = true
+        }
+        props.onHide({ campo: props.titulo, selecionados: linhasMarcadas, todos: todosMarcados })
     }
 
     function ValidaCampoModal(e) {       

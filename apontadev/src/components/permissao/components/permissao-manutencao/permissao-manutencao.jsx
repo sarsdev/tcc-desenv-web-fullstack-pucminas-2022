@@ -18,15 +18,20 @@ function PermissaoManutencao({usuariologin}) {
     const qtdLinhasPaginacao = 5
 
     const [tipoPermissao, setTipoPermissao] = useState('cadastrado')
+    const [permiteAcesso, setPermiteAcesso] = useState(true)
     const [equipes, setEquipes] = useState('')
     const [equipesSelec, setEquipesSelec] = useState([])
+    const [todasEquipes, setTodasEquipes] = useState(false)
     const [funcoes, setFuncoes] = useState('')
     const [funcoesSelec, setFuncoesSelec] = useState([])
+    const [todasFuncoes, setTodasFuncoes] = useState(false)
     const [usuarios, setUsuarios] = useState('')
     const [usuariosSelec, setUsuariosSelec] = useState([])
+    const [todosUsuarios, setTodosUsuarios] = useState(false)
     const [treeViewAplic, setTreeViewAplic] = useState([])
     const [treeViewSelec, setTreeViewSelect] = useState([])
     const [linhasPermissao, setLinhasPermissao] = useState([])
+    const [linhasMarcadas, setLinhasMarcadas] = useState([])
     const [totalPaginas, setTotalPaginas] = useState(1)
     const [paginaAtual, setPaginaAtual] = useState(1)
     const [tituloModal, setTituloModal] = useState('')
@@ -114,17 +119,21 @@ function PermissaoManutencao({usuariologin}) {
 
     function RetornaDadosModal(dados) {
         setMostrarModalPesquisa(false)
+        setTituloModal('')
         if(!(dados && dados.campo)) {
             return
         }
         switch(dados.campo) {
             case 'Equipes':
+                setTodasEquipes(dados.todos)
                 setEquipesSelec([...dados.selecionados])
                 break
             case 'Funções':
+                setTodasFuncoes(dados.todos)
                 setFuncoesSelec([...dados.selecionados])
                 break
             case 'Usuários':
+                setTodosUsuarios(dados.todos)
                 setUsuariosSelec([...dados.selecionados])
                 break
             default:
@@ -132,7 +141,7 @@ function PermissaoManutencao({usuariologin}) {
         }
     }
 
-    function ValidaCampoForm(e) {       
+    function ValidaCampoForm(e) {
         const campo = e.target.id
         const valor = campo==='tipopermissao' ? e.target.selectedOptions[0].value : e.target.checked
         Validacao(campo, valor)
@@ -221,7 +230,7 @@ function PermissaoManutencao({usuariologin}) {
         }
     }
 
-    function SelecionaNodesTreeView(e) {        
+    function SelecionaNodesTreeView(e) {
         let tipoCheck = e.target.id.split('_')[0]
         if(tipoCheck) {
             let indMarcado = e.target.checked
@@ -248,7 +257,12 @@ function PermissaoManutencao({usuariologin}) {
                     treeViewSelec.push({ id: idAplicacao, func: funcAplicacao, obj: checkPai.valor })
                     setTreeViewSelect([...treeViewSelec])
                 } else {
-                    let nodesSelec = treeViewSelec.filter((v, i, o) => v.id === idAplicacao && v.func !== funcAplicacao)
+                    let nodesSelec = treeViewSelec.filter(function(v) {
+                        if(v.id === idAplicacao && v.func === funcAplicacao) {
+                            return false
+                        }
+                        return true
+                    })
                     setTreeViewSelect([...nodesSelec])
                 }
             }
@@ -268,361 +282,24 @@ function PermissaoManutencao({usuariologin}) {
     }
 
     function ListaPermissoes() {
-        setLinhasPermissao([
-            {
-                tela: {
-                    id: "643b283c61fe076c63e90fd2",
-                    titulo: "Acessibilidade"
-                },
-                funcionalidade: {
-                    todos: false,
-                    selecionados: [
-                        "Atualizar"
-                    ]
-                },
-                equipe: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643beb15551eba732fe9fa85",
-                            nome: "equipe a"
-                        }
-                    ]
-                },
-                funcao: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643b2ecbae2a74f36837528f",
-                            nome: "analista de sistema"
-                        }
-                    ]
-                },
-                usuario: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643c872f603603dd580a9134",
-                            nome: "João John"
-                        }
-                    ]
-                },
-                _id: "643bf920adef860752e13a9f",
-                tipo: "cadastrado",
-                acesso: "sim",
-                __v: 0
-            },
-            {
-                tela: {
-                    id: "643b283c61fe076c63e90fd2",
-                    titulo: "Acessibilidade"
-                },
-                funcionalidade: {
-                    todos: false,
-                    selecionados: [
-                        "Pesquisar",
-                        "Atualizar"
-                    ]
-                },
-                equipe: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643beb26551eba732fe9fa88",
-                            nome: "equipe b"
-                        }
-                    ]
-                },
-                funcao: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643b2ecbae2a74f36837528f",
-                            nome: "analista de sistema"
-                        }
-                    ]
-                },
-                usuario: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643c87c6603603dd580a9138",
-                            nome: "lucia lucy"
-                        }
-                    ]
-                },
-                _id: "643bf920adef860752e13a9f",
-                tipo: "nao_cadastrado",
-                acesso: "sim",
-                __v: 0
-            },
-            {
-                tela: {
-                    id: "643b283c61fe076c63e90fd2",
-                    titulo: "Acessibilidade"
-                },
-                funcionalidade: {
-                    todos: true,
-                    selecionados: []
-                },
-                equipe: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643beb26551eba732fe9fa88",
-                            nome: "equipe b"
-                        }
-                    ]
-                },
-                funcao: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643b2ebbae2a74f36837528d",
-                            nome: "analista de negócio"
-                        }
-                    ]
-                },
-                usuario: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643c87c6603603dd580a9138",
-                            nome: "lucia lucy"
-                        }
-                    ]
-                },
-                _id: "643bf920adef860752e13a9f",
-                tipo: "cadastrado",
-                acesso: "sim",
-                __v: 0
-            },
-            {
-                tela: {
-                    id: "643b2b1e61fe076c63e90fe8",
-                    titulo: "Acompanhamento"
-                },
-                funcionalidade: {
-                    todos: false,
-                    selecionados: [
-                        "Pesquisar"
-                    ]
-                },
-                equipe: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643beb26551eba732fe9fa88",
-                            nome: "equipe b"
-                        }
-                    ]
-                },
-                funcao: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643b2ebbae2a74f36837528d",
-                            nome: "analista de negócio"
-                        },
-                        {
-                            id: "643b2ecbae2a74f36837528f",
-                            nome: "analista de sistema"
-                        }
-                    ]
-                },
-                usuario: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643c876e603603dd580a9136",
-                            nome: "maria marie"
-                        }
-                    ]
-                },
-                _id: "643bf920adef860752e13a9f",
-                tipo: "nao_cadastrado",
-                acesso: "sim",
-                __v: 0
-            },
-            {
-                tela: {
-                    id: "643b2a6a61fe076c63e90fe2",
-                    titulo: "Agenda"
-                },
-                funcionalidade: {
-                    todos: false,
-                    selecionados: [
-                        "Registrar apontamento",
-                        "Compensação"
-                    ]
-                },
-                equipe: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643beb26551eba732fe9fa88",
-                            nome: "equipe b"
-                        }
-                    ]
-                },
-                funcao: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643b2ecbae2a74f36837528f",
-                            nome: "analista de sistema"
-                        }
-                    ]
-                },
-                usuario: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643c872f603603dd580a9134",
-                            nome: "João John"
-                        }
-                    ]
-                },
-                _id: "643bf920adef860752e13a9f",
-                tipo: "nao_cadastrado",
-                acesso: "sim",
-                __v: 0
-            },
-            {
-                tela: {
-                    id: "643b2a6a61fe076c63e90fe2",
-                    titulo: "Agenda"
-                },
-                funcionalidade: {
-                    todos: true,
-                    selecionados: []
-                },
-                equipe: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643beb26551eba732fe9fa88",
-                            nome: "equipe b"
-                        }
-                    ]
-                },
-                funcao: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643b2ecbae2a74f36837528f",
-                            nome: "analista de sistema"
-                        }
-                    ]
-                },
-                usuario: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643c872f603603dd580a9134",
-                            nome: "João John"
-                        }
-                    ]
-                },
-                _id: "643bf920adef860752e13a9f",
-                tipo: "nao_cadastrado",
-                acesso: "sim",
-                __v: 0
-            },
-            {
-                tela: {
-                    id: "643b2a6a61fe076c63e90fe2",
-                    titulo: "Agenda"
-                },
-                funcionalidade: {
-                    todos: false,
-                    selecionados: [
-                        "Alterar configurações",
-                        "Pesquisar"
-                    ]
-                },
-                equipe: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643beb26551eba732fe9fa88",
-                            nome: "equipe b"
-                        }
-                    ]
-                },
-                funcao: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643b2ebbae2a74f36837528d",
-                            nome: "analista de negócio"
-                        },
-                        {
-                            id: "643b2ecbae2a74f36837528f",
-                            nome: "analista de sistema"
-                        }
-                    ]
-                },
-                usuario: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643c876e603603dd580a9136",
-                            nome: "maria marie"
-                        }
-                    ]
-                },
-                _id: "643bf920adef860752e13a9f",
-                tipo: "cadastrado",
-                acesso: "sim",
-                __v: 0
-            },
-            {
-                tela: {
-                    id: "643be710f3736eef53953950",
-                    titulo: "permissao"
-                },
-                funcionalidade: {
-                    todos: false,
-                    selecionados: [
-                        "incluir",
-                        "excluir",
-                        "atualizar"
-                    ]
-                },
-                equipe: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643beb26551eba732fe9fa88",
-                            nome: "equipe b"
-                        }
-                    ]
-                },
-                funcao: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643b2ecbae2a74f36837528f",
-                            nome: "analista de sistema"
-                        }
-                    ]
-                },
-                usuario: {
-                    todos: false,
-                    selecionados: [
-                        {
-                            id: "643c872f603603dd580a9134",
-                            nome: "João John"
-                        }
-                    ]
-                },
-                _id: "643bf920adef860752e13a9f",
-                tipo: "nao_cadastrado",
-                acesso: "sim",
-                __v: 0
+        let dadosLogin = {
+            usuario: usuariologin.email,
+            senha: usuariologin.dados_acesso.senha
+        }
+        ServicoPermissao
+        .RetornaListaPermissoes(dadosLogin)
+        .then((resp) => {
+            if(resp.erro) {
+                console.error(resp.msgErro)
+                setLinhasPermissao([])
+            } else {
+                let dados = resp.dados.map((v) => { return { marcado: false, valor: v } })
+                setLinhasPermissao(dados)
             }
-        ])
+        }).catch((err) => {
+            console.error(err)
+            setLinhasPermissao([])
+        })
     }
 
     function ExisteUmElementoEmComum(a, b) {
@@ -655,43 +332,45 @@ function PermissaoManutencao({usuariologin}) {
 
     function MontaLinhasTabelaPermissao(dados) {
         let dadosFiltrados = dados
+        let opcaoAcesso = permiteAcesso ? 'sim' : 'nao'
+        dadosFiltrados = dadosFiltrados.filter((v, i, o) => v.valor.acesso === opcaoAcesso)
         if(tipoPermissao) {
-            dadosFiltrados = dadosFiltrados.filter((v, i, o) => v.tipo === tipoPermissao)
+            dadosFiltrados = dadosFiltrados.filter((v, i, o) => v.valor.tipo === tipoPermissao)
         }
         if(equipesSelec && equipesSelec.length > 0) {
             dadosFiltrados = dadosFiltrados.filter((v, i, o) => {
-                if(v.equipe.todos) {
+                if(v.valor.equipe.todos) {
                     return true
                 }
-                return ExisteUmElementoEmComum(v.equipe.selecionados, equipesSelec)
+                return ExisteUmElementoEmComum(v.valor.equipe.selecionados, equipesSelec)
             })
         }
         if(funcoesSelec && funcoesSelec.length > 0) {
             dadosFiltrados = dadosFiltrados.filter((v, i, o) => {
-                if(v.funcao.todos) {
+                if(v.valor.funcao.todos) {
                     return true
                 }
-                return ExisteUmElementoEmComum(v.funcao.selecionados, funcoesSelec)
+                return ExisteUmElementoEmComum(v.valor.funcao.selecionados, funcoesSelec)
             })
         }
         if(usuariosSelec && usuariosSelec.length > 0) {
             dadosFiltrados = dadosFiltrados.filter((v, i, o) => {
-                if(v.usuario.todos) {
+                if(v.valor.usuario.todos) {
                     return true
                 }
-                return ExisteUmElementoEmComum(v.usuario.selecionados, usuariosSelec)
+                return ExisteUmElementoEmComum(v.valor.usuario.selecionados, usuariosSelec)
             })
         }
         if(treeViewSelec && treeViewSelec.length > 0) {
             dadosFiltrados = dadosFiltrados.filter((v, i, o) => {
-                let existeAplicacao = treeViewSelec.findIndex((val, ind, obj) => val.id === v.tela.id) > -1
+                let existeAplicacao = treeViewSelec.findIndex((val, ind, obj) => val.id === v.valor.tela.id) > -1
                 if(!existeAplicacao) {
                     return false
                 }
-                if(v.funcionalidade.todos) {
+                if(v.valor.funcionalidade.todos) {
                     return true
                 }
-                return ExisteUmaFuncionalidadeEmComum(v.funcionalidade.selecionados, treeViewSelec)
+                return ExisteUmaFuncionalidadeEmComum(v.valor.funcionalidade.selecionados, treeViewSelec)
             })
         }
         if(dadosFiltrados.length > qtdLinhasPaginacao) {
@@ -718,43 +397,43 @@ function PermissaoManutencao({usuariologin}) {
                         id={'check'+i}
                         type='checkbox'
                         label=''
-                        value={JSON.stringify(v)}
-                        /*checked={v.marcado}*/
-                        /*onChange={(e) => SelecionarLinha(e)}*/ />
+                        value={v.valor._id}
+                        checked={v.marcado}
+                        onChange={(e) => SelecionarLinha(e)} />
                 </td>
                 <td>
-                    {v.tela.titulo}
+                    {v.valor.tela.titulo}
                 </td>
                 <td>
                     {
-                        v.funcionalidade.todos ?
+                        v.valor.funcionalidade.todos ?
                         <Badge pill bg="success">Todas</Badge> :
-                        v.funcionalidade.selecionados.map((vlr, ind, obj) => <Badge pill bg="success" key={'func'+ind}>{vlr}</Badge>)
+                        v.valor.funcionalidade.selecionados.map((vlr, ind, obj) => <Badge pill bg="success" key={'func'+ind}>{vlr}</Badge>)
                     }
                 </td>
                 <td>
                     {
-                        v.equipe.todos ?
+                        v.valor.equipe.todos ?
                         <Badge pill bg="success">Todas</Badge> :
-                        v.equipe.selecionados.map((vlr, ind, obj) => <Badge pill bg="success" key={'equi'+ind}>{vlr.nome}</Badge>)
+                        v.valor.equipe.selecionados.map((vlr, ind, obj) => <Badge pill bg="success" key={'equi'+ind}>{vlr.nome}</Badge>)
                     }
                 </td>
                 <td>
                     {
-                        v.funcao.todos ?
+                        v.valor.funcao.todos ?
                         <Badge pill bg="success">Todas</Badge> :
-                        v.funcao.selecionados.map((vlr, ind, obj) => <Badge pill bg="success" key={'fcao'+ind}>{vlr.nome}</Badge>)
+                        v.valor.funcao.selecionados.map((vlr, ind, obj) => <Badge pill bg="success" key={'fcao'+ind}>{vlr.nome}</Badge>)
                     }
                 </td>
                 <td>
                     {
-                        v.usuario.todos ?
+                        v.valor.usuario.todos ?
                         <Badge pill bg="success">Todas</Badge> :
-                        v.usuario.selecionados.map((vlr, ind, obj) => <Badge pill bg="success" key={'usu'+ind}>{vlr.nome}</Badge>)
+                        v.valor.usuario.selecionados.map((vlr, ind, obj) => <Badge pill bg="success" key={'usu'+ind}>{vlr.nome}</Badge>)
                     }
                 </td>
                 <td>
-                    <Badge pill bg={v.acesso==='sim'?'primary':'danger'}>{v.acesso}</Badge>
+                    <Badge pill bg={v.valor.acesso==='sim'?'primary':'danger'}>{v.valor.acesso}</Badge>
                 </td>
             </tr>)
     }
@@ -812,19 +491,159 @@ function PermissaoManutencao({usuariologin}) {
         }
     }
 
+    function LimparFiltros() {
+        setTipoPermissao('cadastrado')
+        setEquipes('')
+        setEquipesSelec([])
+        setFuncoes('')
+        setFuncoesSelec([])
+        setUsuarios('')
+        setUsuariosSelec([])
+        setTreeViewSelect([])        
+    }
+
+    function SalvarPermissao() {
+        let dadosLogin = {
+            usuario: usuariologin.email,
+            senha: usuariologin.dados_acesso.senha
+        }
+        let dados = MontaDadosParaInclusao()
+        let qtdExecucoes = dados.length
+        let qtdFinalizada = 0
+        dados.forEach(valor => {
+            ServicoPermissao
+            .AdicionarPermissao(dadosLogin, valor)
+            .then((resp) => {
+                console.log(resp)
+                if(resp.erro) {
+                    console.error(resp.msgErro)
+                }
+            }).catch((err) => {
+                console.error(err)
+            }).finally(() => {
+                qtdFinalizada += 1
+                if(qtdExecucoes === qtdFinalizada) {
+                    ListaPermissoes()
+                }
+            })
+        })        
+    }
+
+    function MontaDadosParaInclusao() {
+        let listaPermissao = []
+        let aplicacao = [...new Set(treeViewSelec.map(item => item.obj))]
+        
+        if(!(aplicacao && aplicacao.length > 0)) {
+            console.error('Selecione ao menos uma aplicação!')
+            return listaPermissao 
+        }
+        if(!(equipesSelec && equipesSelec.length > 0)) {
+            console.error('Selecione ao menos uma equipe!')
+            return listaPermissao
+        }
+        if(!(funcoesSelec && funcoesSelec.length > 0)) {
+            console.error('Selecione ao menos uma função!')
+            return listaPermissao
+        }
+        if(!(usuariosSelec && usuariosSelec.length > 0)) {
+            console.error('Selecione ao menos um usuário!')
+            return listaPermissao
+        }
+
+        aplicacao.forEach(app => {
+            let funcSelecionadas = treeViewSelec
+                .filter(i => i.id === app._id)
+                .map(i => i.func)
+            let dadosPermissao = {
+                tela: {
+                    id: app._id,
+                    titulo: app.titulo
+                },
+                funcionalidade: {
+                    todos: (funcSelecionadas.length === app.funcionalidades.length),
+                    selecionados: (funcSelecionadas.length === app.funcionalidades.length) ? [] : funcSelecionadas
+                },
+                equipe: {
+                    todos: todasEquipes,
+                    selecionados: todasEquipes ? [] : equipesSelec.map(i => { return { id: i.codigo, nome: i.descricao } })
+                },
+                funcao: {
+                    todos: todasFuncoes,
+                    selecionados: todasFuncoes ? [] : funcoesSelec.map(i => { return { id: i.codigo, nome: i.descricao } })
+                },
+                usuario: {
+                    todos: todosUsuarios,
+                    selecionados: todosUsuarios ? [] : usuariosSelec.map(i => { return { id: i.codigo, nome: i.descricao } })
+                },
+                tipo: tipoPermissao,
+                acesso: permiteAcesso ? 'sim' : 'nao'
+            }
+            listaPermissao.push(dadosPermissao)
+        })
+        return listaPermissao
+    }
+
+    function RemoverPermissao() {
+        let dadosLogin = {
+            usuario: usuariologin.email,
+            senha: usuariologin.dados_acesso.senha
+        }
+        let dados = linhasPermissao.filter(item => item.marcado)
+        let qtdExecucoes = dados.length
+        let qtdFinalizada = 0
+        dados.forEach(i => {
+            ServicoPermissao
+            .RemoverPermissao(dadosLogin, i.valor._id)
+            .then((resp) => {
+                if(resp.erro) {
+                    console.error(resp.msgErro)
+                }
+            }).catch((err) => {
+                console.error(err)
+            }).finally(() => {
+                qtdFinalizada += 1
+                if(qtdExecucoes === qtdFinalizada) {
+                    ListaPermissoes()
+                }
+            })
+        })
+    }
+
+    function SelecionarLinha(e) {
+        let id = e.target.value
+        if(e.target.checked) {
+            linhasMarcadas.push(id)
+            setLinhasMarcadas(linhasMarcadas)
+        } else {
+            let linhas = linhasMarcadas.filter(v => v !== id)
+            setLinhasMarcadas(linhas)
+        }
+        let indiceDado = linhasPermissao.findIndex(v => v.valor._id === id)
+        linhasPermissao[indiceDado].marcado = e.target.checked
+        setLinhasPermissao([...linhasPermissao])
+    }
+
     return (
         <Container>
             <Row>
                 <Col>
                     <Stack>
-                        <Form.Select  
-                            id='tipopermissao'
-                            size='sm'
-                            value={tipoPermissao}
-                            onChange={(e) => ValidaCampoForm(e)} >
-                            <option key='1001' value='cadastrado'>Permissão para usuários cadastrados</option>
-                            <option key='1002' value='nao_cadastrado'>Permissão para usuários autônomos</option>
-                        </Form.Select>
+                        <Stack direction="horizontal"  gap={4}>
+                            <Form.Select  
+                                id='tipopermissao'
+                                size='sm'
+                                value={tipoPermissao}
+                                onChange={(e) => ValidaCampoForm(e)} >
+                                <option key='1001' value='cadastrado'>Permissão para usuários cadastrados</option>
+                                <option key='1002' value='nao_cadastrado'>Permissão para usuários autônomos</option>
+                            </Form.Select>
+                            <Form.Check
+                                id={'permiteacesso'}
+                                type='checkbox'
+                                label='Permitir_acesso'
+                                checked={permiteAcesso}
+                                onChange={(e) => setPermiteAcesso(e.target.checked)} />
+                        </Stack>
                         <InputGroup>
                             <Form.Control
                                 id='equipes'
@@ -898,9 +717,9 @@ function PermissaoManutencao({usuariologin}) {
             <Row>
                 <Col>
                     <Stack direction="horizontal" className='d-flex flex-row-reverse' gap={2}>
-                        <Button variant="danger" onClick={() => console.log(treeViewSelec)}>Excluir</Button>
-                        <Button variant="primary">Adicionar</Button>
-                        <Button variant="light" onClick={() => console.log(treeViewAplic)}>Limpar</Button>
+                        <Button variant="danger" onClick={() => RemoverPermissao()}>Excluir</Button>
+                        <Button variant="primary" onClick={() => SalvarPermissao()}>Adicionar</Button>
+                        <Button variant="light" onClick={() => LimparFiltros()}>Limpar</Button>
                     </Stack>
                 </Col>
             </Row>
