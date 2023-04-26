@@ -1,0 +1,11 @@
+.tamanho-input {
+    width: 70%;
+}
+
+.statusAtivo {
+    color: green;
+}
+
+.statusInativo {
+    color: red;
+}
