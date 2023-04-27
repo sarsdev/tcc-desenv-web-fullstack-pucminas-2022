@@ -292,6 +292,27 @@ async function AtualizaPadrao(dados) {
     return retorno
 }
 
+async function AtualizaFuncao(dados) {
+    let retorno = {
+        erro: true,
+        msgErro: 'Ocorreu um erro ao atualizar a função!'
+    }
+    try {
+        let url = `${urlBase}/funcao`
+        let resposta = await axios.put(url, dados, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.matchedCount > 0) {
+            retorno.erro = false
+            retorno.msgErro = ''
+        } else if(resposta && resposta.data && resposta.data.matchedCount === 0) {
+            retorno.msgErro = 'A função não foi encontrada!'
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
 async function InserePadrao(dados) {
     let retorno = {
         erro: true,
@@ -321,6 +342,27 @@ async function InserePermissao(dados) {
     }
     try {
         let url = `${urlBase}/permissao`
+        let resposta = await axios.post(url, dados, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data._id) {
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = resposta.data
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function InsereFuncao(dados) {
+    let retorno = {
+        erro: true,
+        msgErro: 'Ocorreu um erro ao inserir a função!',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/funcao`
         let resposta = await axios.post(url, dados, { headers: {'Authorization': objToken.token} })
         if(resposta && resposta.data && resposta.data._id) {
             retorno.erro = false
@@ -653,6 +695,68 @@ export const ServicoPermissao = {
             retorno.erro = false
             retorno.msgErro = ''
             retorno.dados = respPerm.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    }
+}
+
+export const ServicoFuncao = {
+    RetornaListaFuncoes: async function(usuarioLogado) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao buscar as funções!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respFuncoes = await BuscaTodasFuncoes()
+            if(respFuncoes.erro) { return respFuncoes }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respFuncoes.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    AtualizaFuncao: async function(usuarioLogado, dadosFunc) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao atualizar os dados da função!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respFuncoes = await AtualizaFuncao(dadosFunc)
+            if(respFuncoes.erro) { return respFuncoes }
+            retorno.erro = false
+            retorno.msgErro = ''
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    InsereFuncao: async function(usuarioLogado, dadosFunc) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao inserir a função!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respFuncoes = await InsereFuncao(dadosFunc)
+            if(respFuncoes.erro) { return respFuncoes }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respFuncoes.dados
             return retorno
         } catch (err) {
             retorno.msgErro = err
