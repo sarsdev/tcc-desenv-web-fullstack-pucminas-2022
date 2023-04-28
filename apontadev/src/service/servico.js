@@ -313,6 +313,29 @@ async function AtualizaFuncao(dados) {
     return retorno
 }
 
+async function AtualizaEquipe(dados) {
+    let retorno = {
+        erro: true,
+        msgErro: 'Ocorreu um erro ao atualizar a equipe!'
+    }
+    try {
+        let url = `${urlBase}/equipe`
+        let resposta = await axios.put(url, dados, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.matchedCount > 0) {
+            retorno.erro = false
+            retorno.msgErro = ''
+        } else if(resposta && resposta.data && resposta.data.matchedCount === 0) {
+            retorno.msgErro = 'A equipe não foi encontrada!'
+        } else if(resposta && resposta.data && resposta.data.MsgErro && resposta.data.MsgErro.reason) {
+            retorno.msgErro = resposta.data.MsgErro.reason
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
 async function InserePadrao(dados) {
     let retorno = {
         erro: true,
@@ -363,6 +386,27 @@ async function InsereFuncao(dados) {
     }
     try {
         let url = `${urlBase}/funcao`
+        let resposta = await axios.post(url, dados, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data._id) {
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = resposta.data
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function InsereEquipe(dados) {
+    let retorno = {
+        erro: true,
+        msgErro: 'Ocorreu um erro ao inserir a equipe!',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/equipe`
         let resposta = await axios.post(url, dados, { headers: {'Authorization': objToken.token} })
         if(resposta && resposta.data && resposta.data._id) {
             retorno.erro = false
@@ -757,6 +801,68 @@ export const ServicoFuncao = {
             retorno.erro = false
             retorno.msgErro = ''
             retorno.dados = respFuncoes.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    }
+}
+
+export const ServicoEquipe = {
+    RetornaListaEquipe: async function(usuarioLogado) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao buscar as equipes!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respEquipes = await BuscaTodasEquipes()
+            if(respEquipes.erro) { return respEquipes }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respEquipes.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    AtualizaEquipe: async function(usuarioLogado, dadosFunc) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao atualizar os dados da equipe!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respEquipes = await AtualizaEquipe(dadosFunc)
+            if(respEquipes.erro) { return respEquipes }
+            retorno.erro = false
+            retorno.msgErro = ''
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    InsereEquipe: async function(usuarioLogado, dadosFunc) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao inserir a equipe!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respEquipes = await InsereEquipe(dadosFunc)
+            if(respEquipes.erro) { return respEquipes }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respEquipes.dados
             return retorno
         } catch (err) {
             retorno.msgErro = err
