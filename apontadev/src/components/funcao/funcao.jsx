@@ -57,7 +57,7 @@ function Funcao(props) {
     }, []);
 
     useEffect(() => {
-        MontaLinhasTabelaPermissao(listaDadosFuncao, null)
+        MontaLinhasGridFuncao(listaDadosFuncao, null)
         setfiltrou(false)
     }, [listaDadosFuncao])
 
@@ -68,7 +68,7 @@ function Funcao(props) {
             fator: fatorFuncao,
             percSimulacao: percSimulacaoFuncao
         }
-        MontaLinhasTabelaPermissao(listaDadosFuncao, filtros)
+        MontaLinhasGridFuncao(listaDadosFuncao, filtros)
         setfiltrou(true)
     }, [clicouFiltrar])
 
@@ -82,7 +82,7 @@ function Funcao(props) {
                 percSimulacao: percSimulacaoFuncao
             }
         }
-        MontaLinhasTabelaPermissao(listaDadosFuncao, filtros)
+        MontaLinhasGridFuncao(listaDadosFuncao, filtros)
     }, [clicouNavegacaoGrid])
 
     const AbaClicada = function (evento) {
@@ -110,7 +110,7 @@ function Funcao(props) {
         })
     }
 
-    function MontaLinhasTabelaPermissao(dados, filtros) {
+    function MontaLinhasGridFuncao(dados, filtros) {
         let dadosFiltrados = dados
         if(filtros && filtros.nome) {
             dadosFiltrados = dadosFiltrados.filter(v => v.valor.nome.indexOf(filtros.nome) > -1)
@@ -227,7 +227,7 @@ function Funcao(props) {
         setPercSimulacaoFuncao('')
         setfiltrou(false)
         setDadosParaAtualizar({})
-        MontaLinhasTabelaPermissao(listaDadosFuncao, null)
+        MontaLinhasGridFuncao(listaDadosFuncao, null)
     }
 
     function SalvarDados() {
