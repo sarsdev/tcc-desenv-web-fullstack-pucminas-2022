@@ -11,8 +11,8 @@ import Table from 'react-bootstrap/Table'
 import Pagination from 'react-bootstrap/Pagination'
 import Badge from 'react-bootstrap/Badge'
 import { NodeMinus, NodePlus } from 'react-bootstrap-icons'
-import ModalPesquisa from '../modal-pesquisa/modal-pesquisa'
-import { ServicoPermissao } from '../../../../service/servico'
+import ModalPesquisa from './../../../common/modal-pesquisa/modal-pesquisa'
+import { ServicoPermissao } from './../../../../service/servico'
 
 function PermissaoManutencao({usuariologin}) {
     const qtdLinhasPaginacao = 5

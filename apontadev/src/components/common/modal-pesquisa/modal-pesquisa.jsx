@@ -7,7 +7,7 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Table from 'react-bootstrap/Table'
 import Pagination from 'react-bootstrap/Pagination'
-import { ServicoPermissao } from '../../../../service/servico'
+import { ServicoPermissao } from './../../../service/servico'
 
 function ModalPesquisa(props) {
     const qtdLinhasPaginacao = 5
@@ -42,7 +42,7 @@ function ModalPesquisa(props) {
                     } else {
                         let dados = resp.dados.map((v) => {
                             let indMarcado = props.selecionados.filter((valor, i, o) => valor.codigo === v._id).length > 0
-                            return { marcado: indMarcado, codigo: v._id, descricao: v.nome } 
+                            return { marcado: indMarcado, codigo: v._id, descricao: v.nome, obj: v } 
                         })
                         setDadosTabela(dados)
                     }
@@ -60,7 +60,7 @@ function ModalPesquisa(props) {
                     } else {
                         let dados = resp.dados.map((v) => { 
                             let indMarcado = props.selecionados.filter((valor, i, o) => valor.codigo === v._id).length > 0
-                            return { marcado: indMarcado, codigo: v._id, descricao: v.nome } 
+                            return { marcado: indMarcado, codigo: v._id, descricao: v.nome, obj: v } 
                         })
                         setDadosTabela(dados)
                     }
@@ -76,9 +76,15 @@ function ModalPesquisa(props) {
                         console.error(resp.msgErro)
                         setDadosTabela([])
                     } else {
-                        let dados = resp.dados.map((v) => { 
+                        let dados = resp.dados.map((v) => {
                             let indMarcado = props.selecionados.filter((valor, i, o) => valor.codigo === v._id).length > 0
-                            return { marcado: indMarcado, codigo: v._id, descricao: v.dados_pessoais.nome } 
+                            return {
+                                marcado: indMarcado, 
+                                codigo: v._id, 
+                                descricao: v.dados_pessoais.nome, 
+                                funcao: v.dados_colaborador && v.dados_colaborador.funcao && v.dados_colaborador.funcao.nome ? v.dados_colaborador.funcao.nome : null, 
+                                obj: v 
+                            } 
                         })
                         setDadosTabela(dados)
                     }
@@ -183,11 +189,9 @@ function ModalPesquisa(props) {
                         onChange={(e) => SelecionarLinha(e)} />
                 </td>
                 <td>
-                    {v.codigo}
-                </td>
-                <td>
                     {v.descricao}
                 </td>
+                { props.titulo === 'Usuários' ? <td> {v.funcao} </td> : null }
             </tr>)
     }
 
@@ -244,13 +248,11 @@ function ModalPesquisa(props) {
         }
     }
 
-    function SelecionarLinha(e) {        
-        let linhas
+    function SelecionarLinha(e) {
         let item = JSON.parse(e.target.value)
         if(e.target.checked) {
-            linhas = linhasMarcadas
-            linhas.push(JSON.parse(e.target.value))
-            setLinhasMarcadas(linhas)
+            linhasMarcadas.push(item)
+            setLinhasMarcadas(linhasMarcadas)
         } else {
             let linhas = linhasMarcadas.filter((v, i, o) => v.codigo !== item.codigo)
             setLinhasMarcadas(linhas)
@@ -271,21 +273,22 @@ function ModalPesquisa(props) {
             </Modal.Header>
             <Modal.Body>
                 <Row>
-                    <Col md='3'>
+                    <Col md={'3'}>
                         <Form.Control
                             id='codigo'
                             type='text'
                             value={modalCodigo}
+                            hidden={ props.titulo === 'Usuários' }
                             placeholder='Código...'
                             isInvalid={codigoInvalido}
                             onChange={(evento) => ValidaCampoModal(evento)} />
                     </Col>
-                    <Col  md='9'>
+                    <Col  md={ props.titulo === 'Usuários' ? '12' : '9' }>
                         <Form.Control
                             id='descricao'
                             type='text'
                             value={modalDescricao}
-                            placeholder='Descrição...'
+                            placeholder={ props.titulo === 'Usuários' ? 'Nome...' : 'Descrição...' }
                             isInvalid={descricaoInvalida}
                             onChange={(evento) => ValidaCampoModal(evento)} />
                     </Col>
@@ -296,8 +299,8 @@ function ModalPesquisa(props) {
                             <thead>
                                 <tr>
                                     <th>*</th>
-                                    <th>Código</th>
-                                    <th>Descrição</th>
+                                    <th> { props.titulo === 'Usuários' ? 'Nome' : 'Descrição' } </th>
+                                    { props.titulo === 'Usuários' ? <th>Função</th> : null }
                                 </tr>
                             </thead>
                             <tbody>
