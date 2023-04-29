@@ -54,7 +54,7 @@ function Funcao(props) {
         } else {
             navigate('/app/acesso')
         }
-    }, []);
+    }, [])
 
     useEffect(() => {
         MontaLinhasGridFuncao(listaDadosFuncao, null)
