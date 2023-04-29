@@ -271,6 +271,27 @@ async function AtualizaUsuario(dados) {
     return retorno
 }
 
+async function AtualizaUsuarioPorId(dados) {
+    let retorno = {
+        erro: true,
+        msgErro: 'Ocorreu um erro ao atualizar o usuário!'
+    }
+    try {
+        let url = `${urlBase}/usuario?id=${dados._id}`
+        let resposta = await axios.put(url, dados, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.matchedCount > 0) {
+            retorno.erro = false
+            retorno.msgErro = ''
+        } else if(resposta && resposta.data && resposta.data.matchedCount === 0) {
+            retorno.msgErro = 'Usuário informado não foi encontrado!'
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
 async function AtualizaPadrao(dados) {
     let retorno = {
         erro: true,
@@ -407,6 +428,27 @@ async function InsereEquipe(dados) {
     }
     try {
         let url = `${urlBase}/equipe`
+        let resposta = await axios.post(url, dados, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data._id) {
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = resposta.data
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function InsereUsuario(dados) {
+    let retorno = {
+        erro: true,
+        msgErro: 'Ocorreu um erro ao inserir o usuário!',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/usuario`
         let resposta = await axios.post(url, dados, { headers: {'Authorization': objToken.token} })
         if(resposta && resposta.data && resposta.data._id) {
             retorno.erro = false
@@ -863,6 +905,68 @@ export const ServicoEquipe = {
             retorno.erro = false
             retorno.msgErro = ''
             retorno.dados = respEquipes.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    }
+}
+
+export const ServicoUsuario = {
+    RetornaListaUsuario: async function(usuarioLogado) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao buscar os usuários!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respUsuario = await BuscaTodosUsuarios()
+            if(respUsuario.erro) { return respUsuario }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respUsuario.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    AtualizaUsuario: async function(usuarioLogado, dadosFunc) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao atualizar os dados do usuário!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respUsuario = await AtualizaUsuarioPorId(dadosFunc)
+            if(respUsuario.erro) { return respUsuario }
+            retorno.erro = false
+            retorno.msgErro = ''
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    InsereUsuario: async function(usuarioLogado, dadosFunc) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao inserir o usuário!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respUsuario = await InsereUsuario(dadosFunc)
+            if(respUsuario.erro) { return respUsuario }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respUsuario.dados
             return retorno
         } catch (err) {
             retorno.msgErro = err

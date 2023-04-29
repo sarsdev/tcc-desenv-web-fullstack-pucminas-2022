@@ -250,6 +250,7 @@ function ModalPesquisa(props) {
 
     function SelecionarLinha(e) {
         let item = JSON.parse(e.target.value)
+        if(props.multiselecao === 'false' && linhasMarcadas.length > 0 && e.target.checked) return
         if(e.target.checked) {
             linhasMarcadas.push(item)
             setLinhasMarcadas(linhasMarcadas)
