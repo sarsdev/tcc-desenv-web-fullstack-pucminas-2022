@@ -728,7 +728,8 @@ function PermissaoManutencao({usuariologin}) {
             <ModalPesquisa
                 usuario={usuariologin}
                 titulo={tituloModal}
-                selecionados={ tituloModal==='Equipes' ? equipesSelec : tituloModal==='Funções' ? funcoesSelec : usuariosSelec }
+                multiselecao={'true'}
+                selecionados={tituloModal==='Equipes' ? equipesSelec : tituloModal==='Funções' ? funcoesSelec : usuariosSelec}
                 show={mostrarModalPesquisa}
                 onHide={(dadosSelecionados) => RetornaDadosModal(dadosSelecionados)}
             />

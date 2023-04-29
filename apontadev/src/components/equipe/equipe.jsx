@@ -507,6 +507,7 @@ function Equipe(props) {
             <ModalPesquisa
                 usuario={usuarioLogin}
                 titulo={tituloModal}
+                multiselecao={'true'}
                 selecionados={usuariosSelec}
                 show={mostrarModalPesquisa}
                 onHide={(dadosSelecionados) => RetornaDadosModal(dadosSelecionados)}
