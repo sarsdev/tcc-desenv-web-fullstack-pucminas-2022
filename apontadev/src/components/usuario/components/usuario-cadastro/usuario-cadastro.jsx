@@ -1,51 +1,535 @@
-import React from 'react';
+import './usuario-cadastro.css'
+import React, { useEffect, useState } from 'react'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Stack from 'react-bootstrap/Stack'
-import Table from 'react-bootstrap/Table';
-import Pagination from 'react-bootstrap/Pagination';
-import Badge from 'react-bootstrap/Badge';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
+import Table from 'react-bootstrap/Table'
+import Pagination from 'react-bootstrap/Pagination'
+import Badge from 'react-bootstrap/Badge'
+import Button from 'react-bootstrap/Button'
+import Form from 'react-bootstrap/Form'
+import InputGroup from 'react-bootstrap/InputGroup'
+import { PencilSquare } from 'react-bootstrap-icons'
+import ModalPesquisa from '../../../common/modal-pesquisa/modal-pesquisa'
+import { ServicoUsuario } from '../../../../service/servico'
 
 function UsuarioCadastro(props) {
+    const [nomeUsuario, setNomeUsuario] = useState('')
+    const [emailUsuario, setEmailUsuario] = useState('')
+    const [fatorUsuario, setFatorUsuario] = useState('')
+    const [cargoUsuario, setCargoUsuario] = useState('')
+    const [situacaoUsuario, setSituacaoUsuario] = useState(true)
+    const [ignorarSituacao, setIgnorarSituacao] = useState(true)
+    const [equipeUsuario, setEquipeUsuario] = useState('')
+    const [equipeSelec, setEquipeSelec] = useState([])
+    const [funcaoUsuario, setFuncaoUsuario] = useState('')
+    const [funcaoSelec, setFuncaoSelec] = useState([])
+    const [listaDadosUsuario, setListaDadosUsuario] = useState([])
+    const [linhasGridUsuario, setLinhasGridUsuario] = useState([])
+    const [clicouFiltrar, setClicouFiltrar] = useState(false)
+    const [filtrou, setfiltrou] = useState(false)
+    const [totalPaginas, setTotalPaginas] = useState(1)
+    const [paginaAtual, setPaginaAtual] = useState(1)
+    const [clicouNavegacaoGrid, setClicouNavegacaoGrid] = useState(false)
+    const [dadosParaAtualizar, setDadosParaAtualizar] = useState({})
+    const [tituloModal, setTituloModal] = useState('')
+    const [mostrarModalPesquisa, setMostrarModalPesquisa] = useState(false)
+
+    const qtdLinhasPaginacao = 5
+
+    useEffect(() => {
+        ListaUsuarios()
+    }, [])
+
+    useEffect(() => {
+        MontaLinhasGridUsuario(listaDadosUsuario, null)
+        setfiltrou(false)
+    }, [listaDadosUsuario])
+
+    useEffect(() => {
+        let filtros = {
+            nome: nomeUsuario,
+            email: emailUsuario,
+            fator: fatorUsuario,
+            cargo: cargoUsuario,
+            situacao: ignorarSituacao ? '' : situacaoUsuario ? 'ativo' : 'inativo',
+            equipe: equipeSelec[0],
+            funcao: funcaoSelec[0]
+        }
+        MontaLinhasGridUsuario(listaDadosUsuario, filtros)
+        setfiltrou(true)
+    }, [clicouFiltrar])
+
+    useEffect(() => {
+        let filtros = null
+        if(filtrou) {
+            filtros = {
+                nome: nomeUsuario,
+                email: emailUsuario,
+                fator: fatorUsuario,
+                cargo: cargoUsuario,
+                situacao: ignorarSituacao ? '' : situacaoUsuario ? 'ativo' : 'inativo',
+                equipe: equipeSelec[0],
+                funcao: funcaoSelec[0]
+            }
+        }
+        MontaLinhasGridUsuario(listaDadosUsuario, filtros)
+    }, [clicouNavegacaoGrid])
+
+    useEffect(() => {
+        if(equipeSelec.length > 0 && equipeSelec[0].codigo) {
+            setEquipeUsuario(equipeSelec[0].descricao)
+        } else {
+            setEquipeUsuario('')
+        }
+    }, [equipeSelec])
+
+    useEffect(() => {
+        if(funcaoSelec.length > 0 && funcaoSelec[0].codigo) {
+            setFuncaoUsuario(funcaoSelec[0].descricao)
+        } else {
+            setFuncaoUsuario('')
+        }      
+    }, [funcaoSelec])
+
+    function ListaUsuarios() {
+        let dadosLogin = {
+            usuario: props.usuariologin.email,
+            senha: props.usuariologin.dados_acesso.senha
+        }
+        ServicoUsuario
+        .RetornaListaUsuario(dadosLogin)
+        .then((resp) => {
+            if(resp.erro) {
+                console.error(resp.msgErro)
+                setListaDadosUsuario([])
+            } else {
+                let dados = resp.dados.map((v) => { return { valor: v } })
+                setListaDadosUsuario(dados)
+            }
+        }).catch((err) => {
+            console.error(err)
+            setListaDadosUsuario([])
+        })
+    }
+
+    function MontaLinhasGridUsuario(dados, filtros) {
+        let dadosFiltrados = dados
+        if(filtros && filtros.nome) {
+            dadosFiltrados = dadosFiltrados.filter(v => v.valor.dados_pessoais ? v.valor.dados_pessoais.nome.indexOf(filtros.nome) > -1 : false)
+        }
+        if(filtros && filtros.email) {
+            dadosFiltrados = dadosFiltrados.filter(v => v.valor.email.indexOf(filtros.email) > -1)
+        }
+        if(filtros && filtros.fator !== '') {
+            dadosFiltrados = dadosFiltrados.filter(v => v.valor.dados_colaborador ? v.valor.dados_colaborador.fator_produtividade === filtros.fator : false)
+        }
+        if(filtros && filtros.cargo) {
+            dadosFiltrados = dadosFiltrados.filter(v => v.valor.dados_colaborador ? v.valor.dados_colaborador.cargo.indexOf(filtros.cargo) > -1 : false)
+        }
+        if(filtros && filtros.situacao) {
+            dadosFiltrados = dadosFiltrados.filter(v => v.valor.situacao === filtros.situacao)
+        }
+        if(filtros && filtros.equipe && filtros.equipe.descricao) {
+            dadosFiltrados = dadosFiltrados.filter(v => v.valor.dados_colaborador ? v.valor.dados_colaborador.equipe.nome === filtros.equipe.descricao : false)
+        }
+        if(filtros && filtros.funcao && filtros.funcao.descricao) {
+            dadosFiltrados = dadosFiltrados.filter(v => v.valor.dados_colaborador ? v.valor.dados_colaborador.funcao.nome === filtros.funcao.descricao : false)
+        }
+        if(dadosFiltrados.length > qtdLinhasPaginacao) {
+            let qtdPaginas = Math.ceil(dadosFiltrados.length / qtdLinhasPaginacao)
+            if(totalPaginas !== qtdPaginas) {
+                setTotalPaginas(qtdPaginas)
+                if(paginaAtual > qtdPaginas) {
+                    setPaginaAtual(qtdPaginas)
+                }
+            }
+            dadosFiltrados = dadosFiltrados.filter((v, i, o) => i >= ((qtdLinhasPaginacao * paginaAtual) - qtdLinhasPaginacao) && i <= (qtdLinhasPaginacao * paginaAtual)-1)
+        } else {
+            if(totalPaginas !== 1) {
+                setTotalPaginas(1)
+                if(paginaAtual > 1) {
+                    setPaginaAtual(1)
+                }
+            }
+        }      
+        setLinhasGridUsuario(dadosFiltrados.map((v, i) =>
+            <tr key={i}>
+                <td>
+                    {v.valor.dados_pessoais ? v.valor.dados_pessoais.nome : null}
+                </td>
+                <td>
+                    {v.valor.email}
+                </td>
+                <td>
+                    {v.valor.dados_colaborador ? v.valor.dados_colaborador.cargo : null}
+                </td>
+                <td>
+                    {v.valor.dados_colaborador && v.valor.dados_colaborador.equipe ? v.valor.dados_colaborador.equipe.nome : null}
+                </td>
+                <td>
+                    {v.valor.dados_colaborador && v.valor.dados_colaborador.funcao ? v.valor.dados_colaborador.funcao.nome : null}
+                </td>
+                <td>
+                    {v.valor.dados_colaborador ? v.valor.dados_colaborador.fator_produtividade : null}
+                </td>
+                <td>
+                    <Badge pill bg={v.valor.situacao==='ativo'?'primary':'danger'}>{v.valor.situacao}</Badge>
+                </td>
+                <td>
+                    <PencilSquare 
+                        id={v.valor._id}
+                        size={20}
+                        onClick={(e) => IniciaEdicao(e)} />
+                </td>
+            </tr>)
+        )
+    }
+
+    function MontaPaginacaoTabela() {
+        if(totalPaginas >= 1 && totalPaginas <= 3) {
+            let listaPaginas = []
+            for (let index = 1; index <= totalPaginas; index++) {
+                listaPaginas.push(index)                                        
+            }
+            return (<>
+                <Pagination.First
+                    id='first'
+                    hidden={true}
+                    onClick={(e) => MudaPaginaTabela(e)} />
+                {listaPaginas.map((v, i, o) => <Pagination.Item
+                                                    id={'pag'+v}
+                                                    key={i} 
+                                                    className={paginaAtual===v ? 'destaquePag' : ''}
+                                                    onClick={(e) => MudaPaginaTabela(e)} >
+                                                    {v}
+                                                </Pagination.Item>)}
+                <Pagination.Last
+                    id='last'
+                    hidden={true}
+                    onClick={(e) => MudaPaginaTabela(e)} />
+            </>)
+        } else {
+            return <Pagination.Item>{0}</Pagination.Item>
+        }
+    }
+
+    function MudaPaginaTabela(e) {
+        let campo = e.target.id
+        let valor = e.target.text        
+        switch (campo) {
+            case 'first':
+                if(paginaAtual !== 1) {
+                    setPaginaAtual(1)
+                }
+                break
+            case 'last':
+                if(paginaAtual !== totalPaginas) {
+                    setPaginaAtual(totalPaginas)
+                }
+                break
+            default:
+                if(campo.length > 3 && campo.substring(0, 3) === 'pag') {
+                    let valorNumerico = +valor
+                    if(paginaAtual !== valorNumerico) {
+                        setPaginaAtual(valorNumerico)
+                    }
+                }
+                break
+        }
+        setClicouNavegacaoGrid(!clicouNavegacaoGrid)
+    }
+
+    function AbreModalPesquisa(pesquisarPor) {
+        switch (pesquisarPor) {
+            case 'botao-equipe':
+                setTituloModal('Equipes')
+                setMostrarModalPesquisa(true)
+                break
+            case 'botao-funcao':
+                setTituloModal('Funções')
+                setMostrarModalPesquisa(true)
+                break
+            default:
+                break
+        }
+    }
+
+    function RetornaDadosModal(dados) {
+        setMostrarModalPesquisa(false)
+        setTituloModal('')
+        if(!(dados && dados.campo)) {
+            return
+        }
+        switch(dados.campo) {
+            case 'Equipes':
+                setEquipeSelec(dados.selecionados)
+                break
+            case 'Funções':
+                setFuncaoSelec(dados.selecionados)
+                break
+            default:
+                break
+        }
+    }
+
+    function LimparTela() {
+        setNomeUsuario('')
+        setEmailUsuario('')
+        setFatorUsuario('')
+        setCargoUsuario('')
+        setSituacaoUsuario(true)
+        setIgnorarSituacao(true)
+        setEquipeUsuario('')
+        setEquipeSelec([])
+        setFuncaoUsuario('')
+        setFuncaoSelec([])
+        setfiltrou(false)
+        setDadosParaAtualizar({})
+        MontaLinhasGridUsuario(listaDadosUsuario, null)
+    }
+
+    function SalvarDados() {
+        let dadosLogin = {
+            usuario: props.usuariologin.email,
+            senha: props.usuariologin.dados_acesso.senha
+        }
+        if(dadosParaAtualizar && dadosParaAtualizar._id) {
+            let dados = {
+                email: emailUsuario,
+                situacao: situacaoUsuario ? 'ativo' : 'inativo'
+            }
+            if(dadosParaAtualizar && dadosParaAtualizar._id) {
+                dados._id = dadosParaAtualizar._id
+                dados.__v = dadosParaAtualizar.__v
+            }
+            if(nomeUsuario) {
+                dados.dados_pessoais = {
+                    nome: nomeUsuario
+                }
+            }
+            if(dadosParaAtualizar.dados_pessoais && dadosParaAtualizar.dados_pessoais.cpf) {
+                if(dados.dados_pessoais) {
+                    dados.dados_pessoais.cpf = dadosParaAtualizar.dados_pessoais.cpf
+                } else {
+                    dados.dados_pessoais = {
+                        cpf: dadosParaAtualizar.dados_pessoais.cpf
+                    }
+                }
+            }
+            if(cargoUsuario || fatorUsuario !== '' || equipeSelec.length > 0 || funcaoSelec.length > 0) {
+                dados.dados_colaborador = {}
+                if(cargoUsuario) {
+                    dados.dados_colaborador.cargo = cargoUsuario
+                }
+                if(fatorUsuario !== '') {
+                    dados.dados_colaborador.fator_produtividade = fatorUsuario
+                }
+                if(equipeSelec.length > 0) {
+                    dados.dados_colaborador.equipe = {
+                        id: equipeSelec[0].codigo,
+                        nome: equipeSelec[0].descricao
+                    }
+                }
+                if(funcaoSelec.length > 0) {
+                    dados.dados_colaborador.funcao = {
+                        id: funcaoSelec[0].codigo,
+                        nome: funcaoSelec[0].descricao
+                    }
+                }
+            }
+            if(dadosParaAtualizar.dados_acesso && dadosParaAtualizar.dados_acesso.senha) {
+                dados.dados_acesso = {
+                    data_ultimo_acesso: dadosParaAtualizar.dados_acesso.data_ultimo_acesso,
+                    ind_acesso_temporario: dadosParaAtualizar.dados_acesso.ind_acesso_temporario,
+                    senha: dadosParaAtualizar.dados_acesso.senha,
+                    situacao: dadosParaAtualizar.dados_acesso.situacao
+                }
+            }
+            ServicoUsuario
+            .AtualizaUsuario(dadosLogin, dados)
+            .then((resp) => {
+                if(resp.erro) {
+                    console.error(resp.msgErro)
+                }
+            }).catch((err) => {
+                console.error(err)
+            }).finally(() => {
+                LimparTela()
+                ListaUsuarios()
+            })
+        } else {
+            let dados = {
+                email: emailUsuario,
+                situacao: situacaoUsuario ? 'ativo' : 'inativo',
+                dados_acesso: {
+                    ind_acesso_temporario: false,
+                    situacao: 'aprovado'
+                }
+            }
+            if(nomeUsuario) {
+                dados.dados_pessoais = {
+                    nome: nomeUsuario
+                }
+            }
+            if(cargoUsuario || fatorUsuario !== '' || equipeSelec.length > 0 || funcaoSelec.length > 0) {
+                dados.dados_colaborador = {}
+                if(cargoUsuario) {
+                    dados.dados_colaborador.cargo = cargoUsuario
+                }
+                if(fatorUsuario !== '') {
+                    dados.dados_colaborador.fator_produtividade = fatorUsuario
+                }
+                if(equipeSelec.length > 0) {
+                    dados.dados_colaborador.equipe = {
+                        id: equipeSelec[0].codigo,
+                        nome: equipeSelec[0].descricao
+                    }
+                }
+                if(funcaoSelec.length > 0) {
+                    dados.dados_colaborador.funcao = {
+                        id: funcaoSelec[0].codigo,
+                        nome: funcaoSelec[0].descricao
+                    }
+                }
+            }
+            ServicoUsuario
+            .InsereUsuario(dadosLogin, dados)
+            .then((resp) => {
+                if(resp.erro) {
+                    console.error(resp.msgErro)
+                }
+            }).catch((err) => {
+                console.error(err)
+            }).finally(() => {
+                LimparTela()
+                ListaUsuarios()
+            })
+        }
+    }
+
+    function IniciaEdicao(e) {
+        let id = e.target.id ? e.target.id : e.target.parentElement.id
+        if(id) {
+            let dado = listaDadosUsuario.filter(v => v.valor._id === id)[0]
+            setDadosParaAtualizar(dado.valor)
+            setNomeUsuario(dado.valor.dados_pessoais && dado.valor.dados_pessoais.nome ? dado.valor.dados_pessoais.nome : '')
+            setEmailUsuario(dado.valor.email)
+            setFatorUsuario(dado.valor.dados_colaborador && dado.valor.dados_colaborador.fator_produtividade ? dado.valor.dados_colaborador.fator_produtividade : '')
+            setCargoUsuario(dado.valor.dados_colaborador && dado.valor.dados_colaborador.cargo ? dado.valor.dados_colaborador.cargo : '')
+            setSituacaoUsuario(dado.valor.situacao === 'ativo')
+            setIgnorarSituacao(false)
+            let equipe = []
+            if(dado.valor.dados_colaborador && dado.valor.dados_colaborador.equipe) {
+                equipe.push({
+                    codigo: dado.valor.dados_colaborador.equipe.id,
+                    descricao: dado.valor.dados_colaborador.equipe.nome
+                })
+            }
+            setEquipeSelec(equipe)
+            let funcao = []
+            if(dado.valor.dados_colaborador && dado.valor.dados_colaborador.funcao) {
+                funcao.push({
+                    codigo: dado.valor.dados_colaborador.funcao.id,
+                    descricao: dado.valor.dados_colaborador.funcao.nome
+                })
+            }
+            setFuncaoSelec(funcao)
+        }
+    }
+
     return (
         <Container>
             <Row>
                 <Col>
                     <Stack>
                         <Form.Group>
-                            <Form.Control type="email" placeholder="name@example.com" />
+                            <Form.Control
+                                id='nomeusuario'
+                                type='text' 
+                                placeholder='Nome do usuário...'
+                                value={nomeUsuario}
+                                onChange={(e) => setNomeUsuario(e.target.value)} />
                         </Form.Group>
-                        <Form.Group>
-                            <Form.Label>Fator de Produtividade</Form.Label>
-                            <Form.Control type="number"/>
-                        </Form.Group>
-                        <div className='d-flex justify-content-center'>
-                            <h4>Usuário Ativo</h4>
-                        </div>
+                        <InputGroup>
+                            <Form.Control
+                                id='emailusuario'
+                                type='email' 
+                                placeholder='E-mail do usuário...'
+                                value={emailUsuario}
+                                onChange={(e) => setEmailUsuario(e.target.value)} />
+                        </InputGroup>
+                        <InputGroup>
+                            <InputGroup.Text>Fator de Produtividade</InputGroup.Text>
+                            <Form.Control
+                                id='fatorusuario'
+                                type='number'
+                                max={10}
+                                min={0}
+                                step={0.1}
+                                className='tamanho-input ms-auto'
+                                value={fatorUsuario}                                
+                                onChange={(e) => setFatorUsuario(+e.target.value)} />
+                        </InputGroup>
                     </Stack>
                 </Col>
                 <Col>
                     <Stack>
                         <Form.Group>
-                            <Form.Control type="text" placeholder="Cargo..." />
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Control
+                                        id=''
+                                        type='text'
+                                        placeholder='Cargo...'
+                                        value={cargoUsuario}
+                                        onChange={(e) => setCargoUsuario(e.target.value)} />
+                                </Col>
+                                <Col>
+                                    <Form.Check
+                                        id={'situcao'}
+                                        type='checkbox'
+                                        label='Ativo'
+                                        disabled={ignorarSituacao}
+                                        checked={situacaoUsuario}
+                                        onChange={(e) => setSituacaoUsuario(e.target.checked)} />
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Check
+                                        id={'ignorarsitucao'}
+                                        type='checkbox'
+                                        label='Ignorar situação'
+                                        checked={ignorarSituacao}
+                                        onChange={(e) => setIgnorarSituacao(e.target.checked)} />
+                                </Col>
+                            </Row>
                         </Form.Group>
                         <InputGroup>
                             <Form.Control
-                                placeholder="Recipient's username"
-                                aria-label="Recipient's username"
-                                aria-describedby="basic-addon2" />
-                            <Button variant="outline-secondary" id="button-addon2">Button</Button>
+                                id='equipeusuario'
+                                placeholder='Escolha a equipe...'
+                                disabled={true}
+                                value={equipeUsuario} />
+                            <Button 
+                                id='botao-equipe'
+                                variant='outline-secondary'
+                                onClick={(e) => AbreModalPesquisa(e.target.id)}>
+                                Pesquisar
+                            </Button>
                         </InputGroup>
                         <InputGroup>
                             <Form.Control
-                                placeholder="Recipient's username"
-                                aria-label="Recipient's username"
-                                aria-describedby="basic-addon2" />
-                            <Button variant="outline-secondary" id="button-addon2">Button</Button>
+                                id='funcaousuario'
+                                placeholder='Escolha a função...'
+                                disabled={true}
+                                value={funcaoUsuario} />
+                            <Button 
+                                id='botao-funcao'
+                                variant='outline-secondary'
+                                onClick={(e) => AbreModalPesquisa(e.target.id)}>
+                                Pesquisar
+                            </Button>
                         </InputGroup>
                     </Stack>
                 </Col>
@@ -56,52 +540,54 @@ function UsuarioCadastro(props) {
                         <thead>
                             <tr>
                                 <th>Usuário</th>
+                                <th>E-mail</th>
                                 <th>Cargo</th>
                                 <th>Equipe</th>
                                 <th>Função</th>
                                 <th>Fator</th>
                                 <th>Situação</th>
+                                <th>Ação</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Carlos Junior</td>
-                                <td>Desenvolvedor I</td>
-                                <td>Time A</td>
-                                <td>Desenvolvedor</td>
-                                <td>0.75</td>
-                                <td>
-                                    <Badge pill bg="primary">Ativo</Badge>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Juliana Santos</td>
-                                <td>Desenvolvedora III</td>
-                                <td>Time D</td>
-                                <td>Desenvolvedor</td>
-                                <td>1.15</td>
-                                <td>
-                                    <Badge pill bg="danger">Inativo</Badge>
-                                </td>
-                            </tr>
+                            {linhasGridUsuario}
                         </tbody>
                     </Table>
                     <Pagination className='d-flex justify-content-center'>
-                        <Pagination.First />
-                        <Pagination.Item>{1}</Pagination.Item>
-                        <Pagination.Last />
+                        {MontaPaginacaoTabela()}
                     </Pagination>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <Stack direction="horizontal" className='d-flex flex-row-reverse' gap={2}>
-                        <Button variant="danger">Inativar</Button>
-                        <Button variant="light">Limpar</Button>
-                        <Button variant="primary">Adicionar</Button>
+                    <Stack direction='horizontal' className='d-flex flex-row-reverse' gap={2}>
+                        <Button 
+                            variant='primary'
+                            onClick={() => SalvarDados()}>
+                            {dadosParaAtualizar && dadosParaAtualizar._id ? 'Atualizar' : 'Adicionar'}
+                        </Button>
+                        <Button 
+                            variant='light' 
+                            onClick={() => LimparTela()}>
+                            Limpar
+                        </Button>
+                        <Button 
+                            variant='light' 
+                            onClick={() => setClicouFiltrar(!clicouFiltrar)}>
+                            Filtrar
+                        </Button>
                     </Stack>
                 </Col>
             </Row>
+
+            {/* Modais */}
+            <ModalPesquisa
+                usuario={props.usuariologin}
+                titulo={tituloModal}
+                multiselecao={'false'}
+                selecionados={tituloModal==='Equipes' ? equipeSelec : tituloModal==='Funções' ? funcaoSelec : []}
+                show={mostrarModalPesquisa}
+                onHide={(dadosSelecionados) => RetornaDadosModal(dadosSelecionados)} />
         </Container>
     )
 }
