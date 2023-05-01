@@ -2,19 +2,19 @@ import React, { useEffect, useState } from 'react'
 import Modal from 'react-bootstrap/Modal'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import Dropdown from 'react-bootstrap/Dropdown'
-import DropdownButton from 'react-bootstrap/DropdownButton'
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
 import Table from 'react-bootstrap/Table'
 import Pagination from 'react-bootstrap/Pagination'
 import { DashCircle, PlusCircle } from 'react-bootstrap-icons'
+import { ServicoUsuario } from '../../../../service/servico'
+
 
 function ModalGerenciarIntegrantes(props) {
     const qtdLinhasPaginacao = 3
 
     const [nomePesquisa, setNomePesquisa] = useState('')
-    const [tipoPesquisa, setTipoPesquisa] = useState('')
+    const [listaDadosIntegrantes, setListaDadosIntegrantes] = useState([])
     const [listaDadosPesquisa, setListaDadosPesquisa] = useState([])
     const [totalPaginasPesquisa, setTotalPaginasPesquisa] = useState(1)
     const [paginaAtualPesquisa, setPaginaAtualPesquisa] = useState(1)
@@ -22,100 +22,54 @@ function ModalGerenciarIntegrantes(props) {
     const [paginaAtualIntegrantes, setPaginaAtualIntegrantes] = useState(1)
 
     useEffect(() => {
-        setTipoPesquisa('Usuário')
+        let dadosLogin = {
+            usuario: props.usuariologin.email,
+            senha: props.usuariologin.dados_acesso.senha
+        }
+        ServicoUsuario
+        .RetornaListaUsuario(dadosLogin)
+        .then(resp => {
+            if(resp.erro) {
+                console.error(resp.msgErro)
+                setListaDadosPesquisa([])
+            } else {
+                let dados = resp.dados.map((v) => { return {
+                        id: v._id,
+                        nome: v.dados_pessoais.nome,
+                        funcao: v.dados_colaborador && v.dados_colaborador.funcao ? v.dados_colaborador.funcao.nome : '',
+                        equipe: v.dados_colaborador && v.dados_colaborador.equipe ? v.dados_colaborador.equipe.nome : '',
+                        obj: {
+                            funcao: {
+                                id: v.dados_colaborador && v.dados_colaborador.funcao ? v.dados_colaborador.funcao.id : '',
+                                nome: v.dados_colaborador && v.dados_colaborador.funcao ? v.dados_colaborador.funcao.nome : ''
+                            },
+                            equipe: {
+                                id: v.dados_colaborador && v.dados_colaborador.equipe ? v.dados_colaborador.equipe.id : '',
+                                nome: v.dados_colaborador && v.dados_colaborador.equipe ? v.dados_colaborador.equipe.nome : ''
+                            },
+                            id: v._id,
+                            nome: v.dados_pessoais.nome,
+                            cargo: v.dados_colaborador  ? v.dados_colaborador.cargo : ''
+                        }
+                    }
+                })
+                setListaDadosPesquisa(dados)
+            }
+        }).catch(err => {
+            console.error(err)
+            setListaDadosPesquisa([])
+        })
     }, [])
 
     useEffect(() => {
-        switch (tipoPesquisa) {
-            case 'Usuário':
-                setListaDadosPesquisa([
-                    {
-                        id: '00001',
-                        nome: 'João Carlos',
-                        obj: {}
-                    },
-                    {
-                        id: '00002',
-                        nome: 'Carlos Antônio',
-                        obj: {}
-                    },
-                    {
-                        id: '00003',
-                        nome: 'Antônio Marcio',
-                        obj: {}
-                    },
-                    {
-                        id: '00004',
-                        nome: 'Marcio Henrique',
-                        obj: {}
-                    },
-                    {
-                        id: '00005',
-                        nome: 'Henrique João',
-                        obj: {}
-                    }
-                ])
-                break
-            case 'Função':
-                setListaDadosPesquisa([
-                    {
-                        id: '00001',
-                        nome: 'Product Owner',
-                        obj: {}
-                    },
-                    {
-                        id: '00002',
-                        nome: 'Designer',
-                        obj: {}
-                    },
-                    {
-                        id: '00003',
-                        nome: 'Developer',
-                        obj: {}
-                    },
-                    {
-                        id: '00004',
-                        nome: 'Engineer',
-                        obj: {}
-                    },
-                    {
-                        id: '00005',
-                        nome: 'Q&A',
-                        obj: {}
-                    }
-                ])
-                break
-            case 'Equipe':
-                setListaDadosPesquisa([
-                    {
-                        id: '00001',
-                        nome: 'Sky One',
-                        obj: {}
-                    },
-                    {
-                        id: '00002',
-                        nome: 'Titans',
-                        obj: {}
-                    },
-                    {
-                        id: '00003',
-                        nome: 'Lovers',
-                        obj: {}
-                    },
-                    {
-                        id: '00004',
-                        nome: 'Furiosos',
-                        obj: {}
-                    }
-                ])
-                break
-            default:
-                break
-        }
-    }, [tipoPesquisa])
+        setListaDadosIntegrantes([...props.integrantes.dados])
+    }, [props.integrantes.dados])
 
     function InsereLinhasPesquisa(dados) {
         let dadosFiltrados = dados
+        if(listaDadosIntegrantes.length > 0) {
+            dadosFiltrados = dadosFiltrados.filter(v => listaDadosIntegrantes.findIndex(i => i.id === v.id))
+        }
         if(nomePesquisa) {       
             dadosFiltrados = dadosFiltrados.filter(v => v.nome.toLowerCase().indexOf(nomePesquisa.toLowerCase()) > -1)
         }
@@ -140,6 +94,12 @@ function ModalGerenciarIntegrantes(props) {
             <tr key={i}>
                 <td>
                     {v.nome}
+                </td>
+                <td>
+                    {v.funcao}
+                </td>
+                <td>
+                    {v.equipe}
                 </td>
                 <td>
                     <PlusCircle
@@ -297,17 +257,29 @@ function ModalGerenciarIntegrantes(props) {
 
     function RemoveIntegrante(e) {
         let id = e.target.id ? e.target.id : e.target.parentElement.id
-        console.log('RemoveIntegrante', id)
+        if(id) {
+            let restanteIntegrantes = listaDadosIntegrantes.filter(v => v.id !== id)
+            let itemIntegrante = listaDadosIntegrantes.filter(v => v.id === id)[0]
+            listaDadosPesquisa.push({
+                id: itemIntegrante.id,
+                nome: itemIntegrante.nome,
+                funcao: itemIntegrante.funcao.nome,
+                equipe: itemIntegrante.equipe.nome,
+                obj: itemIntegrante
+            })
+            setListaDadosPesquisa([...listaDadosPesquisa])
+            setListaDadosIntegrantes([...restanteIntegrantes])                   
+        }
     }
 
     function AdicionaIntegrantes(e) {
         let id = e.target.id ? e.target.id : e.target.parentElement.id
-        console.log('AdicionaIntegrantes', id)
-    }
-
-    function AlterandoTipoPesquisa(e) {
-        if(e !== tipoPesquisa) {
-            setTipoPesquisa(e)
+        if(id) {
+            let restantePesquisado = listaDadosPesquisa.filter(v => v.id !== id)
+            let itemPesquisado = listaDadosPesquisa.filter(v => v.id === id)[0]
+            listaDadosIntegrantes.push(itemPesquisado.obj)
+            setListaDadosPesquisa([...restantePesquisado])
+            setListaDadosIntegrantes([...listaDadosIntegrantes])                   
         }
     }
 
@@ -316,7 +288,8 @@ function ModalGerenciarIntegrantes(props) {
             {...props}
             size='md'
             aria-labelledby='contained-modal-title-vcenter'
-            centered>
+            centered
+            onExit={() => props.onHide({ idprojeto: props.integrantes.idprojeto, dados: listaDadosIntegrantes })}>
             <Modal.Header closeButton>
                 <Modal.Title 
                     id='contained-modal-title-vcenter'>
@@ -333,25 +306,18 @@ function ModalGerenciarIntegrantes(props) {
                                 id='nomepesquisa'
                                 value={nomePesquisa}
                                 onChange={(e) => setNomePesquisa(e.target.value)}/>
-                            <DropdownButton
-                                id='tipopesquisa'
-                                variant='outline-secondary'
-                                title={tipoPesquisa}
-                                align='end'
-                                onSelect={(e) => AlterandoTipoPesquisa(e)}>
-                                <Dropdown.Item eventKey={'Usuário'}>Usuário</Dropdown.Item>
-                                <Dropdown.Item eventKey={'Função'}>Função</Dropdown.Item>
-                                <Dropdown.Item eventKey={'Equipe'}>Equipe</Dropdown.Item>
-                            </DropdownButton>
+                            <InputGroup.Text>Usuário</InputGroup.Text>
                         </InputGroup>
                     </Col>
                 </Row>
                 <Row>
                     <Col>
-                        <Table striped>
+                        <Table striped responsive>
                             <thead>
                                 <tr>
                                     <th>Nome</th>
+                                    <th>Função</th>
+                                    <th>Equipe</th>
                                     <th>Ação</th>
                                 </tr>
                             </thead>
@@ -368,7 +334,7 @@ function ModalGerenciarIntegrantes(props) {
                     <Col>
                         <hr/>
                         <h6>Atualmente no projeto</h6>
-                        <Table striped>
+                        <Table striped responsive>
                             <thead>
                                 <tr>
                                     <th>Nome</th>
@@ -378,7 +344,7 @@ function ModalGerenciarIntegrantes(props) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {InsereLinhasIntegrantes(props.integrantes)}
+                                {InsereLinhasIntegrantes(listaDadosIntegrantes)}
                             </tbody>
                         </Table>
                         <Pagination className='d-flex justify-content-center'>                            

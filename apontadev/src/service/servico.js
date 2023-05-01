@@ -250,6 +250,31 @@ async function BuscaTodasPermissoes() {
     return retorno
 }
 
+async function BuscaTodosProjetos() {
+    let retorno = {
+        erro: false,
+        msgErro: '',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/projeto`
+        let resposta = await axios.get(url, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.length > 0) {
+            retorno.dados = resposta.data
+        } else if(resposta && resposta.data && resposta.data.msg) {
+            retorno.erro = true
+            retorno.msgErro = resposta.data.msg
+        } else {
+            retorno.erro = true
+            retorno.msgErro = 'Ocorreu um erro inesperado ao buscar os dados dos projetos!'
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
 async function AtualizaUsuario(dados) {
     let retorno = {
         erro: true,
@@ -357,6 +382,29 @@ async function AtualizaEquipe(dados) {
     return retorno
 }
 
+async function AtualizaProjeto(dados) {
+    let retorno = {
+        erro: true,
+        msgErro: 'Ocorreu um erro ao atualizar o projeto!'
+    }
+    try {
+        let url = `${urlBase}/projeto`
+        let resposta = await axios.put(url, dados, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.matchedCount > 0) {
+            retorno.erro = false
+            retorno.msgErro = ''
+        } else if(resposta && resposta.data && resposta.data.matchedCount === 0) {
+            retorno.msgErro = 'O projeto não foi encontrado!'
+        } else if(resposta && resposta.data && resposta.data.MsgErro && resposta.data.MsgErro.reason) {
+            retorno.msgErro = resposta.data.MsgErro.reason
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
 async function InserePadrao(dados) {
     let retorno = {
         erro: true,
@@ -449,6 +497,27 @@ async function InsereUsuario(dados) {
     }
     try {
         let url = `${urlBase}/usuario`
+        let resposta = await axios.post(url, dados, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data._id) {
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = resposta.data
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function InsereProjeto(dados) {
+    let retorno = {
+        erro: true,
+        msgErro: 'Ocorreu um erro ao inserir o projeto!',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/projeto`
         let resposta = await axios.post(url, dados, { headers: {'Authorization': objToken.token} })
         if(resposta && resposta.data && resposta.data._id) {
             retorno.erro = false
@@ -967,6 +1036,68 @@ export const ServicoUsuario = {
             retorno.erro = false
             retorno.msgErro = ''
             retorno.dados = respUsuario.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    }
+}
+
+export const ServicoProjeto = {
+    RetornaListaProjetos: async function(usuarioLogado) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao buscar os projetos!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respProjeto = await BuscaTodosProjetos()
+            if(respProjeto.erro) { return respProjeto }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respProjeto.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    AtualizaProjeto: async function(usuarioLogado, dadosFunc) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao atualizar os dados do projeto!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respProjeto = await AtualizaProjeto(dadosFunc)
+            if(respProjeto.erro) { return respProjeto }
+            retorno.erro = false
+            retorno.msgErro = ''
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    InsereProjeto: async function(usuarioLogado, dadosFunc) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao inserir o projeto!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respProjeto = await InsereProjeto(dadosFunc)
+            if(respProjeto.erro) { return respProjeto }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respProjeto.dados
             return retorno
         } catch (err) {
             retorno.msgErro = err

@@ -14,10 +14,12 @@ import { PeopleFill, People, PencilSquare } from 'react-bootstrap-icons'
 import MenuPrincipal from './../common/menu-principal/menu-principal'
 import NavBarTela from './../common/navbar-tela/navbar-tela'
 import ModalGerenciarIntegrantes from './components/modal-gerenciar-integrantes/modal-gerenciar-integrantes'
+import { ServicoProjeto } from './../../service/servico'
 
 function Projeto(props) {
     const navigate = useNavigate()
     const [nomeUsuario, setNomeUsuario] = useState('')
+    const [usuario, ] = useState(() => JSON.parse(sessionStorage.getItem('usuariologin')))
     const [nomeProjeto, setNomeProjeto] = useState('')
     const [codigoProjeto, setCodigoProjeto] = useState('')
     const [nomeCliente, setNomeCliente] = useState('')
@@ -30,7 +32,7 @@ function Projeto(props) {
     const [vigenciaFinal, setVigenciaFinal] = useState('')
     const [listaDadosProjeto, setListaDadosProjeto] = useState([])
     const [linhasGridProjeto, setLinhasGridProjeto] = useState([])    
-    const [integrantesSelec, setIntegrantesSelec] = useState([])
+    const [integrantesSelec, setIntegrantesSelec] = useState({ idprojeto: '', dados: [] })
     const [clicouFiltrar, setClicouFiltrar] = useState(false)
     const [filtrou, setfiltrou] = useState(false)
     const [totalPaginas, setTotalPaginas] = useState(1)
@@ -95,242 +97,33 @@ function Projeto(props) {
                 descricao: descricaoProjeto,
                 tipo: tipoProjeto,
                 estimativa: estimativaProjeto,
-                previsao: dataPrevista,
-                vigencia_inicial: vigenciaInicial,
-                vigencia_final: vigenciaFinal
+                previsao: `${dataPrevista}T03:00:00Z`,
+                vigencia_inicial: `${vigenciaInicial}T03:00:00Z`,
+                vigencia_final: `${vigenciaFinal}T03:00:00Z`
             }
         }
         MontaLinhasGridProjeto(listaDadosProjeto, filtros)
     }, [clicouNavegacaoGrid])
 
     function ListaProjetos() {
-        setListaDadosProjeto([
-            {
-                valor: {
-                    _id: '1001',
-                    titulo: 'Reuniões mensais',
-                    codigo_externo: 'Int002',
-                    descricao: 'Para controlar o esforço em reuniões',
-                    nome_cliente: 'ApontaDev',
-                    tipo: 'interno',
-                    etapa: 'backlog',
-                    previsao_conclusao: new Date(2023, 7, 31),
-                    inicio_projeto: new Date(2023, 1, 1),
-                    final_projeto: new Date(2023, 7, 31),
-                    horas_estimadas: 250,
-                    colaboradores: [
-                        {
-                            id: '000000000001',
-                            nome: 'Abel G C',
-                            cargo: 'programador II',
-                            funcao: {
-                                id: '000000000011',
-                                nome: 'programador'
-                            },
-                            equipe: {
-                                id: '000000000021',
-                                nome: 'triplo X'
-                            }
-                        }
-                    ]
-                }
-            },
-            {
-                valor: {
-                    _id: '1002',
-                    titulo: 'Apoio técnico',
-                    codigo_externo: 'Int001',
-                    descricao: 'Para controlar o esforço em apoios técnicos',
-                    nome_cliente: 'ApontaDev',
-                    tipo: 'interno',
-                    etapa: 'analise',
-                    previsao_conclusao: new Date(2023, 7, 31),
-                    inicio_projeto: new Date(2023, 1, 1),
-                    final_projeto: new Date(2023, 7, 31),
-                    horas_estimadas: 400,
-                    colaboradores: [
-                        {
-                            id: '000000000001',
-                            nome: 'Abel G C',
-                            cargo: 'programador II',
-                            funcao: {
-                                id: '000000000011',
-                                nome: 'programador'
-                            },
-                            equipe: {
-                                id: '000000000021',
-                                nome: 'triplo X'
-                            }
-                        },
-                        {
-                            id: '000000000002',
-                            nome: 'A C Martins',
-                            cargo: 'programador I',
-                            funcao: {
-                                id: '000000000011',
-                                nome: 'programador'
-                            },
-                            equipe: {
-                                id: '000000000022',
-                                nome: 'dobro A'
-                            }
-                        }
-                    ]
-                }
-            },
-            {
-                valor: {
-                    _id: '1003',
-                    titulo: 'Projeto A001',
-                    codigo_externo: 'A001',
-                    descricao: 'Desenvolvimento de aplicação Web',
-                    nome_cliente: 'Sites & Sites LTDA',
-                    tipo: 'externo',
-                    etapa: 'andamento',
-                    previsao_conclusao: new Date(2023, 5, 31),
-                    inicio_projeto: new Date(2023, 2, 28),
-                    final_projeto: new Date(2023, 6, 30),
-                    horas_estimadas: 350,
-                    colaboradores: []
-                }
-            },
-            {
-                valor: {
-                    _id: '1004',
-                    titulo: 'Projeto A002',
-                    codigo_externo: 'A002',
-                    descricao: 'Desenvolvimento de Aplicação para comparar preços',
-                    nome_cliente: 'Precim',
-                    tipo: 'externo',
-                    etapa: 'backlog',
-                    previsao_conclusao: new Date(2023, 6, 30),
-                    inicio_projeto: new Date(2023, 4, 1),
-                    final_projeto: new Date(2023, 7, 20),
-                    horas_estimadas: 280
-                }
-            },
-            {
-                valor: {
-                    _id: '1005',
-                    titulo: 'Projeto B045',
-                    codigo_externo: 'B045',
-                    descricao: 'Desenvolvimento de aplicação para controle de frota',
-                    nome_cliente: 'Carrocinha do jãozim',
-                    tipo: 'externo',
-                    etapa: 'concluido',
-                    previsao_conclusao: new Date(2023, 4, 30),
-                    inicio_projeto: new Date(2023, 4, 1),
-                    final_projeto: new Date(2023, 5, 15),
-                    horas_estimadas: 43,
-                    colaboradores: [
-                        {
-                            id: '000000000001',
-                            nome: 'Abel G C',
-                            cargo: 'programador II',
-                            funcao: {
-                                id: '000000000011',
-                                nome: 'programador'
-                            },
-                            equipe: {
-                                id: '000000000021',
-                                nome: 'triplo X'
-                            }
-                        }
-                    ]
-                }
-            },
-            {
-                valor: {
-                    _id: '1006',
-                    titulo: 'Projeto C000',
-                    codigo_externo: 'C000',
-                    descricao: 'Desenvolvimento de aplicação para controle de estoque',
-                    nome_cliente: 'Estoquim',
-                    tipo: 'externo',
-                    etapa: 'backlog',
-                    previsao_conclusao: new Date(2023, 7, 31),
-                    inicio_projeto: new Date(2023, 3, 11),
-                    final_projeto: new Date(2023, 8, 15),
-                    horas_estimadas: 195,
-                    colaboradores: []
-                }
-            },
-            {
-                valor: {
-                    _id: '1007',
-                    titulo: 'Projeto A003',
-                    codigo_externo: 'A003',
-                    descricao: 'Desenvolvimento de aplicação para controle de foguetes',
-                    nome_cliente: 'foguetim SA',
-                    tipo: 'externo',
-                    etapa: 'cancelado',
-                    previsao_conclusao: new Date(2023, 6, 21),
-                    inicio_projeto: new Date(2023, 5, 1),
-                    final_projeto: new Date(2023, 6, 30),
-                    horas_estimadas: 120,
-                    colaboradores: [
-                        {
-                            id: '000000000005',
-                            nome: 'João B',
-                            cargo: 'especialista de software',
-                            funcao: {
-                                id: '000000000011',
-                                nome: 'programador'
-                            },
-                            equipe: {
-                                id: '000000000023',
-                                nome: 'Incansáveis'
-                            }
-                        },
-                        {
-                            id: '000000000004',
-                            nome: 'Thais M',
-                            cargo: 'tester III',
-                            funcao: {
-                                id: '000000000014',
-                                nome: 'analista de qualidade'
-                            },
-                            equipe: {
-                                id: '000000000023',
-                                nome: 'Incansáveis'
-                            }
-                        },
-                        {
-                            id: '000000000003',
-                            nome: 'Jessica Amaro',
-                            cargo: 'PO proxy',
-                            funcao: {
-                                id: '000000000013',
-                                nome: 'analista de negócio'
-                            },
-                            equipe: {
-                                id: '000000000023',
-                                nome: 'Incansáveis'
-                            }
-                        }
-                    ]
-                }
-            }
-        ]
-        )
-        /*let dadosLogin = {
+        let dadosLogin = {
             usuario: usuario.email,
             senha: usuario.dados_acesso.senha
         }
-        ServicoFuncao
-        .RetornaListaFuncoes(dadosLogin)
+        ServicoProjeto
+        .RetornaListaProjetos(dadosLogin)
         .then((resp) => {
             if(resp.erro) {
                 console.error(resp.msgErro)
-                setListaDadosFuncao([])
+                setListaDadosProjeto([])
             } else {
                 let dados = resp.dados.map((v) => { return { valor: v } })
-                setListaDadosFuncao(dados)
+                setListaDadosProjeto(dados)
             }
         }).catch((err) => {
             console.error(err)
-            setListaDadosFuncao([])
-        })*/
+            setListaDadosProjeto([])
+        })
     }
 
     const AbaClicada = function (evento) {
@@ -363,17 +156,17 @@ function Projeto(props) {
         if (filtros && filtros.previsao !== '') {
             let dataQuebrada = filtros.previsao.split('-')
             let dataPrevista = new Date(+dataQuebrada[0], +dataQuebrada[1]-1, +dataQuebrada[2])
-            dadosFiltrados = dadosFiltrados.filter(v => v.valor.previsao_conclusao.getTime() === dataPrevista.getTime())
+            dadosFiltrados = dadosFiltrados.filter(v => new Date(v.valor.previsao_conclusao).getTime() === dataPrevista.getTime())
         }
         if (filtros && filtros.vigencia_inicial !== '') {
             let dataQuebrada = filtros.vigencia_inicial.split('-')
             let dataInicial = new Date(+dataQuebrada[0], +dataQuebrada[1]-1, +dataQuebrada[2])
-            dadosFiltrados = dadosFiltrados.filter(v => v.valor.inicio_projeto.getTime() >= dataInicial.getTime())
+            dadosFiltrados = dadosFiltrados.filter(v => new Date(v.valor.inicio_projeto).getTime() >= dataInicial.getTime())
         }
         if (filtros && filtros.vigencia_final !== '') {
             let dataQuebrada = filtros.vigencia_final.split('-')
             let dataFinal = new Date(+dataQuebrada[0], +dataQuebrada[1]-1, +dataQuebrada[2])
-            dadosFiltrados = dadosFiltrados.filter(v => v.valor.final_projeto.getTime() <= dataFinal.getTime())
+            dadosFiltrados = dadosFiltrados.filter(v => new Date(v.valor.final_projeto).getTime() <= dataFinal.getTime())
         }
         if (dadosFiltrados.length > qtdLinhasPaginacao) {
             let qtdPaginas = Math.ceil(dadosFiltrados.length / qtdLinhasPaginacao)
@@ -410,10 +203,10 @@ function Projeto(props) {
                     {v.valor.nome_cliente}
                 </td>
                 <td>
-                    {`${FormataData(v.valor.inicio_projeto, 'DD/MM/YYYY')} - ${FormataData(v.valor.final_projeto, 'DD/MM/YYYY')}`}
+                    {`${FormataData(new Date(v.valor.inicio_projeto), 'DD/MM/YYYY')} - ${FormataData(new Date(v.valor.final_projeto), 'DD/MM/YYYY')}`}
                 </td>
                 <td>
-                    {FormataData(v.valor.previsao_conclusao, 'DD/MM/YYYY')}
+                    {FormataData(new Date(v.valor.previsao_conclusao), 'DD/MM/YYYY')}
                 </td>
                 <td>
                     {v.valor.horas_estimadas}
@@ -495,17 +288,23 @@ function Projeto(props) {
     }
 
     function SalvarDados() {
-        /*let dadosLogin = {
+        let dadosLogin = {
             usuario: usuario.email,
             senha: usuario.dados_acesso.senha
         }
         if(dadosParaAtualizar && dadosParaAtualizar._id) {
-            dadosParaAtualizar.nome = nomeFuncao
-            dadosParaAtualizar.fator_produtividade_esperado = fatorFuncao
-            dadosParaAtualizar.percentual_estimativa_esperado = percSimulacaoFuncao
-            dadosParaAtualizar.situacao = situacaoFuncao ? 'ativo' : 'inativo'
-            ServicoFuncao
-            .AtualizaFuncao(dadosLogin, dadosParaAtualizar)
+            dadosParaAtualizar.titulo = nomeProjeto
+            dadosParaAtualizar.codigo_externo = codigoProjeto
+            dadosParaAtualizar.nome_cliente = nomeCliente
+            dadosParaAtualizar.etapa = etapaProjeto
+            dadosParaAtualizar.descricao = descricaoProjeto
+            dadosParaAtualizar.tipo = tipoProjeto
+            dadosParaAtualizar.horas_estimadas = estimativaProjeto
+            dadosParaAtualizar.previsao_conclusao = `${dataPrevista}T03:00:00Z`
+            dadosParaAtualizar.inicio_projeto = `${vigenciaInicial}T03:00:00Z`
+            dadosParaAtualizar.final_projeto = `${vigenciaFinal}T03:00:00Z`
+            ServicoProjeto
+            .AtualizaProjeto(dadosLogin, dadosParaAtualizar)
             .then((resp) => {
                 if(resp.erro) {
                     console.error(resp.msgErro)
@@ -514,17 +313,24 @@ function Projeto(props) {
                 console.error(err)
             }).finally(() => {
                 LimparTela()
-                ListaFuncoes()
+                ListaProjetos()
             })
         } else {
             let dados = {
-                nome: nomeFuncao,
-                fator_produtividade_esperado: fatorFuncao,
-                percentual_estimativa_esperado: percSimulacaoFuncao,
-                situacao: situacaoFuncao ? 'ativo' : 'inativo'
+                titulo: nomeProjeto,
+                codigo_externo: codigoProjeto,
+                descricao: descricaoProjeto,
+                nome_cliente: nomeCliente,
+                tipo: tipoProjeto,
+                etapa: etapaProjeto,
+                previsao_conclusao: `${dataPrevista}T03:00:00Z`,
+                inicio_projeto: `${vigenciaInicial}T03:00:00Z`,
+                final_projeto: `${vigenciaFinal}T03:00:00Z`,
+                horas_estimadas: estimativaProjeto,
+                colaboradores: []
             }
-            ServicoFuncao
-            .InsereFuncao(dadosLogin, dados)
+            ServicoProjeto
+            .InsereProjeto(dadosLogin, dados)
             .then((resp) => {
                 if(resp.erro) {
                     console.error(resp.msgErro)
@@ -533,9 +339,9 @@ function Projeto(props) {
                 console.error(err)
             }).finally(() => {
                 LimparTela()
-                ListaFuncoes()
+                ListaProjetos()
             })
-        }*/
+        }
     }
 
     function LimparTela() {
@@ -566,30 +372,46 @@ function Projeto(props) {
             setDescricaoProjeto(dado.valor.descricao)
             setTipoProjeto(dado.valor.tipo)
             setEstimativaProjeto(dado.valor.horas_estimadas)
-            setDataPrevista(FormataData(dado.valor.previsao_conclusao))
-            setVigenciaInicial(FormataData(dado.valor.inicio_projeto))
-            setVigenciaFinal(FormataData(dado.valor.final_projeto))
+            setDataPrevista(FormataData(new Date(dado.valor.previsao_conclusao)))
+            setVigenciaInicial(FormataData(new Date(dado.valor.inicio_projeto)))
+            setVigenciaFinal(FormataData(new Date(dado.valor.final_projeto)))
         }
     }
 
     function FormataData(data, padrao='yyyy-MM-dd') {
-        let strDia = data.getDate().toString().padStart(2, '0')
-        let strMes = (data.getMonth()+1).toString().padStart(2, '0')
-        let strAno = data.getFullYear().toString()
-        let dataRetorno = padrao.toLowerCase().replace('dd', strDia).replace('mm', strMes).replace('yyyy', strAno)
-        return dataRetorno
+        try {
+            let strDia = data.getDate().toString().padStart(2, '0')
+            let strMes = (data.getMonth()+1).toString().padStart(2, '0')
+            let strAno = data.getFullYear().toString()
+            let dataRetorno = padrao.toLowerCase().replace('dd', strDia).replace('mm', strMes).replace('yyyy', strAno)
+            return dataRetorno            
+        } catch {
+            return '' 
+        }
     }
 
     function AbreModalIntegrantes(e) {
         let id = e.target.id ? e.target.id : e.target.parentElement.id
         if(id) {
+            IniciaEdicao(e)
+            integrantesSelec.idprojeto = id
             let dado = listaDadosProjeto.filter(v => v.valor._id === id)[0]
             if(dado.valor && dado.valor.colaboradores && dado.valor.colaboradores.length > 0) {
-                setIntegrantesSelec(dado.valor.colaboradores)
+                integrantesSelec.dados = dado.valor.colaboradores
             } else {
-                setIntegrantesSelec([])
+                integrantesSelec.dados = []
             }
+            setIntegrantesSelec(integrantesSelec)
             setMostrarModalIntegrantes(true)
+        }
+    }
+
+    function RetornoModalIntegrantes(retorno) {
+        setMostrarModalIntegrantes(false)
+        if(retorno && retorno.idprojeto) {
+            let indice = listaDadosProjeto.findIndex(v => v.valor._id === retorno.idprojeto)
+            listaDadosProjeto[indice].valor.colaboradores = retorno.dados
+            setListaDadosProjeto([...listaDadosProjeto])
         }
     }
 
@@ -758,8 +580,9 @@ function Projeto(props) {
             {/* Modais */}
             <ModalGerenciarIntegrantes 
                 integrantes={integrantesSelec}
+                usuariologin={usuario}
                 show={mostrarModalIntegrantes}
-                onHide={() => setMostrarModalIntegrantes(false)} />
+                onHide={(retorno) => RetornoModalIntegrantes(retorno)} />
         </Container>
     )
 }
