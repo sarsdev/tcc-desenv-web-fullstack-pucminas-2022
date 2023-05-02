@@ -9,18 +9,47 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import Button from 'react-bootstrap/Button'
 import Table from 'react-bootstrap/Table'
 import Pagination from 'react-bootstrap/Pagination'
-import { GearFill, FileEarmarkSpreadsheetFill, FileEarmarkPptFill, PlayCircle, StopCircle } from 'react-bootstrap-icons'
+import { 
+    GearFill, 
+    FileEarmarkSpreadsheetFill, 
+    FileEarmarkPptFill, 
+    PlayCircle, 
+    StopCircle } from 'react-bootstrap-icons'
 import MenuPrincipal from './../common/menu-principal/menu-principal'
 import NavBarTela from './../common/navbar-tela/navbar-tela'
+import ModalDadosProjeto from './components/modal-dados-projeto/modal-dados-projeto'
+import ModalApontamentosProjeto from './components/modal-apontamentos-projeto/modal-apontamentos-projeto'
+import ModalConfigAgenda from './components/modal-config-agenda/modal-config-agenda'
+import ModalApontamentosDia from './components/modal-apontamentos-dia/modal-apontamentos-dia'
+import ModalObservacao from './components/modal-observacao/modal-observacao'
+import { ServicoAgenda } from './../../service/servico'
 
 function Agenda(props) {
     const navigate = useNavigate()
     const [nomeUsuario, setNomeUsuario] = useState('')
+    const [usuario, ] = useState(() => JSON.parse(sessionStorage.getItem('usuariologin')))
     const [nomeProjeto, setNomeProjeto] = useState('')
+    const [horasApontDia, setHorasApontDia] = useState('')
     const [linhasDadosAgenda, setLinhasDadosAgenda] = useState([])
     const [totalPaginas, setTotalPaginas] = useState(1)
     const [paginaAtual, setPaginaAtual] = useState(1)
     const [clicouNavegacaoGrid, setClicouNavegacaoGrid] = useState(false)
+    const [dadosProjeto, setDadosProjeto] = useState({
+        nomecliente: '',
+        dataprevista: '',
+        horasestimadas: '',
+        horasconsumidas: ''
+    })
+    const [mostraModalDadosProj, setMostraModalDadosProj] = useState(false)
+    const [apontamentosProj, setApontamentosProj] = useState([])
+    const [mostraModalApontProj, setMostraModalApontProj] = useState(false)
+    const [configAgenda, setConfigAgenda] = useState({})
+    const [mostraModalConfigAgenda, setMostraModalConfigAgenda] = useState(false)
+    const [apontamentosDia, setApontamentosDia] = useState([])
+    const [mostraModalApontDia, setMostraModalApontDia] = useState(false)
+    const [idModalObservacao, setIdModalObservacao] = useState('')
+    const [mostraModalObservacao, setMostraModalObservacao] = useState(false)
+    const [idAgendaApont, setIdAgendaApont] = useState('')
 
     const qtdLinhasPaginacao = 5
     const abaComFocoInicial = 'aba001'
@@ -36,122 +65,65 @@ function Agenda(props) {
         if (usuariologin && usuariologin._id) {
             setNomeUsuario(usuariologin.dados_pessoais.nome)
             ListaAgenda()
+            ListaConfigAgenda()
         } else {
             navigate('/app/acesso')
         }
     }, [])
 
     useEffect(() => {
+        AtualizaHorasApontadasDia()
+        if(configAgenda.encerra_apont_ao_iniciar_outro && idAgendaApont) {
+            console.log('SalvaApontamentoFinalizado', idAgendaApont)
+            RegistraInicioApontamento(idAgendaApont)
+            setIdAgendaApont('')
+        }
+    }, [linhasDadosAgenda])
+
+    useEffect(() => {
         MontaLinhasGridAgenda(linhasDadosAgenda)
     }, [clicouNavegacaoGrid])
 
     function ListaAgenda() {
-        setLinhasDadosAgenda([
-            {
-                apontando: false,
-                apontamento_atual: {
-                    data: '',
-                    hora_inicial: '',
-                    hora_final: ''
-                },
-                valor: {
-                    _id: '1001',
-                    projeto: {
-                        tipo: 'interno',
-                        titulo: 'Reuniões mensais',
-                        descricao: 'Para controlar o esforço em reuniões',
-                        nome_cliente: 'ApontaDev',
-                        previsao_conclusao: new Date(2023, 7, 31),
-                        horas_estimadas: 250
-                    },
-                    apontamentos: [
-                        {
-                            colaborador: {
-                                id: '0001',
-                                nome: 'João JJ'
-                            },
-                            data: new Date(),
-                            hora_inicial: '',
-                            hora_final: '',
-                            saldo: '',
-                            observacao: ''
-                        }
-                    ]
-                }
-            },
-            {
-                apontando: false,
-                apontamento_atual: {
-                    data: '',
-                    hora_inicial: '',
-                    hora_final: ''
-                },
-                valor: {
-                    _id: '1002',
-                    projeto: {
-                        tipo: 'externo',
-                        titulo: 'Aplicação Web',
-                        descricao: 'Desenvolvimento para cliente',
-                        nome_cliente: 'Foguim',
-                        previsao_conclusao: new Date(2023, 7, 31),
-                        horas_estimadas: 200
-                    },
-                    apontamentos: [
-                        {
-                            colaborador: {
-                                id: '0001',
-                                nome: 'João JJ'
-                            },
-                            data: new Date(),
-                            hora_inicial: '',
-                            hora_final: '',
-                            saldo: '',
-                            observacao: ''
-                        },
-                        {
-                            colaborador: {
-                                id: '0001',
-                                nome: 'João JJ'
-                            },
-                            data: new Date(),
-                            hora_inicial: '',
-                            hora_final: '',
-                            saldo: '',
-                            observacao: ''
-                        },
-                        {
-                            colaborador: {
-                                id: '0002',
-                                nome: 'Bruno BB'
-                            },
-                            data: new Date(),
-                            hora_inicial: '',
-                            hora_final: '',
-                            saldo: '',
-                            observacao: ''
-                        }
-                    ]
-                }
-            }
-        ])
-        /*let dadosLogin = {
+        let dadosLogin = {
             usuario: usuario.email,
             senha: usuario.dados_acesso.senha
         }
-        ServicoFuncao
-        .RetornaListaFuncoes(dadosLogin)
+        ServicoAgenda
+        .RetornaListaAgenda(dadosLogin, { usuarioid: usuario._id })
         .then((resp) => {
             if(resp.erro) {
                 console.error(resp.msgErro)
-                setListaDadosFuncao([])
+                setLinhasDadosAgenda([])
             } else {
-                let dados = resp.dados.map((v) => { return { valor: v } })
-                setListaDadosFuncao(dados)
+                let dados = resp.dados.map((v) => { return { apontando: false, inicio_apontamento: '', valor: v } })
+                setLinhasDadosAgenda([...dados])
             }
         }).catch((err) => {
             console.error(err)
-            setListaDadosFuncao([])
-        })*/
+            setLinhasDadosAgenda([])
+        })
+    }
+
+    function ListaConfigAgenda() {
+        let dadosLogin = {
+            usuario: usuario.email,
+            senha: usuario.dados_acesso.senha
+        }
+        ServicoAgenda
+        .RetornaListaConfigAgenda(dadosLogin, { usuarioid: usuario._id })
+        .then((resp) => {
+            if(resp.erro) {
+                console.error(resp.msgErro)
+                setConfigAgenda({})
+            } else {
+                let dados = resp.dados[0]
+                setConfigAgenda(dados)
+            }
+        }).catch((err) => {
+            console.error(err)
+            setConfigAgenda({})
+        })
     }
 
     const AbaClicada = function (evento) {
@@ -161,7 +133,50 @@ function Agenda(props) {
     function MontaLinhasGridAgenda(dados) {
         let dadosFiltrados = dados
         if (nomeProjeto) {
-            dadosFiltrados = dadosFiltrados.filter(v => v.valor.projeto.titulo.indexOf(nomeProjeto) > -1)
+            dadosFiltrados = dadosFiltrados.filter(v => v.valor.projeto.titulo.toLowerCase().indexOf(nomeProjeto.toLowerCase()) > -1)
+        }
+        if(configAgenda.ordena_grid_por_ultimo) {
+            dadosFiltrados = dadosFiltrados.sort((a, b) => {
+                if(!(a.valor.apontamentos && a.valor.apontamentos.length > 0)) {
+                    if(!(b.valor.apontamentos && b.valor.apontamentos.length > 0)) {
+                        return -1
+                    } else {
+                        return 1
+                    }
+                } else {
+                    if(!(b.valor.apontamentos && b.valor.apontamentos.length > 0)) {
+                        return -1
+                    } else {
+                        let apontRecenteA = ''
+                        a.valor.apontamentos.forEach(v => {
+                            if(apontRecenteA) {
+                                let dataAux = new Date(v.hora_final)
+                                if(apontRecenteA.getTime() < dataAux.getTime()) {
+                                    apontRecenteA = dataAux
+                                }
+                            } else {
+                                apontRecenteA = new Date(v.hora_final)
+                            }
+                        })
+                        let apontRecenteB = ''
+                        b.valor.apontamentos.forEach(v => {
+                            if(apontRecenteB) {
+                                let dataAux = new Date(v.hora_final)
+                                if(apontRecenteB.getTime() < dataAux.getTime()) {
+                                    apontRecenteB = dataAux
+                                }
+                            } else {
+                                apontRecenteB = new Date(v.hora_final)
+                            }
+                        })
+                        if(apontRecenteA.getTime() >= apontRecenteB.getTime()) {
+                            return -1
+                        } else {
+                            return 1
+                        }
+                    }
+                }
+            })
         }
         if (dadosFiltrados.length > qtdLinhasPaginacao) {
             let qtdPaginas = Math.ceil(dadosFiltrados.length / qtdLinhasPaginacao)
@@ -271,35 +286,254 @@ function Agenda(props) {
     }
 
     function IniciaApontamento(e) {
-        console.log('IniciaApontamento')
-        console.log(e)
+        let id = e.target.id ? e.target.id : e.target.parentElement.id
+        let indiceAnt = linhasDadosAgenda.findIndex(v => v.apontando)
+        if(!configAgenda.encerra_apont_ao_iniciar_outro && indiceAnt > -1) {
+            console.error('Não é possível iniciar outro apontamento')
+            return
+        }
+        if(configAgenda.encerra_apont_ao_iniciar_outro && indiceAnt > -1) {
+            setIdAgendaApont(id)
+            FinalizaApontamento({ target: { id: linhasDadosAgenda[indiceAnt].valor._id } })
+            return
+        }
+        RegistraInicioApontamento(id)
     }
 
     function FinalizaApontamento(e) {
-        console.log('FinalizaApontamento')
-        console.log(e)
+        let id = e.target.id ? e.target.id : e.target.parentElement.id
+        if(configAgenda.mostra_obg_apos_apont) {
+            setIdModalObservacao(id)
+            setMostraModalObservacao(true)
+        } else {
+            SalvaApontamentoFinalizado(id, '')
+        }
     }
 
     function AbreModalDadosProjeto(e) {
-        console.log('AbreModalDadosProjeto')
-        console.log(e)
+        let id = e.target.id ? e.target.id : e.target.parentElement.id
+        if(id) {
+            let dado = linhasDadosAgenda.filter(v => v.valor._id === id)[0]
+            dadosProjeto.nomecliente = dado.valor.projeto.nome_cliente
+            dadosProjeto.dataprevista = FormataData(new Date(dado.valor.projeto.previsao_conclusao), 'DD/MM/YYYY')
+            dadosProjeto.horasestimadas = dado.valor.projeto.horas_estimadas.toFixed(2)
+            if(dado.valor.apontamentos && dado.valor.apontamentos.length > 0) {
+                let horasConsumidas = 0
+                dado.valor.apontamentos.forEach(v => horasConsumidas += v.colaborador.id === usuario._id ? v.saldo : 0)
+                dadosProjeto.horasconsumidas = (horasConsumidas / 3600000).toFixed(2)
+            } else {
+                dadosProjeto.horasconsumidas = ''
+            }
+            setDadosProjeto(dadosProjeto)
+            setMostraModalDadosProj(true)
+        }
     }
 
     function AbreModalApontamentosProjeto(e) {
-        console.log('AbreModalApontamentosProjeto')
-        console.log(e)
+        let id = e.target.id ? e.target.id : e.target.parentElement.id
+        if(id) {
+            let dado = linhasDadosAgenda.filter(v => v.valor._id === id)[0]
+            if(dado.valor.apontamentos && dado.valor.apontamentos.length > 0) {
+                setApontamentosProj(dado.valor.apontamentos)
+            } else {
+                setApontamentosProj([])
+            }
+            setMostraModalApontProj(true)
+        }
     }
 
     function AbreModalConfiguracoes() {
-        console.log('AbreModalConfiguracoes')
+        setMostraModalConfigAgenda(true)
+    }
+
+    function RetornoModalConfiguracoes(retorno) {
+        setMostraModalConfigAgenda(false)
+        if(retorno) {
+            let dadosLogin = {
+                usuario: usuario.email,
+                senha: usuario.dados_acesso.senha
+            }
+            ServicoAgenda
+            .AtualizaConfigAgenda(dadosLogin, retorno)
+            .then((resp) => {
+                if(resp.erro) {
+                    console.error(resp.msgErro)
+                } else {
+                    setConfigAgenda(retorno)
+                }
+            }).catch((err) => {
+                console.error(err)
+            })
+        }
     }
 
     function AbreModalApontamentosDoDia() {
-        console.log('AbreModalApontamentosDoDia')
+        let apontamentosEmProjeto = RetornaApontsUsuarioDia()
+        if(apontamentosEmProjeto) {
+            setApontamentosDia(apontamentosEmProjeto)
+        } else {
+            setApontamentosDia([])
+        }
+        setMostraModalApontDia(true)
     }
 
     function LancaCompensacao() {
         console.log('LancaCompensacao')
+    }
+
+    function FormataData(data, padrao='yyyy-MM-dd') {
+        try {
+            let strDia = data.getDate().toString().padStart(2, '0')
+            let strMes = (data.getMonth()+1).toString().padStart(2, '0')
+            let strAno = data.getFullYear().toString()
+            let dataRetorno = padrao.toLowerCase().replace('dd', strDia).replace('mm', strMes).replace('yyyy', strAno)
+            return dataRetorno            
+        } catch {
+            return '' 
+        }
+    }
+
+    function FormataHora(data, padrao='hh:mm') {
+        try {
+            let strHora = data.getHours().toString().padStart(2, '0')
+            let strMinuto = data.getMinutes().toString().padStart(2, '0')
+            let dataRetorno = padrao.toLowerCase().replace('hh', strHora).replace('mm', strMinuto)
+            return dataRetorno            
+        } catch {
+            return '' 
+        }
+    }
+
+    function MilisegundoParaData(valor) {
+        const horaEmMilisegundos = 3600000
+        // Calculando as horas
+        let fracaoDeHoras = valor / horaEmMilisegundos
+        let hora = +(fracaoDeHoras.toString().split('.')[0])
+        // Calculando os minutos
+        let restoFracaoHoras = +(fracaoDeHoras.toFixed(2).toString().split('.')[1])
+        let fracaoDeMinuto = restoFracaoHoras * 0.6
+        let minuto = +(fracaoDeMinuto.toString().split('.')[0])
+        // Montando a data
+        let novaData = new Date(
+            1900,
+            1,
+            1, 
+            hora,
+            minuto,
+            0
+        )
+        return novaData
+    }
+
+    function AtualizaHorasApontadasDia() {
+        let apontsDia = RetornaApontsUsuarioDia()        
+        let saldoDiaMilisegundos = 0
+        apontsDia.forEach(v => {
+            saldoDiaMilisegundos += v.saldo
+        })
+        if(saldoDiaMilisegundos > 0) {
+            let saldoEmHora = FormataHora(MilisegundoParaData(saldoDiaMilisegundos))
+            setHorasApontDia(saldoEmHora)
+        } else {
+            setHorasApontDia('00:00')
+        }
+    }
+
+    function RetornaApontsUsuarioDia() {
+        let hoje = new Date()
+        let apontamentosEmProjeto = []
+        linhasDadosAgenda.forEach(v => {
+            if(v.valor.apontamentos && v.valor.apontamentos.length > 0) {
+                apontamentosEmProjeto.push(...v.valor.apontamentos.filter(i => {
+                    if(i.colaborador && i.colaborador.id && i.colaborador.id === usuario._id) {
+                        let dataApontHora = new Date(i.data)
+                        let dataApont = new Date(dataApontHora.getFullYear(), dataApontHora.getMonth()+1, dataApontHora.getDate())
+                        let dataHoje = new Date(hoje.getFullYear(), hoje.getMonth()+1, hoje.getDate())
+                        if(dataApont.getTime() === dataHoje.getTime()) {
+                            return true
+                        } else {
+                            return false
+                        }
+                    } else {
+                        return false
+                    }
+                }))
+            }
+        })
+        return apontamentosEmProjeto
+    }
+
+    function SalvaApontamentoFinalizado(id, comentario) {
+        if(id) {
+            let indice = linhasDadosAgenda.findIndex(v => v.valor._id === id)
+            let fimApont = new Date()
+            let dados = linhasDadosAgenda[indice]
+            if(dados.inicio_apontamento) {
+                let strHoje = `${dados.inicio_apontamento.getFullYear()}-${(dados.inicio_apontamento.getMonth()+1).toString().padStart(2, '0')}-${dados.inicio_apontamento.getDate().toString().padStart(2, '0')}`
+                let strHoraInicial = `${dados.inicio_apontamento.getHours().toString().padStart(2, '0')}:${dados.inicio_apontamento.getMinutes().toString().padStart(2, '0')}:${dados.inicio_apontamento.getSeconds().toString().padStart(2, '0')}`
+                let strHoraFinal = `${fimApont.getHours().toString().padStart(2, '0')}:${fimApont.getMinutes().toString().padStart(2, '0')}:${fimApont.getSeconds().toString().padStart(2, '0')}`
+                let saldoApont = fimApont.getTime() - dados.inicio_apontamento.getTime()
+                if(dados.valor.apontamentos.length > 0) {
+                    dados.valor.apontamentos.push({
+                        colaborador: {
+                            id: usuario._id,
+                            nome: usuario.dados_pessoais.nome
+                        },
+                        data: `${strHoje}T03:00:00Z`,
+                        hora_inicial: `${strHoje}T${strHoraInicial}Z`,
+                        hora_final: `${strHoje}T${strHoraFinal}Z`,
+                        saldo: saldoApont,
+                        observacao: comentario ? comentario : configAgenda.texto_padrao_obs ? configAgenda.texto_padrao_obs : ''
+                    })
+                } else {
+                    dados.valor.apontamentos = [
+                        {
+                            colaborador: {
+                                id: usuario._id,
+                                nome: usuario.dados_pessoais.nome
+                            },
+                            data: `${strHoje}T03:00:00Z`,
+                            hora_inicial: `${strHoje}T${strHoraInicial}Z`,
+                            hora_final: `${strHoje}T${strHoraFinal}Z`,
+                            saldo: saldoApont,
+                            observacao: comentario ? comentario : configAgenda.texto_padrao_obs ? configAgenda.texto_padrao_obs : ''
+                        }
+                    ]
+                }
+                dados.apontando = false
+                dados.inicio_apontamento = ''
+                let dadosLogin = {
+                    usuario: usuario.email,
+                    senha: usuario.dados_acesso.senha
+                }
+                ServicoAgenda
+                .AtualizaAgenda(dadosLogin, dados.valor)
+                .then((resp) => {
+                    if(resp.erro) {
+                        console.error(resp.msgErro)
+                    } else {
+                        ListaAgenda()                        
+                    }
+                }).catch((err) => {
+                    console.error(err)
+                })
+            }
+        }
+    }
+
+    function RetornoModalObservacao(retorno) {
+        setMostraModalObservacao(false)
+        SalvaApontamentoFinalizado(idModalObservacao, retorno)
+    }
+
+    function RegistraInicioApontamento(id) {
+        console.log('RegistraInicioApontamento', id)
+        if(id) {
+            let indice = linhasDadosAgenda.findIndex(v => v.valor._id === id)
+            linhasDadosAgenda[indice].apontando = true
+            linhasDadosAgenda[indice].inicio_apontamento = new Date()
+            setLinhasDadosAgenda([...linhasDadosAgenda])
+        }
     }
 
     return (
@@ -336,16 +570,15 @@ function Agenda(props) {
                         <InputGroup.Text>Total de horas apontadas hoje</InputGroup.Text>
                         <Form.Control                    
                             id='horasapontadasdia'
-                            type='number'
-                            max={8760}
-                            min={0}
-                            step={1}
-                            readOnly={true} />
+                            type='time'
+                            readOnly={true}
+                            value={horasApontDia} />
                     </InputGroup>
                 </Col>
                 <Col md={'auto'}>
                     <Button 
                         variant='primary'
+                        hidden={true}
                         onClick={() => LancaCompensacao()}>
                         Compensação
                     </Button>
@@ -371,6 +604,28 @@ function Agenda(props) {
                     </Pagination>
                 </Col>
             </Row>
+
+            {/* Modais */}
+            <ModalDadosProjeto
+                dadosprojeto={dadosProjeto}
+                show={mostraModalDadosProj}
+                onHide={() => setMostraModalDadosProj(false)} />
+            <ModalApontamentosProjeto
+                apontamentosprojeto={apontamentosProj}
+                show={mostraModalApontProj}
+                onHide={() => setMostraModalApontProj(false)} />
+            <ModalConfigAgenda
+                configatual={configAgenda}
+                show={mostraModalConfigAgenda}
+                onHide={(retorno) => RetornoModalConfiguracoes(retorno)} />
+            <ModalApontamentosDia
+                apontamentos={apontamentosDia}
+                show={mostraModalApontDia}
+                onHide={() => setMostraModalApontDia(false)} />
+            <ModalObservacao
+                obspadrao={configAgenda.texto_padrao_obs}
+                show={mostraModalObservacao}
+                onHide={(retorno) => RetornoModalObservacao(retorno)} /> 
         </Container>
     )
 }
