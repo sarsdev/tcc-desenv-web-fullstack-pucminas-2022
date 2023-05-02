@@ -275,6 +275,56 @@ async function BuscaTodosProjetos() {
     return retorno
 }
 
+async function BuscaTodaAgenda(filtro) {
+    let retorno = {
+        erro: false,
+        msgErro: '',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/agenda?usuarioid=${filtro.usuarioid}`
+        let resposta = await axios.get(url, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.length > 0) {
+            retorno.dados = resposta.data
+        } else if(resposta && resposta.data && resposta.data.msg) {
+            retorno.erro = true
+            retorno.msgErro = resposta.data.msg
+        } else {
+            retorno.erro = true
+            retorno.msgErro = 'Ocorreu um erro inesperado ao buscar os dados da agenda!'
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function BuscaConfigAgendaPorUsuario(filtro) {
+    let retorno = {
+        erro: false,
+        msgErro: '',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/config-agenda?usuarioid=${filtro.usuarioid}`
+        let resposta = await axios.get(url, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.length > 0) {
+            retorno.dados = resposta.data
+        } else if(resposta && resposta.data && resposta.data.msg) {
+            retorno.erro = true
+            retorno.msgErro = resposta.data.msg
+        } else {
+            retorno.erro = true
+            retorno.msgErro = 'Ocorreu um erro inesperado ao buscar os dados de configuração da agenda!'
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
 async function AtualizaUsuario(dados) {
     let retorno = {
         erro: true,
@@ -395,6 +445,52 @@ async function AtualizaProjeto(dados) {
             retorno.msgErro = ''
         } else if(resposta && resposta.data && resposta.data.matchedCount === 0) {
             retorno.msgErro = 'O projeto não foi encontrado!'
+        } else if(resposta && resposta.data && resposta.data.MsgErro && resposta.data.MsgErro.reason) {
+            retorno.msgErro = resposta.data.MsgErro.reason
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function AtualizaConfigAgenda(dados) {
+    let retorno = {
+        erro: true,
+        msgErro: 'Ocorreu um erro ao atualizar a configuração da agenda!'
+    }
+    try {
+        let url = `${urlBase}/config-agenda`
+        let resposta = await axios.put(url, dados, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.matchedCount > 0) {
+            retorno.erro = false
+            retorno.msgErro = ''
+        } else if(resposta && resposta.data && resposta.data.matchedCount === 0) {
+            retorno.msgErro = 'A configuração do usuário não foi encontrada!'
+        } else if(resposta && resposta.data && resposta.data.MsgErro && resposta.data.MsgErro.reason) {
+            retorno.msgErro = resposta.data.MsgErro.reason
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function AtualizaAgenda(dados) {
+    let retorno = {
+        erro: true,
+        msgErro: 'Ocorreu um erro ao atualizar a agenda!'
+    }
+    try {
+        let url = `${urlBase}/agenda`
+        let resposta = await axios.put(url, dados, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.matchedCount > 0) {
+            retorno.erro = false
+            retorno.msgErro = ''
+        } else if(resposta && resposta.data && resposta.data.matchedCount === 0) {
+            retorno.msgErro = 'A agenda não foi encontrada!'
         } else if(resposta && resposta.data && resposta.data.MsgErro && resposta.data.MsgErro.reason) {
             retorno.msgErro = resposta.data.MsgErro.reason
         }
@@ -1098,6 +1194,87 @@ export const ServicoProjeto = {
             retorno.erro = false
             retorno.msgErro = ''
             retorno.dados = respProjeto.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    }
+}
+
+export const ServicoAgenda = {
+    RetornaListaAgenda: async function(usuarioLogado, filtro) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao buscar a agenda!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respAgenda = await BuscaTodaAgenda(filtro)
+            if(respAgenda.erro) { return respAgenda }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respAgenda.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    AtualizaAgenda: async function(usuarioLogado, dados) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao atualizar os dados da agenda!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respAgenda = await AtualizaAgenda(dados)
+            if(respAgenda.erro) { return respAgenda }
+            retorno.erro = false
+            retorno.msgErro = ''
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    RetornaListaConfigAgenda: async function(usuarioLogado, filtro) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao buscar as configurações da agenda!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respAgenda = await BuscaConfigAgendaPorUsuario(filtro)
+            if(respAgenda.erro) { return respAgenda }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respAgenda.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    AtualizaConfigAgenda: async function(usuarioLogado, dados) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao atualizar as configurações da agenda!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respAgenda = await AtualizaConfigAgenda(dados)
+            if(respAgenda.erro) { return respAgenda }
+            retorno.erro = false
+            retorno.msgErro = ''
             return retorno
         } catch (err) {
             retorno.msgErro = err
