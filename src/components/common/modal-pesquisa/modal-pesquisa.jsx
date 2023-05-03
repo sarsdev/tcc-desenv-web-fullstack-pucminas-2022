@@ -7,6 +7,7 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Table from 'react-bootstrap/Table'
 import Pagination from 'react-bootstrap/Pagination'
+import Spinner from 'react-bootstrap/Spinner'
 import { ServicoPermissao } from './../../../service/servico'
 
 function ModalPesquisa(props) {
@@ -20,6 +21,7 @@ function ModalPesquisa(props) {
     const [linhasMarcadas, setLinhasMarcadas] = useState([])
     const [totalPaginas, setTotalPaginas] = useState(1)
     const [paginaAtual, setPaginaAtual] = useState(1)
+    const [mostraLoading, setMostraLoading] = useState(false)
 
     useEffect(() => {
         setLinhasMarcadas([...props.selecionados])
@@ -27,6 +29,7 @@ function ModalPesquisa(props) {
     }, [props.titulo])
 
     function CarregaDadosModal() {
+        setMostraLoading(true)
         setPaginaAtual(1)
         let dadosLogin = {
             usuario: props.usuario.email,
@@ -49,7 +52,7 @@ function ModalPesquisa(props) {
                 }).catch((err) => {
                     console.error(err)
                     setDadosTabela([])
-                })
+                }).finally(() => setMostraLoading(false))
                 break
             case 'Funções':
                 ServicoPermissao.RetornaListaFuncoes(dadosLogin)
@@ -67,7 +70,7 @@ function ModalPesquisa(props) {
                 }).catch((err) => {
                     console.error(err)
                     setDadosTabela([])
-                })
+                }).finally(() => setMostraLoading(false))
                 break
             case 'Usuários':
                 ServicoPermissao.RetornaListaUsuarios(dadosLogin)
@@ -91,7 +94,7 @@ function ModalPesquisa(props) {
                 }).catch((err) => {
                     console.error(err)
                     setDadosTabela([])
-                })
+                }).finally(() => setMostraLoading(false))
                 break
             default:
                 setDadosTabela([])
@@ -316,7 +319,15 @@ function ModalPesquisa(props) {
             </Modal.Body>
             <Modal.Footer>
                 <Button
+                    disabled={mostraLoading}
                     onClick={() => RetornarSelecionados()} >
+                    <Spinner
+                        hidden={!mostraLoading}
+                        as="span"
+                        animation='border'
+                        size='sm'
+                        variant='light'
+                        role='status' />
                     Retornar
                 </Button>
             </Modal.Footer>

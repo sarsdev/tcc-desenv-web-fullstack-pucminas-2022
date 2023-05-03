@@ -140,11 +140,12 @@ function Login() {
                         Esqueci minha senha
                     </Button>
                 </div>
-                <hr />
+                <hr hidden={true} />
                 <Button 
                     variant='danger'
                     className='col-sm-12 mx-auto'
                     disabled={true}
+                    hidden={true}
                     onClick={() => AcessarComGmail()}>Acessar com GMail</Button>
             </Form>
                         

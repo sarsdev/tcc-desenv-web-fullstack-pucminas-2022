@@ -11,11 +11,13 @@ import Table from 'react-bootstrap/Table'
 import Pagination from 'react-bootstrap/Pagination'
 import Badge from 'react-bootstrap/Badge'
 import Button from 'react-bootstrap/Button'
+import Alert from 'react-bootstrap/Alert'
 import { PeopleFill, PencilSquare } from 'react-bootstrap-icons'
 import MenuPrincipal from './../common/menu-principal/menu-principal'
 import NavBarTela from './../common/navbar-tela/navbar-tela'
 import ModalPesquisa from './../common/modal-pesquisa/modal-pesquisa'
 import ModalIntegrantes from './components/modal-integrantes/modal-integrantes'
+import Loading from '../common/loading/loading'
 import { ServicoEquipe } from './../../service/servico'
 
 function Equipe(props) {
@@ -41,6 +43,10 @@ function Equipe(props) {
     const [totalPaginas, setTotalPaginas] = useState(1)
     const [paginaAtual, setPaginaAtual] = useState(1)
     const [clicouNavegacaoGrid, setClicouNavegacaoGrid] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [mostrarAlerta, setMostrarAlerta] = useState(false)
+    const [tipoAlerta, setTipoAlerta] = useState('')    
+    const [msgAlerta, setMsgAlerta] = useState('')
 
     const qtdLinhasPaginacao = 5
     const abaComFocoInicial = "aba001"
@@ -48,17 +54,18 @@ function Equipe(props) {
         {
             id: "aba001",
             texto: "Cadastro de Equipe"
-        },
-        {
+        }
+        /* {
             id: "aba002",
             texto: "Visão Macro"
-        }
+        } */
     ]
 
     useEffect(() => {
         let usuariologin = JSON.parse(sessionStorage.getItem('usuariologin'))
         if(usuariologin && usuariologin._id) {
             setNomeUsuario(usuariologin.dados_pessoais.nome)
+            AtivaInativaLoading(true)
             ListaEquipes()
         } else {
             navigate('/app/acesso')
@@ -117,16 +124,16 @@ function Equipe(props) {
         .RetornaListaEquipe(dadosLogin)
         .then((resp) => {
             if(resp.erro) {
-                console.error(resp.msgErro)
+                AlertaErro(resp.msgErro)
                 setListaDadosEquipe([])
             } else {
                 let dados = resp.dados.map((v) => { return { valor: v } })
                 setListaDadosEquipe(dados)
             }
         }).catch((err) => {
-            console.error(err)
+            AlertaErro(err)
             setListaDadosEquipe([])
-        })
+        }).finally(() => AtivaInativaLoading(false))
     }
 
     function MontaLinhasGridEquipe(dados, filtros) { 
@@ -288,6 +295,7 @@ function Equipe(props) {
     }
 
     function SalvarDados() {
+        AtivaInativaLoading(true)
         let dadosLogin = {
             usuario: usuarioLogin.email,
             senha: usuarioLogin.dados_acesso.senha
@@ -321,10 +329,12 @@ function Equipe(props) {
             .AtualizaEquipe(dadosLogin, dadosParaAtualizar)
             .then((resp) => {
                 if(resp.erro) {
-                    console.error(resp.msgErro)
+                    AlertaErro(resp.msgErro)
+                } else {
+                    AlertaSucesso('Equipe atualizada com sucesso!')
                 }
             }).catch((err) => {
-                console.error(err)
+                AlertaErro(err)
             }).finally(() => {
                 LimparTela()
                 ListaEquipes()
@@ -362,10 +372,12 @@ function Equipe(props) {
             .InsereEquipe(dadosLogin, dados)
             .then((resp) => {
                 if(resp.erro) {
-                    console.error(resp.msgErro)
+                    AlertaErro(resp.msgErro)
+                } else {
+                    AlertaSucesso('Equipe adicionada com sucesso!')
                 }
             }).catch((err) => {
-                console.error(err)
+                AlertaErro(err)
             }).finally(() => {
                 LimparTela()
                 ListaEquipes()
@@ -400,19 +412,49 @@ function Equipe(props) {
         }
     }
 
+    function AtivaInativaLoading(ativa) {
+        if(ativa) {
+            setLoading(true)
+        } else {
+            setTimeout(() => {
+                setLoading(false)
+            }, 2000)
+        }
+    }
+
+    function AlertaSucesso(msg) {
+        setTipoAlerta('success')
+        setMsgAlerta(msg)
+        setMostrarAlerta(true)
+        setTimeout(() => {
+            setMostrarAlerta(false)
+        }, 5000)
+    }
+
+    function AlertaErro(msg) {
+        setTipoAlerta('danger')
+        setMsgAlerta(msg)
+        setTimeout(() => {
+            setTipoAlerta('')
+            setMsgAlerta('')
+        }, 5000)
+    }
+
     return (
         <Container>
             <MenuPrincipal usuario={nomeUsuario} />
             <NavBarTela 
                 abas={abasEquipe}
                 abaInicial={abaComFocoInicial}
-                eventoAbaAlterada={AbaClicada} />
+                eventoAbaAlterada={AbaClicada} />            
+            { loading ? <Loading /> : null }
             <Row>
                 <Col md={6}>
                     <Form.Control
                         id='nomeequipe'
                         type="text" 
                         placeholder="Nome da equipe..."
+                        disabled={loading}
                         value={nomeEquipe}
                         onChange={(e) => setNomeEquipe(e.target.value)} />
                 </Col>
@@ -430,6 +472,7 @@ function Equipe(props) {
                         id={'ignorarsitucao'}
                         type='checkbox'
                         label='Ignorar situação'
+                        disabled={loading}
                         checked={ignorarSituacao}
                         onChange={(e) => setIgnorarSituacao(e.target.checked)} />
                 </Col>
@@ -440,6 +483,7 @@ function Equipe(props) {
                         id='descricaoequipe'
                         type="text"
                         placeholder='Descrição da equipe...'
+                        disabled={loading}
                         value={descricaoEquipe}
                         onChange={(e) => setDescricaoEquipe(e.target.value)} />
                 </Col>
@@ -455,6 +499,7 @@ function Equipe(props) {
                         <Button 
                             id="botao_usuarios" 
                             variant="outline-secondary"
+                            disabled={loading}
                             onClick={() => AbreModalPesquisa()} >
                             Pesquisar
                         </Button>
@@ -486,16 +531,19 @@ function Equipe(props) {
                     <Stack direction="horizontal" className='d-flex flex-row-reverse' gap={2}>
                         <Button 
                             variant="primary"
+                            disabled={loading}
                             onClick={() => SalvarDados()}>
                             {dadosParaAtualizar && dadosParaAtualizar._id ? 'Atualizar' : 'Adicionar'}
                         </Button>
                         <Button 
                             variant="light" 
+                            disabled={loading}
                             onClick={() => LimparTela()}>
                             Limpar
                         </Button>
                         <Button 
                             variant="light" 
+                            disabled={loading}
                             onClick={() => setClicouFiltrar(!clicouFiltrar)}>
                             Filtrar
                         </Button>
@@ -517,6 +565,15 @@ function Equipe(props) {
                 show={mostrarModalIntegrantes}
                 onHide={() => setMostrarModalIntegrantes(false)}
             />
+
+            {/* Alertas */}
+            <Alert 
+                variant={tipoAlerta}
+                dismissible={true}
+                onClose={() => setMostrarAlerta(false)}
+                show={mostrarAlerta}>
+                {msgAlerta}
+            </Alert>
         </Container>
     )
 }

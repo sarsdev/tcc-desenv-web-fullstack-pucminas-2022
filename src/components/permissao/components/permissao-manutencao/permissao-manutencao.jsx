@@ -10,8 +10,10 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import Table from 'react-bootstrap/Table'
 import Pagination from 'react-bootstrap/Pagination'
 import Badge from 'react-bootstrap/Badge'
+import Alert from 'react-bootstrap/Alert'
 import { NodeMinus, NodePlus } from 'react-bootstrap-icons'
 import ModalPesquisa from './../../../common/modal-pesquisa/modal-pesquisa'
+import Loading from '../../../common/loading/loading'
 import { ServicoPermissao } from './../../../../service/servico'
 
 function PermissaoManutencao({usuariologin}) {
@@ -36,10 +38,13 @@ function PermissaoManutencao({usuariologin}) {
     const [paginaAtual, setPaginaAtual] = useState(1)
     const [tituloModal, setTituloModal] = useState('')
     const [mostrarModalPesquisa, setMostrarModalPesquisa] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [mostrarAlerta, setMostrarAlerta] = useState(false)
+    const [tipoAlerta, setTipoAlerta] = useState('')
+    const [msgAlerta, setMsgAlerta] = useState('')
 
-    useEffect(() => {
+    useEffect(() => {        
         ListaAplicacoes()
-        ListaPermissoes()
     }, [])
 
     useEffect(() => {
@@ -73,6 +78,7 @@ function PermissaoManutencao({usuariologin}) {
     }, [usuariosSelec])
 
     function ListaAplicacoes() {
+        AtivaInativaLoading(true)
         let dadosLogin = {
             usuario: usuariologin.email,
             senha: usuariologin.dados_acesso.senha
@@ -95,6 +101,8 @@ function PermissaoManutencao({usuariologin}) {
         }).catch((err) => {
             console.error(err)
             setTreeViewAplic([])
+        }).finally(() => {            
+            ListaPermissoes()
         })
     }
 
@@ -299,6 +307,8 @@ function PermissaoManutencao({usuariologin}) {
         }).catch((err) => {
             console.error(err)
             setLinhasPermissao([])
+        }).finally(() => {
+            AtivaInativaLoading(false)
         })
     }
 
@@ -503,6 +513,7 @@ function PermissaoManutencao({usuariologin}) {
     }
 
     function SalvarPermissao() {
+        AtivaInativaLoading(true)
         let dadosLogin = {
             usuario: usuariologin.email,
             senha: usuariologin.dados_acesso.senha
@@ -510,20 +521,25 @@ function PermissaoManutencao({usuariologin}) {
         let dados = MontaDadosParaInclusao()
         let qtdExecucoes = dados.length
         let qtdFinalizada = 0
+        let msgErro = ''
         dados.forEach(valor => {
             ServicoPermissao
             .AdicionarPermissao(dadosLogin, valor)
             .then((resp) => {
-                console.log(resp)
                 if(resp.erro) {
-                    console.error(resp.msgErro)
+                    msgErro = resp.msgErro
                 }
             }).catch((err) => {
-                console.error(err)
+                msgErro = err
             }).finally(() => {
                 qtdFinalizada += 1
                 if(qtdExecucoes === qtdFinalizada) {
                     ListaPermissoes()
+                    if(msgErro !== '') {
+                        AlertaErro(msgErro)
+                    } else {
+                        AlertaSucesso('Permissões adicionadas com sucesso!')
+                    }
                 }
             })
         })        
@@ -584,6 +600,7 @@ function PermissaoManutencao({usuariologin}) {
     }
 
     function RemoverPermissao() {
+        AtivaInativaLoading(true)
         let dadosLogin = {
             usuario: usuariologin.email,
             senha: usuariologin.dados_acesso.senha
@@ -591,19 +608,25 @@ function PermissaoManutencao({usuariologin}) {
         let dados = linhasPermissao.filter(item => item.marcado)
         let qtdExecucoes = dados.length
         let qtdFinalizada = 0
+        let msgErro = ''
         dados.forEach(i => {
             ServicoPermissao
             .RemoverPermissao(dadosLogin, i.valor._id)
             .then((resp) => {
                 if(resp.erro) {
-                    console.error(resp.msgErro)
+                    msgErro = resp.msgErro
                 }
             }).catch((err) => {
-                console.error(err)
+                msgErro = err
             }).finally(() => {
                 qtdFinalizada += 1
                 if(qtdExecucoes === qtdFinalizada) {
                     ListaPermissoes()
+                    if(msgErro !== '') {
+                        AlertaErro(msgErro)
+                    } else {
+                        AlertaSucesso('Permissões removidas com sucesso!')
+                    }
                 }
             })
         })
@@ -623,8 +646,37 @@ function PermissaoManutencao({usuariologin}) {
         setLinhasPermissao([...linhasPermissao])
     }
 
+    function AtivaInativaLoading(ativa) {
+        if(ativa) {
+            setLoading(true)
+        } else {
+            setTimeout(() => {
+                setLoading(false)
+            }, 2000)
+        }
+    }
+
+    function AlertaSucesso(msg) {
+        setTipoAlerta('success')
+        setMsgAlerta(msg)
+        setMostrarAlerta(true)
+        setTimeout(() => {
+            setMostrarAlerta(false)
+        }, 5000)
+    }
+
+    function AlertaErro(msg) {
+        setTipoAlerta('danger')
+        setMsgAlerta(msg)
+        setTimeout(() => {
+            setTipoAlerta('')
+            setMsgAlerta('')
+        }, 5000)
+    }
+
     return (
         <Container>
+            { loading ? <Loading /> : null }
             <Row>
                 <Col>
                     <Stack>
@@ -632,6 +684,7 @@ function PermissaoManutencao({usuariologin}) {
                             <Form.Select  
                                 id='tipopermissao'
                                 size='sm'
+                                disabled={loading}
                                 value={tipoPermissao}
                                 onChange={(e) => ValidaCampoForm(e)} >
                                 <option key='1001' value='cadastrado'>Permissão para usuários cadastrados</option>
@@ -641,6 +694,7 @@ function PermissaoManutencao({usuariologin}) {
                                 id={'permiteacesso'}
                                 type='checkbox'
                                 label='Permitir_acesso'
+                                disabled={loading}
                                 checked={permiteAcesso}
                                 onChange={(e) => setPermiteAcesso(e.target.checked)} />
                         </Stack>
@@ -653,6 +707,7 @@ function PermissaoManutencao({usuariologin}) {
                             <Button 
                                 id="botao_equipes"
                                 variant="outline-secondary"
+                                disabled={loading}
                                 onClick={(e) => AbreModalPesquisa(e.target.id)} >
                                 Pesquisar
                             </Button>
@@ -666,6 +721,7 @@ function PermissaoManutencao({usuariologin}) {
                             <Button 
                                 id="botao_funcoes" 
                                 variant="outline-secondary"
+                                disabled={loading}
                                 onClick={(e) => AbreModalPesquisa(e.target.id)} >
                                 Pesquisar
                             </Button>
@@ -679,6 +735,7 @@ function PermissaoManutencao({usuariologin}) {
                             <Button 
                                 id="botao_usuarios" 
                                 variant="outline-secondary"
+                                disabled={loading}
                                 onClick={(e) => AbreModalPesquisa(e.target.id)} >
                                 Pesquisar
                             </Button>
@@ -717,9 +774,24 @@ function PermissaoManutencao({usuariologin}) {
             <Row>
                 <Col>
                     <Stack direction="horizontal" className='d-flex flex-row-reverse' gap={2}>
-                        <Button variant="danger" onClick={() => RemoverPermissao()}>Excluir</Button>
-                        <Button variant="primary" onClick={() => SalvarPermissao()}>Adicionar</Button>
-                        <Button variant="light" onClick={() => LimparFiltros()}>Limpar</Button>
+                        <Button 
+                            variant="danger" 
+                            disabled={loading}
+                            onClick={() => RemoverPermissao()}>
+                            Excluir
+                        </Button>
+                        <Button 
+                            variant="primary"
+                            disabled={loading}
+                            onClick={() => SalvarPermissao()}>
+                            Adicionar
+                        </Button>
+                        <Button 
+                            variant="light"
+                            disabled={loading}
+                            onClick={() => LimparFiltros()}>
+                            Limpar
+                        </Button>
                     </Stack>
                 </Col>
             </Row>
@@ -733,6 +805,15 @@ function PermissaoManutencao({usuariologin}) {
                 show={mostrarModalPesquisa}
                 onHide={(dadosSelecionados) => RetornaDadosModal(dadosSelecionados)}
             />
+
+            {/* Alertas */}
+            <Alert 
+                variant={tipoAlerta}
+                dismissible={true}
+                onClose={() => setMostrarAlerta(false)}
+                show={mostrarAlerta}>
+                {msgAlerta}
+            </Alert>
         </Container>
     )
 }

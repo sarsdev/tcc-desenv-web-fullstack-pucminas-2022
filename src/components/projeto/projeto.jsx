@@ -10,10 +10,12 @@ import Table from 'react-bootstrap/Table'
 import Pagination from 'react-bootstrap/Pagination'
 import Button from 'react-bootstrap/Button'
 import Badge from 'react-bootstrap/Badge'
+import Alert from 'react-bootstrap/Alert'
 import { PeopleFill, People, PencilSquare } from 'react-bootstrap-icons'
 import MenuPrincipal from './../common/menu-principal/menu-principal'
 import NavBarTela from './../common/navbar-tela/navbar-tela'
 import ModalGerenciarIntegrantes from './components/modal-gerenciar-integrantes/modal-gerenciar-integrantes'
+import Loading from '../common/loading/loading'
 import { ServicoProjeto } from './../../service/servico'
 
 function Projeto(props) {
@@ -40,6 +42,10 @@ function Projeto(props) {
     const [clicouNavegacaoGrid, setClicouNavegacaoGrid] = useState(false)
     const [dadosParaAtualizar, setDadosParaAtualizar] = useState({})
     const [mostrarModalIntegrantes, setMostrarModalIntegrantes] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [mostrarAlerta, setMostrarAlerta] = useState(false)
+    const [tipoAlerta, setTipoAlerta] = useState('')    
+    const [msgAlerta, setMsgAlerta] = useState('')
 
     const qtdLinhasPaginacao = 5
     const abaComFocoInicial = 'aba001'
@@ -47,17 +53,18 @@ function Projeto(props) {
         {
             id: 'aba001',
             texto: 'Cadastro de Projeto'
-        },
-        {
+        }
+        /* {
             id: 'aba002',
             texto: 'Visão Macro'
-        }
+        } */
     ]
 
     useEffect(() => {
         let usuariologin = JSON.parse(sessionStorage.getItem('usuariologin'))
         if (usuariologin && usuariologin._id) {
             setNomeUsuario(usuariologin.dados_pessoais.nome)
+            AtivaInativaLoading(true)
             ListaProjetos()
         } else {
             navigate('/app/acesso')
@@ -114,16 +121,16 @@ function Projeto(props) {
         .RetornaListaProjetos(dadosLogin)
         .then((resp) => {
             if(resp.erro) {
-                console.error(resp.msgErro)
+                AlertaErro(resp.msgErro)
                 setListaDadosProjeto([])
             } else {
                 let dados = resp.dados.map((v) => { return { valor: v } })
                 setListaDadosProjeto(dados)
             }
         }).catch((err) => {
-            console.error(err)
+            AlertaErro(err)
             setListaDadosProjeto([])
-        })
+        }).finally(() => AtivaInativaLoading(false))
     }
 
     const AbaClicada = function (evento) {
@@ -288,6 +295,7 @@ function Projeto(props) {
     }
 
     function SalvarDados() {
+        AtivaInativaLoading(true)
         let dadosLogin = {
             usuario: usuario.email,
             senha: usuario.dados_acesso.senha
@@ -307,10 +315,12 @@ function Projeto(props) {
             .AtualizaProjeto(dadosLogin, dadosParaAtualizar)
             .then((resp) => {
                 if(resp.erro) {
-                    console.error(resp.msgErro)
+                    AlertaErro(resp.msgErro)
+                } else {
+                    AlertaSucesso('Projeto atualizado com sucesso!')
                 }
             }).catch((err) => {
-                console.error(err)
+                AlertaErro(err)
             }).finally(() => {
                 LimparTela()
                 ListaProjetos()
@@ -333,10 +343,12 @@ function Projeto(props) {
             .InsereProjeto(dadosLogin, dados)
             .then((resp) => {
                 if(resp.erro) {
-                    console.error(resp.msgErro)
+                    AlertaErro(resp.msgErro)
+                } else {
+                    AlertaSucesso('Projeto adicionado com sucesso!')
                 }
             }).catch((err) => {
-                console.error(err)
+                AlertaErro(err)
             }).finally(() => {
                 LimparTela()
                 ListaProjetos()
@@ -415,13 +427,42 @@ function Projeto(props) {
         }
     }
 
+    function AtivaInativaLoading(ativa) {
+        if(ativa) {
+            setLoading(true)
+        } else {
+            setTimeout(() => {
+                setLoading(false)
+            }, 2000)
+        }
+    }
+
+    function AlertaSucesso(msg) {
+        setTipoAlerta('success')
+        setMsgAlerta(msg)
+        setMostrarAlerta(true)
+        setTimeout(() => {
+            setMostrarAlerta(false)
+        }, 5000)
+    }
+
+    function AlertaErro(msg) {
+        setTipoAlerta('danger')
+        setMsgAlerta(msg)
+        setTimeout(() => {
+            setTipoAlerta('')
+            setMsgAlerta('')
+        }, 5000)
+    }
+
     return (
         <Container>
             <MenuPrincipal usuario={nomeUsuario} />
             <NavBarTela
                 abas={abasProjeto}
                 abaInicial={abaComFocoInicial}
-                eventoAbaAlterada={AbaClicada} />
+                eventoAbaAlterada={AbaClicada} />            
+            { loading ? <Loading /> : null }
             <Row>
                 <Col>
                     <Row className='mb-2'>
@@ -430,6 +471,7 @@ function Projeto(props) {
                                 id='nomeprojeto'
                                 type='text'
                                 placeholder='Nome do projeto...'
+                                disabled={loading}
                                 value={nomeProjeto}
                                 onChange={(e) => setNomeProjeto(e.target.value)} />
                         </Col>
@@ -438,6 +480,7 @@ function Projeto(props) {
                                 id='codigoexterno'
                                 type='text'
                                 placeholder='Código externo...'
+                                disabled={loading}
                                 value={codigoProjeto}
                                 onChange={(e) => setCodigoProjeto(e.target.value)} />
                         </Col>
@@ -446,6 +489,7 @@ function Projeto(props) {
                                 id='nomecliente'
                                 type='text'
                                 placeholder='Nome do cliente...'
+                                disabled={loading}
                                 value={nomeCliente}
                                 onChange={(e) => setNomeCliente(e.target.value)} />
                         </Col>
@@ -453,6 +497,7 @@ function Projeto(props) {
                             <Form.Select
                                 id='etapaprojeto'
                                 value={etapaProjeto}
+                                disabled={loading}
                                 onChange={(e) => setEtapaProjeto(e.target.selectedOptions[0].value)}>
                                 <option value=''>Etapa do projeto...</option>
                                 <option value='backlog'>Backlog</option>
@@ -469,12 +514,14 @@ function Projeto(props) {
                                 id='descricaoprojeto'
                                 type='text'
                                 placeholder='Descrição do projeto...'
+                                disabled={loading}
                                 value={descricaoProjeto}
                                 onChange={(e) => setDescricaoProjeto(e.target.value)} />
                         </Col>
                         <Col>
                             <Form.Select
                                 id='tipoprojeto'
+                                disabled={loading}
                                 value={tipoProjeto}
                                 onChange={(e) => setTipoProjeto(e.target.selectedOptions[0].value)}>
                                 <option value=''>Tipo do projeto...</option>
@@ -492,6 +539,7 @@ function Projeto(props) {
                                     max={8760}
                                     min={0}
                                     step={1}
+                                    disabled={loading}
                                     value={estimativaProjeto}
                                     onChange={(e) => setEstimativaProjeto(e.target.value ? +e.target.value : '')} />
                             </InputGroup>
@@ -505,6 +553,7 @@ function Projeto(props) {
                                 <Form.Control
                                     id='previsaoconclusao'
                                     type='date'
+                                    disabled={loading}
                                     value={dataPrevista}
                                     onChange={(e) => setDataPrevista(e.target.value)} />
                             </InputGroup>
@@ -516,12 +565,14 @@ function Projeto(props) {
                                 <Form.Control
                                     id='vigenciainicial'
                                     type='date'
+                                    disabled={loading}
                                     value={vigenciaInicial}
                                     onChange={(e) => setVigenciaInicial(e.target.value)} />
                                 <InputGroup.Text>até</InputGroup.Text>
                                 <Form.Control
                                     id='vigenciafinal'
                                     type='date'
+                                    disabled={loading}
                                     value={vigenciaFinal}
                                     onChange={(e) => setVigenciaFinal(e.target.value)} />
                             </InputGroup>
@@ -560,16 +611,19 @@ function Projeto(props) {
                     <Stack direction='horizontal' className='d-flex flex-row-reverse' gap={2}>
                         <Button
                             variant='primary'
+                            disabled={loading}
                             onClick={() => SalvarDados()}>
                             {dadosParaAtualizar && dadosParaAtualizar._id ? 'Atualizar' : 'Adicionar'}
                         </Button>
                         <Button
                             variant='light'
+                            disabled={loading}
                             onClick={() => LimparTela()}>
                             Limpar
                         </Button>
                         <Button
                             variant='light'
+                            disabled={loading}
                             onClick={() => setClicouFiltrar(!clicouFiltrar)}>
                             Filtrar
                         </Button>
@@ -583,6 +637,15 @@ function Projeto(props) {
                 usuariologin={usuario}
                 show={mostrarModalIntegrantes}
                 onHide={(retorno) => RetornoModalIntegrantes(retorno)} />
+            
+            {/* Alertas */}
+            <Alert 
+                variant={tipoAlerta}
+                dismissible={true}
+                onClose={() => setMostrarAlerta(false)}
+                show={mostrarAlerta}>
+                {msgAlerta}
+            </Alert>
         </Container>
     )
 }

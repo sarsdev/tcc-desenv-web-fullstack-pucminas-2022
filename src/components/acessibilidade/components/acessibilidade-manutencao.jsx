@@ -7,6 +7,8 @@ import Col from 'react-bootstrap/Col'
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
+import Alert from 'react-bootstrap/Alert'
+import Loading from '../../common/loading/loading'
 import { ServicoAcessibilidade } from './../../../service/servico'
 
 function AcessibilidadeManutencao({usuariologin}) {
@@ -15,8 +17,13 @@ function AcessibilidadeManutencao({usuariologin}) {
     const [modoLeitura, setModoLeitura] = useState(false)
     const [modoAtalho, setModoAtalho] = useState(false)
     const [tema, setTema] = useState('Dia')
+    const [loading, setLoading] = useState(false)
+    const [mostrarAlerta, setMostrarAlerta] = useState(false)
+    const [tipoAlerta, setTipoAlerta] = useState('')    
+    const [msgAlerta, setMsgAlerta] = useState('')
 
     useEffect(() => {
+        AtivaInativaLoading(true)
         CarregaTemas()
         .then(() => {
             CarregaDadosAcessibilidade()
@@ -26,11 +33,11 @@ function AcessibilidadeManutencao({usuariologin}) {
                 setModoAtalho(retorno.modo_atalho_unico)
                 setTema(retorno.tema)
             }).catch((err) => {
-                console.error(err)
+                AlertaErro(err)
             })
         }).catch((err) => {
-            console.error(err)
-        })
+            AlertaErro(err)
+        }).finally(() => AtivaInativaLoading(false))
       }, []);
     
     async function CarregaTemas() {
@@ -57,7 +64,6 @@ function AcessibilidadeManutencao({usuariologin}) {
                 senha: usuariologin.dados_acesso.senha
             })
             if(retorno.erro) {
-                console.error(retorno.msgErro)
                 return {
                     modo_leitura: false,
                     modo_atalho_unico: false,
@@ -73,8 +79,7 @@ function AcessibilidadeManutencao({usuariologin}) {
                 }
             }
         } catch (err) {
-            console.error(err)
-            throw err
+            throw new Error(err)
         }   
     }
 
@@ -86,14 +91,13 @@ function AcessibilidadeManutencao({usuariologin}) {
             }, configAtual)
             return retorno  
         } catch (err) {
-            console.error(err)
-            throw err
+            throw new Error(err)
         }
     }
 
     async function InserePadraoAcessibilidade() {
         try {
-            let temaSelecionado = listaTemas.find((valor, indice, obj) => valor.titulo === tema)
+            let temaSelecionado = listaTemas.find(valor => valor.titulo === tema)
             let padrao = {
                 modo_leitura: modoLeitura,
                 modo_atalho_unico: modoAtalho,
@@ -106,7 +110,6 @@ function AcessibilidadeManutencao({usuariologin}) {
                     titulo: temaSelecionado.titulo
                 }
             }
-            console.log('InserePadraoAcessibilidade', padrao)
             let retorno = await ServicoAcessibilidade.InserePadrao({
                 usuario: usuariologin.email,
                 senha: usuariologin.dados_acesso.senha
@@ -118,32 +121,30 @@ function AcessibilidadeManutencao({usuariologin}) {
                 return retorno
             }  
         } catch (err) {
-            console.error(err)
-            throw err
+            throw new Error(err)
         }
     }
 
     function SalvarPadrao() {
-        console.info(configAtual, modoLeitura, modoAtalho, tema, 'SalvarPadrao')
+        AtivaInativaLoading(true)
         if(configAtual && configAtual._id) {
             AtualizaPadraoAcessibilidade()
             .then((resp) => {
                 if(resp.erro) {
-                    console.log(resp.msgErro)
+                    AlertaErro(resp.msgErro)
                 } else {
-                    console.log('Dados atualizados com sucesso!')
+                    AlertaSucesso('Dados atualizados com sucesso!')
                 }
-            })
+            }).finally(() => AtivaInativaLoading(false))
         } else {
-            console.info('InserePadraoAcessibilidade')
             InserePadraoAcessibilidade()
             .then((resp) => {
                 if(resp.erro) {
-                    console.log(resp.msgErro)
+                    AlertaErro(resp.msgErro)
                 } else {
-                    console.log('Dados inseridos com sucesso!')
+                    AlertaSucesso('Dados inseridos com sucesso!')
                 }
-            })
+            }).finally(() => AtivaInativaLoading(false))
         }
     }
 
@@ -187,8 +188,37 @@ function AcessibilidadeManutencao({usuariologin}) {
         }        
     }
 
+    function AtivaInativaLoading(ativa) {
+        if(ativa) {
+            setLoading(true)
+        } else {
+            setTimeout(() => {
+                setLoading(false)
+            }, 2000)
+        }
+    }
+
+    function AlertaSucesso(msg) {
+        setTipoAlerta('success')
+        setMsgAlerta(msg)
+        setMostrarAlerta(true)
+        setTimeout(() => {
+            setMostrarAlerta(false)
+        }, 5000)
+    }
+
+    function AlertaErro(msg) {
+        setTipoAlerta('danger')
+        setMsgAlerta(msg)
+        setTimeout(() => {
+            setTipoAlerta('')
+            setMsgAlerta('')
+        }, 5000)
+    }
+
     return (
         <Container>
+            { loading ? <Loading /> : null }
             <Row className='linha'>
                 <Col>
                     <Card className='cartoes'>
@@ -205,6 +235,7 @@ function AcessibilidadeManutencao({usuariologin}) {
                                 type="switch" 
                                 label="Ativo" 
                                 checked={modoLeitura}
+                                disabled={loading}
                                 onChange={(e) => ValidaCampoForm(e)} />
                         </Card.Footer>
                     </Card>
@@ -224,6 +255,7 @@ function AcessibilidadeManutencao({usuariologin}) {
                                 type="switch" 
                                 label="Ativo"
                                 checked={modoAtalho}
+                                disabled={loading}
                                 onChange={(e) => ValidaCampoForm(e)} />                            
                         </Card.Footer>
                     </Card>
@@ -242,6 +274,7 @@ function AcessibilidadeManutencao({usuariologin}) {
                                 id='tema'
                                 size='sm'
                                 value={tema}
+                                disabled={loading}
                                 onChange={(e) => ValidaCampoForm(e)} >
                                 { ListaTemasCombo(listaTemas) }
                             </Form.Select>
@@ -252,10 +285,22 @@ function AcessibilidadeManutencao({usuariologin}) {
             <Row className='linha'>
                 <Col>
                     <Stack direction="horizontal" className='d-flex flex-row-reverse'>
-                        <Button variant="primary" onClick={(e) => SalvarPadrao(e)}>Salvar</Button>
+                        <Button 
+                            variant="primary" 
+                            disabled={loading}
+                            onClick={(e) => SalvarPadrao(e)}>Salvar</Button>
                     </Stack>
                 </Col>
             </Row>
+
+            {/* Alertas */}
+            <Alert 
+                variant={tipoAlerta}
+                dismissible={true}
+                onClose={() => setMostrarAlerta(false)}
+                show={mostrarAlerta}>
+                {msgAlerta}
+            </Alert>
         </Container>
     )
 }

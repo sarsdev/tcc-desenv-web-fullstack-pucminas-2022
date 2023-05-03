@@ -19,15 +19,15 @@ function Usuario(props) {
         {
             id: "aba001",
             texto: "Cadastro de usuário"
-        },
-        {
+        }
+        /* {
             id: "aba002",
             texto: "Usuários autonômos"
         },
         {
             id: "aba003",
             texto: "Visão macro"
-        }
+        } */
     ] 
     
     useEffect(() => {

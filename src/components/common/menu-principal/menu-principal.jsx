@@ -30,12 +30,12 @@ function MenuPrincipal({usuario}) {
                         </NavDropdown>
                         <NavDropdown title="Apontamento">
                             <NavDropdown.Item href="agenda">Agenda</NavDropdown.Item>
-                            <NavDropdown.Item href="manutencao">Manutenção</NavDropdown.Item>
+                            {/* <NavDropdown.Item href="manutencao">Manutenção</NavDropdown.Item> */}
                         </NavDropdown>
-                        <NavDropdown title="Análise">
+                        {/* <NavDropdown title="Análise">
                             <NavDropdown.Item href="acompanhamento">Acompanhamento</NavDropdown.Item>
                             <NavDropdown.Item href="simulador">Simulador</NavDropdown.Item>
-                        </NavDropdown>
+                        </NavDropdown> */}
                     </Nav>
                 </Navbar.Collapse>
                 <Navbar.Collapse className="justify-content-end">

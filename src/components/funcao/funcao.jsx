@@ -10,9 +10,11 @@ import Table from 'react-bootstrap/Table'
 import Pagination from 'react-bootstrap/Pagination'
 import Badge from 'react-bootstrap/Badge'
 import Button from 'react-bootstrap/Button'
+import Alert from 'react-bootstrap/Alert'
 import { PencilSquare } from 'react-bootstrap-icons'
 import MenuPrincipal from './../common/menu-principal/menu-principal'
 import NavBarTela from './../common/navbar-tela/navbar-tela'
+import Loading from '../common/loading/loading'
 import { ServicoFuncao } from './../../service/servico'
 
 function Funcao(props) {
@@ -32,6 +34,10 @@ function Funcao(props) {
     const [paginaAtual, setPaginaAtual] = useState(1)
     const [clicouNavegacaoGrid, setClicouNavegacaoGrid] = useState(false)
     const [dadosParaAtualizar, setDadosParaAtualizar] = useState({})
+    const [loading, setLoading] = useState(false)
+    const [mostrarAlerta, setMostrarAlerta] = useState(false)
+    const [tipoAlerta, setTipoAlerta] = useState('')    
+    const [msgAlerta, setMsgAlerta] = useState('')
     
     const qtdLinhasPaginacao = 5
     const abaComFocoInicial = "aba001"
@@ -39,17 +45,18 @@ function Funcao(props) {
         {
             id: "aba001",
             texto: "Cadastro de Função"
-        },
-        {
+        }
+        /* {
             id: "aba002",
             texto: "Visão Macro"
-        }
+        } */
     ]
 
     useEffect(() => {
         let usuariologin = JSON.parse(sessionStorage.getItem('usuariologin'))
         if(usuariologin && usuariologin._id) {
             setNomeUsuario(usuariologin.dados_pessoais.nome)
+            AtivaInativaLoading(true)
             ListaFuncoes()
         } else {
             navigate('/app/acesso')
@@ -98,15 +105,17 @@ function Funcao(props) {
         .RetornaListaFuncoes(dadosLogin)
         .then((resp) => {
             if(resp.erro) {
-                console.error(resp.msgErro)
+                AlertaErro(resp.msgErro)
                 setListaDadosFuncao([])
             } else {
                 let dados = resp.dados.map((v) => { return { valor: v } })
                 setListaDadosFuncao(dados)
             }
         }).catch((err) => {
-            console.error(err)
+            AlertaErro(err)
             setListaDadosFuncao([])
+        }).finally(() => {
+            AtivaInativaLoading(false)
         })
     }
 
@@ -231,6 +240,7 @@ function Funcao(props) {
     }
 
     function SalvarDados() {
+        AtivaInativaLoading(true)
         let dadosLogin = {
             usuario: usuario.email,
             senha: usuario.dados_acesso.senha
@@ -244,10 +254,12 @@ function Funcao(props) {
             .AtualizaFuncao(dadosLogin, dadosParaAtualizar)
             .then((resp) => {
                 if(resp.erro) {
-                    console.error(resp.msgErro)
+                    AlertaErro(resp.msgErro)
+                } else {
+                    AlertaSucesso('Função atualizada com sucesso!')
                 }
             }).catch((err) => {
-                console.error(err)
+                AlertaErro(err)
             }).finally(() => {
                 LimparTela()
                 ListaFuncoes()
@@ -263,10 +275,12 @@ function Funcao(props) {
             .InsereFuncao(dadosLogin, dados)
             .then((resp) => {
                 if(resp.erro) {
-                    console.error(resp.msgErro)
+                    AlertaErro(resp.msgErro)
+                } else {
+                    AlertaSucesso('Função adicionada com sucesso!')
                 }
             }).catch((err) => {
-                console.error(err)
+                AlertaErro(err)
             }).finally(() => {
                 LimparTela()
                 ListaFuncoes()
@@ -286,6 +300,34 @@ function Funcao(props) {
             setPercSimulacaoFuncao(dado.valor.percentual_estimativa_esperado)
         }
     }
+    
+    function AtivaInativaLoading(ativa) {
+        if(ativa) {
+            setLoading(true)
+        } else {
+            setTimeout(() => {
+                setLoading(false)
+            }, 2000)
+        }
+    }
+
+    function AlertaSucesso(msg) {
+        setTipoAlerta('success')
+        setMsgAlerta(msg)
+        setMostrarAlerta(true)
+        setTimeout(() => {
+            setMostrarAlerta(false)
+        }, 5000)
+    }
+
+    function AlertaErro(msg) {
+        setTipoAlerta('danger')
+        setMsgAlerta(msg)
+        setTimeout(() => {
+            setTipoAlerta('')
+            setMsgAlerta('')
+        }, 5000)
+    }
 
     return (
         <Container>
@@ -294,12 +336,14 @@ function Funcao(props) {
                 abas={abasFuncao}
                 abaInicial={abaComFocoInicial}
                 eventoAbaAlterada={AbaClicada} />
+            { loading ? <Loading /> : null }
             <Row>
                 <Col md={6}>
                     <Form.Control
                         id='nomefuncao'
                         type="text" 
                         placeholder="Nome da função..."
+                        disabled={loading}
                         value={nomeFuncao}
                         onChange={(e) => setNomeFuncao(e.target.value)} />
                 </Col>
@@ -318,6 +362,7 @@ function Funcao(props) {
                         type='checkbox'
                         label='Ignorar situação'
                         checked={ignorarSituacao}
+                        disabled={loading}
                         onChange={(e) => setIgnorarSituacao(e.target.checked)} />
                 </Col>
             </Row>
@@ -332,6 +377,7 @@ function Funcao(props) {
                             min={0}
                             step={0.1}
                             className='tamanho-input ms-auto'
+                            disabled={loading}
                             value={fatorFuncao}
                             onChange={(e) => setFatorFuncao(e.target.value ? +e.target.value : '')} />
                     </Stack>
@@ -345,6 +391,7 @@ function Funcao(props) {
                             max={100}
                             min={0}
                             className='tamanho-input ms-auto'
+                            disabled={loading}
                             value={percSimulacaoFuncao}
                             onChange={(e) => setPercSimulacaoFuncao(e.target.value ? +e.target.value : '')} />
                     </Stack>
@@ -376,22 +423,34 @@ function Funcao(props) {
                     <Stack direction="horizontal" className='d-flex flex-row-reverse' gap={2}>
                         <Button 
                             variant="primary"
+                            disabled={loading}
                             onClick={() => SalvarDados()}>
                             {dadosParaAtualizar && dadosParaAtualizar._id ? 'Atualizar' : 'Adicionar'}
                         </Button>
                         <Button 
                             variant="light" 
+                            disabled={loading}
                             onClick={() => LimparTela()}>
                             Limpar
                         </Button>
                         <Button 
                             variant="light" 
+                            disabled={loading}
                             onClick={() => setClicouFiltrar(!clicouFiltrar)}>
                             Filtrar
                         </Button>
                     </Stack>
                 </Col>
             </Row>
+
+            {/* Alertas */}
+            <Alert 
+                variant={tipoAlerta}
+                dismissible={true}
+                onClose={() => setMostrarAlerta(false)}
+                show={mostrarAlerta}>
+                {msgAlerta}
+            </Alert>
         </Container>
     )
 }

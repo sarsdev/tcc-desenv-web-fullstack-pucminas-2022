@@ -10,8 +10,10 @@ import Badge from 'react-bootstrap/Badge'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
+import Alert from 'react-bootstrap/Alert'
 import { PencilSquare } from 'react-bootstrap-icons'
 import ModalPesquisa from '../../../common/modal-pesquisa/modal-pesquisa'
+import Loading from '../../../common/loading/loading'
 import { ServicoUsuario } from '../../../../service/servico'
 
 function UsuarioCadastro(props) {
@@ -35,10 +37,15 @@ function UsuarioCadastro(props) {
     const [dadosParaAtualizar, setDadosParaAtualizar] = useState({})
     const [tituloModal, setTituloModal] = useState('')
     const [mostrarModalPesquisa, setMostrarModalPesquisa] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [mostrarAlerta, setMostrarAlerta] = useState(false)
+    const [tipoAlerta, setTipoAlerta] = useState('')    
+    const [msgAlerta, setMsgAlerta] = useState('')
 
     const qtdLinhasPaginacao = 5
 
-    useEffect(() => {
+    useEffect(() => {        
+        AtivaInativaLoading(true)
         ListaUsuarios()
     }, [])
 
@@ -102,16 +109,16 @@ function UsuarioCadastro(props) {
         .RetornaListaUsuario(dadosLogin)
         .then((resp) => {
             if(resp.erro) {
-                console.error(resp.msgErro)
+                AlertaErro(resp.msgErro)
                 setListaDadosUsuario([])
             } else {
                 let dados = resp.dados.map((v) => { return { valor: v } })
                 setListaDadosUsuario(dados)
             }
         }).catch((err) => {
-            console.error(err)
+            AlertaErro(err)
             setListaDadosUsuario([])
-        })
+        }).finally(() => AtivaInativaLoading(false))
     }
 
     function MontaLinhasGridUsuario(dados, filtros) {
@@ -291,6 +298,7 @@ function UsuarioCadastro(props) {
     }
 
     function SalvarDados() {
+        AtivaInativaLoading(true)
         let dadosLogin = {
             usuario: props.usuariologin.email,
             senha: props.usuariologin.dados_acesso.senha
@@ -351,10 +359,12 @@ function UsuarioCadastro(props) {
             .AtualizaUsuario(dadosLogin, dados)
             .then((resp) => {
                 if(resp.erro) {
-                    console.error(resp.msgErro)
+                    AlertaErro(resp.msgErro)
+                } else {
+                    AlertaSucesso('Usuário atualizado com sucesso!')
                 }
             }).catch((err) => {
-                console.error(err)
+                AlertaErro(err)
             }).finally(() => {
                 LimparTela()
                 ListaUsuarios()
@@ -398,10 +408,12 @@ function UsuarioCadastro(props) {
             .InsereUsuario(dadosLogin, dados)
             .then((resp) => {
                 if(resp.erro) {
-                    console.error(resp.msgErro)
+                    AlertaErro(resp.msgErro)
+                } else {
+                    AlertaSucesso('Usuário adicionado com sucesso!')
                 }
             }).catch((err) => {
-                console.error(err)
+                AlertaErro(err)
             }).finally(() => {
                 LimparTela()
                 ListaUsuarios()
@@ -439,8 +451,37 @@ function UsuarioCadastro(props) {
         }
     }
 
+    function AtivaInativaLoading(ativa) {
+        if(ativa) {
+            setLoading(true)
+        } else {
+            setTimeout(() => {
+                setLoading(false)
+            }, 2000)
+        }
+    }
+
+    function AlertaSucesso(msg) {
+        setTipoAlerta('success')
+        setMsgAlerta(msg)
+        setMostrarAlerta(true)
+        setTimeout(() => {
+            setMostrarAlerta(false)
+        }, 5000)
+    }
+
+    function AlertaErro(msg) {
+        setTipoAlerta('danger')
+        setMsgAlerta(msg)
+        setTimeout(() => {
+            setTipoAlerta('')
+            setMsgAlerta('')
+        }, 5000)
+    }
+
     return (
         <Container>
+            { loading ? <Loading /> : null }
             <Row>
                 <Col>
                     <Stack>
@@ -449,6 +490,7 @@ function UsuarioCadastro(props) {
                                 id='nomeusuario'
                                 type='text' 
                                 placeholder='Nome do usuário...'
+                                disabled={loading}
                                 value={nomeUsuario}
                                 onChange={(e) => setNomeUsuario(e.target.value)} />
                         </Form.Group>
@@ -457,6 +499,7 @@ function UsuarioCadastro(props) {
                                 id='emailusuario'
                                 type='email' 
                                 placeholder='E-mail do usuário...'
+                                disabled={loading}
                                 value={emailUsuario}
                                 onChange={(e) => setEmailUsuario(e.target.value)} />
                         </InputGroup>
@@ -469,6 +512,7 @@ function UsuarioCadastro(props) {
                                 min={0}
                                 step={0.1}
                                 className='tamanho-input ms-auto'
+                                disabled={loading}
                                 value={fatorUsuario}                                
                                 onChange={(e) => setFatorUsuario(+e.target.value)} />
                         </InputGroup>
@@ -483,6 +527,7 @@ function UsuarioCadastro(props) {
                                         id=''
                                         type='text'
                                         placeholder='Cargo...'
+                                        disabled={loading}
                                         value={cargoUsuario}
                                         onChange={(e) => setCargoUsuario(e.target.value)} />
                                 </Col>
@@ -501,6 +546,7 @@ function UsuarioCadastro(props) {
                                         type='checkbox'
                                         label='Ignorar situação'
                                         checked={ignorarSituacao}
+                                        disabled={loading}
                                         onChange={(e) => setIgnorarSituacao(e.target.checked)} />
                                 </Col>
                             </Row>
@@ -514,6 +560,7 @@ function UsuarioCadastro(props) {
                             <Button 
                                 id='botao-equipe'
                                 variant='outline-secondary'
+                                disabled={loading}
                                 onClick={(e) => AbreModalPesquisa(e.target.id)}>
                                 Pesquisar
                             </Button>
@@ -527,6 +574,7 @@ function UsuarioCadastro(props) {
                             <Button 
                                 id='botao-funcao'
                                 variant='outline-secondary'
+                                disabled={loading}
                                 onClick={(e) => AbreModalPesquisa(e.target.id)}>
                                 Pesquisar
                             </Button>
@@ -563,16 +611,19 @@ function UsuarioCadastro(props) {
                     <Stack direction='horizontal' className='d-flex flex-row-reverse' gap={2}>
                         <Button 
                             variant='primary'
+                            disabled={loading}
                             onClick={() => SalvarDados()}>
                             {dadosParaAtualizar && dadosParaAtualizar._id ? 'Atualizar' : 'Adicionar'}
                         </Button>
                         <Button 
-                            variant='light' 
+                            variant='light'
+                            disabled={loading}
                             onClick={() => LimparTela()}>
                             Limpar
                         </Button>
                         <Button 
-                            variant='light' 
+                            variant='light'
+                            disabled={loading}
                             onClick={() => setClicouFiltrar(!clicouFiltrar)}>
                             Filtrar
                         </Button>
@@ -588,6 +639,15 @@ function UsuarioCadastro(props) {
                 selecionados={tituloModal==='Equipes' ? equipeSelec : tituloModal==='Funções' ? funcaoSelec : []}
                 show={mostrarModalPesquisa}
                 onHide={(dadosSelecionados) => RetornaDadosModal(dadosSelecionados)} />
+
+            {/* Alertas */}
+            <Alert 
+                variant={tipoAlerta}
+                dismissible={true}
+                onClose={() => setMostrarAlerta(false)}
+                show={mostrarAlerta}>
+                {msgAlerta}
+            </Alert>
         </Container>
     )
 }

@@ -9,6 +9,7 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import Button from 'react-bootstrap/Button'
 import Table from 'react-bootstrap/Table'
 import Pagination from 'react-bootstrap/Pagination'
+import Alert from 'react-bootstrap/Alert'
 import { 
     GearFill, 
     FileEarmarkSpreadsheetFill, 
@@ -22,6 +23,7 @@ import ModalApontamentosProjeto from './components/modal-apontamentos-projeto/mo
 import ModalConfigAgenda from './components/modal-config-agenda/modal-config-agenda'
 import ModalApontamentosDia from './components/modal-apontamentos-dia/modal-apontamentos-dia'
 import ModalObservacao from './components/modal-observacao/modal-observacao'
+import Loading from '../common/loading/loading'
 import { ServicoAgenda } from './../../service/servico'
 
 function Agenda(props) {
@@ -50,6 +52,10 @@ function Agenda(props) {
     const [idModalObservacao, setIdModalObservacao] = useState('')
     const [mostraModalObservacao, setMostraModalObservacao] = useState(false)
     const [idAgendaApont, setIdAgendaApont] = useState('')
+    const [loading, setLoading] = useState(false)
+    const [mostrarAlerta, setMostrarAlerta] = useState(false)
+    const [tipoAlerta, setTipoAlerta] = useState('')    
+    const [msgAlerta, setMsgAlerta] = useState('')
 
     const qtdLinhasPaginacao = 5
     const abaComFocoInicial = 'aba001'
@@ -64,8 +70,8 @@ function Agenda(props) {
         let usuariologin = JSON.parse(sessionStorage.getItem('usuariologin'))
         if (usuariologin && usuariologin._id) {
             setNomeUsuario(usuariologin.dados_pessoais.nome)
-            ListaAgenda()
-            ListaConfigAgenda()
+            AtivaInativaLoading(true)
+            ListaConfigAgenda()            
         } else {
             navigate('/app/acesso')
         }
@@ -93,16 +99,16 @@ function Agenda(props) {
         .RetornaListaAgenda(dadosLogin, { usuarioid: usuario._id })
         .then((resp) => {
             if(resp.erro) {
-                console.error(resp.msgErro)
+                AlertaErro(resp.msgErro)
                 setLinhasDadosAgenda([])
             } else {
                 let dados = resp.dados.map((v) => { return { apontando: false, inicio_apontamento: '', valor: v } })
                 setLinhasDadosAgenda([...dados])
             }
         }).catch((err) => {
-            console.error(err)
+            AlertaErro(err)
             setLinhasDadosAgenda([])
-        })
+        }).finally(() => AtivaInativaLoading(false))
     }
 
     function ListaConfigAgenda() {
@@ -114,16 +120,16 @@ function Agenda(props) {
         .RetornaListaConfigAgenda(dadosLogin, { usuarioid: usuario._id })
         .then((resp) => {
             if(resp.erro) {
-                console.error(resp.msgErro)
+                AlertaErro(resp.msgErro)
                 setConfigAgenda({})
             } else {
                 let dados = resp.dados[0]
                 setConfigAgenda(dados)
             }
         }).catch((err) => {
-            console.error(err)
+            AlertaErro(err)
             setConfigAgenda({})
-        })
+        }).finally(() => ListaAgenda())
     }
 
     const AbaClicada = function (evento) {
@@ -349,6 +355,7 @@ function Agenda(props) {
     function RetornoModalConfiguracoes(retorno) {
         setMostraModalConfigAgenda(false)
         if(retorno) {
+            AtivaInativaLoading(true)
             let dadosLogin = {
                 usuario: usuario.email,
                 senha: usuario.dados_acesso.senha
@@ -357,13 +364,14 @@ function Agenda(props) {
             .AtualizaConfigAgenda(dadosLogin, retorno)
             .then((resp) => {
                 if(resp.erro) {
-                    console.error(resp.msgErro)
+                    AlertaErro(resp.msgErro)
                 } else {
                     setConfigAgenda(retorno)
+                    AlertaSucesso('Configurações salvas com sucesso!')
                 }
             }).catch((err) => {
-                console.error(err)
-            })
+                AlertaErro(err)
+            }).finally(() => AtivaInativaLoading(false))
         }
     }
 
@@ -469,6 +477,7 @@ function Agenda(props) {
             let fimApont = new Date()
             let dados = linhasDadosAgenda[indice]
             if(dados.inicio_apontamento) {
+                AtivaInativaLoading(true)
                 let strHoje = `${dados.inicio_apontamento.getFullYear()}-${(dados.inicio_apontamento.getMonth()+1).toString().padStart(2, '0')}-${dados.inicio_apontamento.getDate().toString().padStart(2, '0')}`
                 let strHoraInicial = `${dados.inicio_apontamento.getHours().toString().padStart(2, '0')}:${dados.inicio_apontamento.getMinutes().toString().padStart(2, '0')}:${dados.inicio_apontamento.getSeconds().toString().padStart(2, '0')}`
                 let strHoraFinal = `${fimApont.getHours().toString().padStart(2, '0')}:${fimApont.getMinutes().toString().padStart(2, '0')}:${fimApont.getSeconds().toString().padStart(2, '0')}`
@@ -510,13 +519,13 @@ function Agenda(props) {
                 .AtualizaAgenda(dadosLogin, dados.valor)
                 .then((resp) => {
                     if(resp.erro) {
-                        console.error(resp.msgErro)
+                        AlertaErro(resp.msgErro)
                     } else {
-                        ListaAgenda()                        
+                        AlertaSucesso('Apontamento salvo com sucesso!')
                     }
                 }).catch((err) => {
-                    console.error(err)
-                })
+                    AlertaErro(err)
+                }).finally(() => ListaAgenda())
             }
         }
     }
@@ -536,19 +545,49 @@ function Agenda(props) {
         }
     }
 
+    function AtivaInativaLoading(ativa) {
+        if(ativa) {
+            setLoading(true)
+        } else {
+            setTimeout(() => {
+                setLoading(false)
+            }, 2000)
+        }
+    }
+
+    function AlertaSucesso(msg) {
+        setTipoAlerta('success')
+        setMsgAlerta(msg)
+        setMostrarAlerta(true)
+        setTimeout(() => {
+            setMostrarAlerta(false)
+        }, 5000)
+    }
+
+    function AlertaErro(msg) {
+        setTipoAlerta('danger')
+        setMsgAlerta(msg)
+        setTimeout(() => {
+            setTipoAlerta('')
+            setMsgAlerta('')
+        }, 5000)
+    }
+
     return (
         <Container>
             <MenuPrincipal usuario={nomeUsuario} />
             <NavBarTela
                 abas={abasAgenda}
                 abaInicial={abaComFocoInicial}
-                eventoAbaAlterada={AbaClicada} />
+                eventoAbaAlterada={AbaClicada} />            
+            { loading ? <Loading /> : null }
             <Row>
                 <Col>
                     <Form.Control 
                         id='filtroprojeto'
                         type='text'
                         placeholder='Filtra o projeto...'
+                        disabled={loading}
                         value={nomeProjeto}
                         onChange={(e) => setNomeProjeto(e.target.value)} />
                 </Col>
@@ -557,9 +596,11 @@ function Agenda(props) {
                         <Col md="auto">
                             <GearFill 
                                 size={20}
+                                disabled={loading}
                                 onClick={() => AbreModalConfiguracoes()} />
                             <FileEarmarkSpreadsheetFill 
                                 size={20}
+                                disabled={loading}
                                 className='m-2'
                                 onClick={() => AbreModalApontamentosDoDia()} />
                         </Col>
@@ -626,6 +667,15 @@ function Agenda(props) {
                 obspadrao={configAgenda.texto_padrao_obs}
                 show={mostraModalObservacao}
                 onHide={(retorno) => RetornoModalObservacao(retorno)} /> 
+            
+            {/* Alertas */}
+            <Alert 
+                variant={tipoAlerta}
+                dismissible={true}
+                onClose={() => setMostrarAlerta(false)}
+                show={mostrarAlerta}>
+                {msgAlerta}
+            </Alert>
         </Container>
     )
 }
