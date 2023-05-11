@@ -15,6 +15,7 @@ function ModalObservacao(props) {
             {...props}
             size='md'
             aria-labelledby='contained-modal-title-vcenter'
+            className={`modal-${props.usuario.acessibilidade.tema.titulo}`}
             centered
             onExit={() => props.onHide(obsInformada)}>
             <Modal.Header closeButton>
@@ -27,12 +28,13 @@ function ModalObservacao(props) {
                 <Form.Control
                     id='texto_obs'
                     type="text"
+                    className={`form-control-${props.usuario.acessibilidade.tema.titulo}`}
                     value={obsInformada}
                     onChange={(e) => setObsInformada(e.target.value)} />
             </Modal.Body>
             <Modal.Footer>
                 <Button
-                    variant='primary'
+                    variant={props.usuario.acessibilidade.tema.titulo}
                     onClick={() => props.onHide(obsInformada)}>
                     Retornar
                 </Button>

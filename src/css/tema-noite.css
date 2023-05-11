@@ -1,0 +1,137 @@
+.body-Noite {
+    background-color: black;
+    color: white;
+}
+
+/* SINALIZAÇÕES */
+
+.badge-Noite.bg-primary {
+    background-color: #723780 !important;
+}
+
+/* BOTÕES */
+
+.btn-Noite,
+.btn-Noite:hover {
+    color: white;
+}
+
+.btn-Noite {
+    background-color: dimgrey;
+    border: 1px solid dimgrey;
+}
+
+.btn-Noite:hover {
+    background-color: gray;
+    border: 1px solid gray;
+}
+
+/* CONTROLES DE FORMULÁRIO */
+.form-text-Noite {
+    background-color: gray;
+    color: white;
+}
+
+.form-control-Noite,
+.form-control-Noite:focus,
+.form-control-Noite::placeholder,
+.form-control-Noite:disabled {
+    background-color: gray;
+    color: white;
+}
+
+.form-select-Noite,
+.form-select-Noite:disabled {
+    background-color: gray;
+    color: white;
+}
+
+.form-check-Noite > input[type='checkbox'],
+.form-check-Noite > input[type='checkbox']:checked,
+.form-check-Noite > input[type='checkbox']:focus {
+    background-color: gray;
+    border-color: white;
+    box-shadow: none;
+}
+
+/* GRID */
+
+.table-Noite {
+    margin-top: 1em;
+    background-color: gray;
+    color: white;
+}
+
+.pag-Noite > .page-link {
+    background-color: gray;
+    color: white;
+}
+
+.pagDestaque-Noite > .page-link {
+    background-color: gray;
+    color: white;
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* CONTAINERS */
+
+.container-Noite {
+    background-color: black;
+}
+
+.menu-Noite, 
+.menu-Noite div, 
+.menu-Noite div:hover {
+    background-color: gray;
+}
+
+.menu-Noite * a, 
+.menu-Noite * a:hover {
+    background-color: gray;
+    color: white;
+}
+
+.menu-Noite span {
+    color: white;
+}
+
+.menu-Noite .nav-link.active, 
+.menu-Noite .nav-link {
+    background-color: gray;
+    color: white;
+    --bs-nav-link-color: white;
+    --bs-nav-link-hover-color: white;
+}
+
+.navbar-Noite {
+    margin-bottom: 1em;
+    padding: 0.5em;
+    background-color: #54265e;
+    border-radius: 2px;
+}
+
+.navbartitulo-Noite {
+    margin: 0em 1em;
+}
+
+.tituloinativo-Noite {
+    color: lightgray;
+}
+
+.tituloativo-Noite {
+    color: white;
+}
+
+.modal-Noite .modal-content {
+    background-color: black;
+    border: 1px solid white;
+}
+
+.modal-Noite .modal-content .btn-close {
+    background-color: white;
+}
+
+.cards-Noite {
+    background-color: gray;
+}

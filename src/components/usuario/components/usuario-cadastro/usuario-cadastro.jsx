@@ -182,7 +182,7 @@ function UsuarioCadastro(props) {
                     {v.valor.dados_colaborador ? v.valor.dados_colaborador.fator_produtividade : null}
                 </td>
                 <td>
-                    <Badge pill bg={v.valor.situacao==='ativo'?'primary':'danger'}>{v.valor.situacao}</Badge>
+                    <Badge pill className={`badge-${props.usuariologin.acessibilidade.tema.titulo}`}>{v.valor.situacao}</Badge>
                 </td>
                 <td>
                     <PencilSquare 
@@ -208,7 +208,7 @@ function UsuarioCadastro(props) {
                 {listaPaginas.map((v, i, o) => <Pagination.Item
                                                     id={'pag'+v}
                                                     key={i} 
-                                                    className={paginaAtual===v ? 'destaquePag' : ''}
+                                                    className={paginaAtual===v ? `pagDestaque-${props.usuariologin.acessibilidade.tema.titulo}` : `pag-${props.usuariologin.acessibilidade.tema.titulo}`}
                                                     onClick={(e) => MudaPaginaTabela(e)} >
                                                     {v}
                                                 </Pagination.Item>)}
@@ -480,7 +480,8 @@ function UsuarioCadastro(props) {
     }
 
     return (
-        <Container>
+        <Container
+            className={`container-${props.usuariologin.acessibilidade.tema.titulo}`}>
             { loading ? <Loading /> : null }
             <Row>
                 <Col>
@@ -490,6 +491,7 @@ function UsuarioCadastro(props) {
                                 id='nomeusuario'
                                 type='text' 
                                 placeholder='Nome do usuário...'
+                                className={`form-control-${props.usuariologin.acessibilidade.tema.titulo}`}
                                 disabled={loading}
                                 value={nomeUsuario}
                                 onChange={(e) => setNomeUsuario(e.target.value)} />
@@ -499,19 +501,23 @@ function UsuarioCadastro(props) {
                                 id='emailusuario'
                                 type='email' 
                                 placeholder='E-mail do usuário...'
+                                className={`form-control-${props.usuariologin.acessibilidade.tema.titulo}`}
                                 disabled={loading}
                                 value={emailUsuario}
                                 onChange={(e) => setEmailUsuario(e.target.value)} />
                         </InputGroup>
                         <InputGroup>
-                            <InputGroup.Text>Fator de Produtividade</InputGroup.Text>
+                            <InputGroup.Text
+                                className={`form-text-${props.usuariologin.acessibilidade.tema.titulo}`}>
+                                Fator de Produtividade
+                            </InputGroup.Text>
                             <Form.Control
                                 id='fatorusuario'
                                 type='number'
                                 max={10}
                                 min={0}
                                 step={0.1}
-                                className='tamanho-input ms-auto'
+                                className={`tamanho-input ms-auto form-control-${props.usuariologin.acessibilidade.tema.titulo}`}
                                 disabled={loading}
                                 value={fatorUsuario}                                
                                 onChange={(e) => setFatorUsuario(+e.target.value)} />
@@ -527,6 +533,7 @@ function UsuarioCadastro(props) {
                                         id=''
                                         type='text'
                                         placeholder='Cargo...'
+                                        className={`form-control-${props.usuariologin.acessibilidade.tema.titulo}`}
                                         disabled={loading}
                                         value={cargoUsuario}
                                         onChange={(e) => setCargoUsuario(e.target.value)} />
@@ -536,6 +543,7 @@ function UsuarioCadastro(props) {
                                         id={'situcao'}
                                         type='checkbox'
                                         label='Ativo'
+                                        className={`form-check-${props.usuariologin.acessibilidade.tema.titulo}`}
                                         disabled={ignorarSituacao}
                                         checked={situacaoUsuario}
                                         onChange={(e) => setSituacaoUsuario(e.target.checked)} />
@@ -545,6 +553,7 @@ function UsuarioCadastro(props) {
                                         id={'ignorarsitucao'}
                                         type='checkbox'
                                         label='Ignorar situação'
+                                        className={`form-check-${props.usuariologin.acessibilidade.tema.titulo}`}
                                         checked={ignorarSituacao}
                                         disabled={loading}
                                         onChange={(e) => setIgnorarSituacao(e.target.checked)} />
@@ -555,11 +564,12 @@ function UsuarioCadastro(props) {
                             <Form.Control
                                 id='equipeusuario'
                                 placeholder='Escolha a equipe...'
+                                className={`form-control-${props.usuariologin.acessibilidade.tema.titulo}`}
                                 disabled={true}
                                 value={equipeUsuario} />
                             <Button 
                                 id='botao-equipe'
-                                variant='outline-secondary'
+                                variant={props.usuariologin.acessibilidade.tema.titulo}
                                 disabled={loading}
                                 onClick={(e) => AbreModalPesquisa(e.target.id)}>
                                 Pesquisar
@@ -569,11 +579,12 @@ function UsuarioCadastro(props) {
                             <Form.Control
                                 id='funcaousuario'
                                 placeholder='Escolha a função...'
+                                className={`form-control-${props.usuariologin.acessibilidade.tema.titulo}`}
                                 disabled={true}
                                 value={funcaoUsuario} />
                             <Button 
                                 id='botao-funcao'
-                                variant='outline-secondary'
+                                variant={props.usuariologin.acessibilidade.tema.titulo}
                                 disabled={loading}
                                 onClick={(e) => AbreModalPesquisa(e.target.id)}>
                                 Pesquisar
@@ -584,7 +595,8 @@ function UsuarioCadastro(props) {
             </Row>
             <Row>
                 <Col>
-                    <Table striped>
+                    <Table
+                        variant={props.usuariologin.acessibilidade.tema.titulo}>
                         <thead>
                             <tr>
                                 <th>Usuário</th>
@@ -609,20 +621,20 @@ function UsuarioCadastro(props) {
             <Row>
                 <Col>
                     <Stack direction='horizontal' className='d-flex flex-row-reverse' gap={2}>
-                        <Button 
-                            variant='primary'
+                        <Button                             
+                            variant={props.usuariologin.acessibilidade.tema.titulo}
                             disabled={loading}
                             onClick={() => SalvarDados()}>
                             {dadosParaAtualizar && dadosParaAtualizar._id ? 'Atualizar' : 'Adicionar'}
                         </Button>
                         <Button 
-                            variant='light'
+                            variant={props.usuariologin.acessibilidade.tema.titulo}
                             disabled={loading}
                             onClick={() => LimparTela()}>
                             Limpar
                         </Button>
                         <Button 
-                            variant='light'
+                            variant={props.usuariologin.acessibilidade.tema.titulo}
                             disabled={loading}
                             onClick={() => setClicouFiltrar(!clicouFiltrar)}>
                             Filtrar

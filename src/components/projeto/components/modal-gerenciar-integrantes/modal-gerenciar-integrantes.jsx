@@ -124,7 +124,7 @@ function ModalGerenciarIntegrantes(props) {
                 {listaPaginas.map((v, i) => <Pagination.Item
                                                 id={'pag'+v}
                                                 key={i} 
-                                                className={paginaAtualPesquisa===v ? 'destaquePag' : ''}
+                                                className={paginaAtualPesquisa===v ? `pagDestaque-${props.usuariologin.acessibilidade.tema.titulo}` : `pag-${props.usuariologin.acessibilidade.tema.titulo}`}
                                                 onClick={(e) => MudaPaginaPesquisa(e)} >
                                                 {v}
                                             </Pagination.Item>)}
@@ -216,7 +216,7 @@ function ModalGerenciarIntegrantes(props) {
                 {listaPaginas.map((v, i) => <Pagination.Item
                                                 id={'pag'+v}
                                                 key={i} 
-                                                className={paginaAtualIntegrantes===v ? 'destaquePag' : ''}
+                                                className={paginaAtualIntegrantes===v ? `pagDestaque-${props.usuariologin.acessibilidade.tema.titulo}` : `pag-${props.usuariologin.acessibilidade.tema.titulo}`}
                                                 onClick={(e) => MudaPaginaIntegrantes(e)} >
                                                 {v}
                                             </Pagination.Item>)}
@@ -288,6 +288,7 @@ function ModalGerenciarIntegrantes(props) {
             {...props}
             size='md'
             aria-labelledby='contained-modal-title-vcenter'
+            className={`modal-${props.usuariologin.acessibilidade.tema.titulo}`}
             centered
             onExit={() => props.onHide({ idprojeto: props.integrantes.idprojeto, dados: listaDadosIntegrantes })}>
             <Modal.Header closeButton>
@@ -304,15 +305,21 @@ function ModalGerenciarIntegrantes(props) {
                             size='sm'>
                             <Form.Control 
                                 id='nomepesquisa'
+                                className={`form-control-${props.usuariologin.acessibilidade.tema.titulo}`}
                                 value={nomePesquisa}
                                 onChange={(e) => setNomePesquisa(e.target.value)}/>
-                            <InputGroup.Text>Usuário</InputGroup.Text>
+                            <InputGroup.Text
+                                className={`form-text-${props.usuariologin.acessibilidade.tema.titulo}`}>
+                                Usuário
+                            </InputGroup.Text>
                         </InputGroup>
                     </Col>
                 </Row>
                 <Row>
                     <Col>
-                        <Table striped responsive>
+                        <Table 
+                            variant={props.usuariologin.acessibilidade.tema.titulo}
+                            responsive>
                             <thead>
                                 <tr>
                                     <th>Nome</th>
@@ -334,7 +341,9 @@ function ModalGerenciarIntegrantes(props) {
                     <Col>
                         <hr/>
                         <h6>Atualmente no projeto</h6>
-                        <Table striped responsive>
+                        <Table 
+                            variant={props.usuariologin.acessibilidade.tema.titulo}
+                            responsive>
                             <thead>
                                 <tr>
                                     <th>Nome</th>

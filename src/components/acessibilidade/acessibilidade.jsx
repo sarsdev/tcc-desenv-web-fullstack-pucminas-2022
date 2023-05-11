@@ -10,8 +10,8 @@ import AcessibilidadeManutencao from './components/acessibilidade-manutencao'
 function Acessibilidade(props) {
     const navigate = useNavigate()
 
-    const [nomeUsuario, setNomeUsuario] = useState('')
-    const [usuario, ] = useState(() => JSON.parse(sessionStorage.getItem('usuariologin')))
+    const [usuario, setUsuario] = useState(() => JSON.parse(sessionStorage.getItem('usuariologin')))
+    const [atualiza, setAtualiza] = useState(false)
 
     const abaComFocoInicial = "aba001"
     const abasPermissao = [
@@ -23,33 +23,41 @@ function Acessibilidade(props) {
     const AbaClicada = function (evento) {
         console.log(evento.target.id)
     }
-    const VoltarClicado = function (evento) {
-        console.log(evento.target.dataset.elemento)
-    }
 
     useEffect(() => {
         let usuariologin = JSON.parse(sessionStorage.getItem('usuariologin'))
         if(usuariologin && usuariologin._id) {
-            setNomeUsuario(usuariologin.dados_pessoais.nome)
+            let body = document.getElementsByTagName('body')
+            body[0].classList.forEach(v => body[0].classList.remove(v))            
+            body[0].classList.add(`body-${usuariologin.acessibilidade.tema.titulo}`)
         } else {
             navigate('/app/acesso')
         }
-      }, []);
+    }, []);
+
+    function AtualizaTemaTela(dadosTema) {
+        usuario.acessibilidade = dadosTema
+        setUsuario(usuario)
+        setAtualiza(!atualiza)
+    }
 
     return (
         <Container>
-            <Menu usuario={nomeUsuario}/>
+            <Menu usuario={usuario} atualizar={atualiza}/>
             <Row>
                 <Col>
                     <NavBarTela
                         abas={abasPermissao}
                         abaInicial={abaComFocoInicial}
                         eventoAbaAlterada={AbaClicada}
-                        eventoVoltarClicado={VoltarClicado} />
+                        usuariologin={usuario}
+                        atualizar={atualiza} />
                 </Col>
             </Row>
             <Row>
-                <AcessibilidadeManutencao usuariologin={usuario}/>
+                <AcessibilidadeManutencao 
+                    usuariologin={usuario}
+                    onMudaTema={(dados) => AtualizaTemaTela(dados)} />
             </Row>
         </Container>
     )

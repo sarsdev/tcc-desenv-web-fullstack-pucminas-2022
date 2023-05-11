@@ -10,6 +10,7 @@ function ModalDadosProjeto(props) {
             {...props}
             size='md'
             aria-labelledby='contained-modal-title-vcenter'
+            className={`modal-${props.usuario.acessibilidade.tema.titulo}`}
             centered
             onExit={() => props.onHide()}>
             <Modal.Header closeButton>
@@ -21,30 +22,46 @@ function ModalDadosProjeto(props) {
             <Modal.Body>
                 <Stack>
                     <InputGroup>
-                        <InputGroup.Text>Nome do cliente</InputGroup.Text>
+                        <InputGroup.Text
+                            className={`form-text-${props.usuario.acessibilidade.tema.titulo}`}>
+                            Nome do cliente
+                        </InputGroup.Text>
                         <Form.Control
                             type='text'
+                            className={`form-control-${props.usuario.acessibilidade.tema.titulo}`}
                             value={props.dadosprojeto.nomecliente}
                             readOnly={true} />
                     </InputGroup>
                     <InputGroup>
-                        <InputGroup.Text>Data prevista de entrega</InputGroup.Text>
+                        <InputGroup.Text
+                            className={`form-text-${props.usuario.acessibilidade.tema.titulo}`}>
+                            Data prevista de entrega
+                        </InputGroup.Text>
                         <Form.Control
                             type='text'
+                            className={`form-control-${props.usuario.acessibilidade.tema.titulo}`}
                             value={props.dadosprojeto.dataprevista}
                             readOnly={true} />
                     </InputGroup>
                     <InputGroup>
-                        <InputGroup.Text>Total de horas estimadas</InputGroup.Text>
+                        <InputGroup.Text
+                            className={`form-text-${props.usuario.acessibilidade.tema.titulo}`}>
+                            Total de horas estimadas
+                        </InputGroup.Text>
                         <Form.Control
                             type='text'
+                            className={`form-control-${props.usuario.acessibilidade.tema.titulo}`}
                             value={props.dadosprojeto.horasestimadas}
                             readOnly={true} />
                     </InputGroup>
                     <InputGroup>
-                        <InputGroup.Text>Minhas horas consumidas</InputGroup.Text>
+                        <InputGroup.Text
+                            className={`form-text-${props.usuario.acessibilidade.tema.titulo}`}>
+                            Minhas horas consumidas
+                        </InputGroup.Text>
                         <Form.Control
                             type='text'
+                            className={`form-control-${props.usuario.acessibilidade.tema.titulo}`}
                             value={props.dadosprojeto.horasconsumidas}
                             readOnly={true} />
                     </InputGroup>

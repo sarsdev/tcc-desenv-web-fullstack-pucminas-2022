@@ -1,5 +1,4 @@
-import './navbar-tela.css'
-import React from 'react';
+import React, { useEffect } from 'react'
 import Stack from 'react-bootstrap/Stack'
 
 function NavBarTela(props) {
@@ -7,12 +6,12 @@ function NavBarTela(props) {
         <h6
             id={aba.id}
             key={aba.id}
-            className={`TitulosMenu ${props.abaInicial === aba.id ? 'TitulosMenuAtivo' : 'TitulosMenuInativo'}`}
+            className={`navbartitulo-${props.usuariologin.acessibilidade.tema.titulo} ${props.abaInicial === aba.id ? `tituloativo-${props.usuariologin.acessibilidade.tema.titulo}` : `tituloinativo-${props.usuariologin.acessibilidade.tema.titulo}`}`}
             onClick={props.eventoAbaAlterada}>{aba.texto}</h6>
     )
 
     return (
-        <div className="BarraSuperiorTela">
+        <div className={`navbar-${props.usuariologin.acessibilidade.tema.titulo}`}>
             <Stack direction="horizontal">
                 {abas}
             </Stack>

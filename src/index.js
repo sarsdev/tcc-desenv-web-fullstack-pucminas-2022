@@ -1,5 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
-import './index.css'
+import './css/index.css'
+import './css/tema-dia.css'
+import './css/tema-noite.css'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from "react-router-dom"

@@ -28,7 +28,6 @@ import { ServicoAgenda } from './../../service/servico'
 
 function Agenda(props) {
     const navigate = useNavigate()
-    const [nomeUsuario, setNomeUsuario] = useState('')
     const [usuario, ] = useState(() => JSON.parse(sessionStorage.getItem('usuariologin')))
     const [nomeProjeto, setNomeProjeto] = useState('')
     const [horasApontDia, setHorasApontDia] = useState('')
@@ -69,7 +68,9 @@ function Agenda(props) {
     useEffect(() => {
         let usuariologin = JSON.parse(sessionStorage.getItem('usuariologin'))
         if (usuariologin && usuariologin._id) {
-            setNomeUsuario(usuariologin.dados_pessoais.nome)
+            let body = document.getElementsByTagName('body')
+            body[0].classList.forEach(v => body[0].classList.remove(v))            
+            body[0].classList.add(`body-${usuariologin.acessibilidade.tema.titulo}`)
             AtivaInativaLoading(true)
             ListaConfigAgenda()            
         } else {
@@ -80,7 +81,6 @@ function Agenda(props) {
     useEffect(() => {
         AtualizaHorasApontadasDia()
         if(configAgenda.encerra_apont_ao_iniciar_outro && idAgendaApont) {
-            console.log('SalvaApontamentoFinalizado', idAgendaApont)
             RegistraInicioApontamento(idAgendaApont)
             setIdAgendaApont('')
         }
@@ -251,7 +251,7 @@ function Agenda(props) {
                 {listaPaginas.map((v, i, o) => <Pagination.Item
                     id={'pag' + v}
                     key={i}
-                    className={paginaAtual === v ? 'destaquePag' : ''}
+                    className={paginaAtual===v ? `pagDestaque-${usuario.acessibilidade.tema.titulo}` : `pag-${usuario.acessibilidade.tema.titulo}`}
                     onClick={(e) => MudaPaginaTabela(e)} >
                     {v}
                 </Pagination.Item>)}
@@ -536,7 +536,6 @@ function Agenda(props) {
     }
 
     function RegistraInicioApontamento(id) {
-        console.log('RegistraInicioApontamento', id)
         if(id) {
             let indice = linhasDadosAgenda.findIndex(v => v.valor._id === id)
             linhasDadosAgenda[indice].apontando = true
@@ -574,12 +573,14 @@ function Agenda(props) {
     }
 
     return (
-        <Container>
-            <MenuPrincipal usuario={nomeUsuario} />
+        <Container
+            className={`container-${usuario.acessibilidade.tema.titulo}`}>
+            <MenuPrincipal usuario={usuario} />
             <NavBarTela
                 abas={abasAgenda}
                 abaInicial={abaComFocoInicial}
-                eventoAbaAlterada={AbaClicada} />            
+                eventoAbaAlterada={AbaClicada}
+                usuariologin={usuario} />            
             { loading ? <Loading /> : null }
             <Row>
                 <Col>
@@ -587,6 +588,7 @@ function Agenda(props) {
                         id='filtroprojeto'
                         type='text'
                         placeholder='Filtra o projeto...'
+                        className={`form-control-${usuario.acessibilidade.tema.titulo}`}
                         disabled={loading}
                         value={nomeProjeto}
                         onChange={(e) => setNomeProjeto(e.target.value)} />
@@ -608,10 +610,14 @@ function Agenda(props) {
                 </Col>
                 <Col>
                     <InputGroup className='m-0'>
-                        <InputGroup.Text>Total de horas apontadas hoje</InputGroup.Text>
+                        <InputGroup.Text
+                            className={`form-text-${usuario.acessibilidade.tema.titulo}`}>
+                            Total de horas apontadas hoje
+                        </InputGroup.Text>
                         <Form.Control                    
                             id='horasapontadasdia'
                             type='time'
+                            className={`form-control-${usuario.acessibilidade.tema.titulo}`}
                             readOnly={true}
                             value={horasApontDia} />
                     </InputGroup>
@@ -627,7 +633,8 @@ function Agenda(props) {
             </Row>
             <Row>
                 <Col>
-                    <Table striped>
+                    <Table 
+                        variant={usuario.acessibilidade.tema.titulo}>
                         <thead>
                             <tr>
                                 <th>Tipo</th>
@@ -649,22 +656,27 @@ function Agenda(props) {
             {/* Modais */}
             <ModalDadosProjeto
                 dadosprojeto={dadosProjeto}
+                usuario={usuario}
                 show={mostraModalDadosProj}
                 onHide={() => setMostraModalDadosProj(false)} />
             <ModalApontamentosProjeto
                 apontamentosprojeto={apontamentosProj}
+                usuario={usuario}
                 show={mostraModalApontProj}
                 onHide={() => setMostraModalApontProj(false)} />
             <ModalConfigAgenda
                 configatual={configAgenda}
+                usuario={usuario}
                 show={mostraModalConfigAgenda}
                 onHide={(retorno) => RetornoModalConfiguracoes(retorno)} />
             <ModalApontamentosDia
                 apontamentos={apontamentosDia}
+                usuario={usuario}
                 show={mostraModalApontDia}
                 onHide={() => setMostraModalApontDia(false)} />
             <ModalObservacao
                 obspadrao={configAgenda.texto_padrao_obs}
+                usuario={usuario}
                 show={mostraModalObservacao}
                 onHide={(retorno) => RetornoModalObservacao(retorno)} /> 
             

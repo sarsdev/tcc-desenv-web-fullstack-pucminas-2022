@@ -11,7 +11,7 @@ import Alert from 'react-bootstrap/Alert'
 import Loading from '../../common/loading/loading'
 import { ServicoAcessibilidade } from './../../../service/servico'
 
-function AcessibilidadeManutencao({usuariologin}) {
+function AcessibilidadeManutencao({usuariologin, onMudaTema}) {
     const [listaTemas, setListaTemas] = useState([])
     const [configAtual, setConfigAtual] = useState({})
     const [modoLeitura, setModoLeitura] = useState(false)
@@ -38,8 +38,8 @@ function AcessibilidadeManutencao({usuariologin}) {
         }).catch((err) => {
             AlertaErro(err)
         }).finally(() => AtivaInativaLoading(false))
-      }, []);
-    
+    }, [])
+
     async function CarregaTemas() {
         try {
             let retorno = await ServicoAcessibilidade.RetornaListaTemas({
@@ -89,6 +89,10 @@ function AcessibilidadeManutencao({usuariologin}) {
                 usuario: usuariologin.email,
                 senha: usuariologin.dados_acesso.senha
             }, configAtual)
+            if(!retorno.erro) {
+                usuariologin.acessibilidade = configAtual
+                sessionStorage.setItem('usuariologin', JSON.stringify(usuariologin))
+            }
             return retorno  
         } catch (err) {
             throw new Error(err)
@@ -118,6 +122,8 @@ function AcessibilidadeManutencao({usuariologin}) {
                 return retorno
             } else {
                 setConfigAtual(retorno.dados)
+                usuariologin.acessibilidade = retorno.dados
+                sessionStorage.setItem('usuariologin', JSON.stringify(usuariologin))
                 return retorno
             }  
         } catch (err) {
@@ -181,6 +187,7 @@ function AcessibilidadeManutencao({usuariologin}) {
                     configAtual.tema.id = itemTema._id
                     configAtual.tema.titulo = itemTema.titulo
                     setConfigAtual(configAtual)
+                    onMudaTema(configAtual)
                 }
                 break
             default:
@@ -216,12 +223,20 @@ function AcessibilidadeManutencao({usuariologin}) {
         }, 5000)
     }
 
+    function AtualizaTemaTela() {
+        let body = document.getElementsByTagName('body')
+        body[0].classList.forEach(v => body[0].classList.remove(v))            
+        body[0].classList.add(`body-${usuariologin.acessibilidade.tema.titulo}`)
+    }
+
     return (
-        <Container>
+        <Container
+            className={`container-${usuariologin.acessibilidade.tema.titulo}`}>
+            { AtualizaTemaTela() }
             { loading ? <Loading /> : null }
             <Row className='linha'>
                 <Col>
-                    <Card className='cartoes'>
+                    <Card className={`cartoes cards-${usuariologin.acessibilidade.tema.titulo}`}>
                         <Card.Header>Ajuste visual</Card.Header>
                         <Card.Body>
                             <Card.Title>Modo leitura</Card.Title>
@@ -233,7 +248,8 @@ function AcessibilidadeManutencao({usuariologin}) {
                             <Form.Check
                                 id='modoleitura'
                                 type="switch" 
-                                label="Ativo" 
+                                label="Ativo"
+                                className={`form-check-${usuariologin.acessibilidade.tema.titulo}`}
                                 checked={modoLeitura}
                                 disabled={loading}
                                 onChange={(e) => ValidaCampoForm(e)} />
@@ -241,7 +257,7 @@ function AcessibilidadeManutencao({usuariologin}) {
                     </Card>
                 </Col>
                 <Col>
-                    <Card className='cartoes'>
+                    <Card className={`cartoes cards-${usuariologin.acessibilidade.tema.titulo}`}>
                         <Card.Header>Ajuste coordenação motora</Card.Header>
                         <Card.Body>
                             <Card.Title>Modo atalho único</Card.Title>
@@ -254,6 +270,7 @@ function AcessibilidadeManutencao({usuariologin}) {
                                 id='modoatalho'
                                 type="switch" 
                                 label="Ativo"
+                                className={`form-check-${usuariologin.acessibilidade.tema.titulo}`}
                                 checked={modoAtalho}
                                 disabled={loading}
                                 onChange={(e) => ValidaCampoForm(e)} />                            
@@ -261,7 +278,7 @@ function AcessibilidadeManutencao({usuariologin}) {
                     </Card>
                 </Col>
                 <Col>
-                    <Card className='cartoes'>
+                    <Card className={`cartoes cards-${usuariologin.acessibilidade.tema.titulo}`}>
                         <Card.Header>Ajuste visual</Card.Header>
                         <Card.Body>
                             <Card.Title>Tema da aplicação</Card.Title>
@@ -273,6 +290,7 @@ function AcessibilidadeManutencao({usuariologin}) {
                             <Form.Select 
                                 id='tema'
                                 size='sm'
+                                className={`form-select-${usuariologin.acessibilidade.tema.titulo}`}
                                 value={tema}
                                 disabled={loading}
                                 onChange={(e) => ValidaCampoForm(e)} >
@@ -286,7 +304,7 @@ function AcessibilidadeManutencao({usuariologin}) {
                 <Col>
                     <Stack direction="horizontal" className='d-flex flex-row-reverse'>
                         <Button 
-                            variant="primary" 
+                            variant={usuariologin.acessibilidade.tema.titulo} 
                             disabled={loading}
                             onClick={(e) => SalvarPadrao(e)}>Salvar</Button>
                     </Stack>

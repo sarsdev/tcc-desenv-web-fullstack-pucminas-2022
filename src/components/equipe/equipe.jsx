@@ -22,7 +22,6 @@ import { ServicoEquipe } from './../../service/servico'
 
 function Equipe(props) {
     const navigate = useNavigate()
-    const [nomeUsuario, setNomeUsuario] = useState('')
     const [usuarioLogin, ] = useState(() => JSON.parse(sessionStorage.getItem('usuariologin')))
     const [nomeEquipe, setNomeEquipe] = useState('')
     const [situacaoEquipe, setSituacaoEquipe] = useState(true)
@@ -64,7 +63,9 @@ function Equipe(props) {
     useEffect(() => {
         let usuariologin = JSON.parse(sessionStorage.getItem('usuariologin'))
         if(usuariologin && usuariologin._id) {
-            setNomeUsuario(usuariologin.dados_pessoais.nome)
+            let body = document.getElementsByTagName('body')
+            body[0].classList.forEach(v => body[0].classList.remove(v))            
+            body[0].classList.add(`body-${usuariologin.acessibilidade.tema.titulo}`)
             AtivaInativaLoading(true)
             ListaEquipes()
         } else {
@@ -179,7 +180,7 @@ function Equipe(props) {
                         {v.valor.descricao}
                     </td>
                     <td>
-                        <Badge pill bg={v.valor.situacao==='ativo'?'primary':'danger'}>{v.valor.situacao}</Badge>
+                        <Badge pill className={`badge-${usuarioLogin.acessibilidade.tema.titulo}`}>{v.valor.situacao}</Badge>
                     </td>                
                     <td>
                         <Stack direction='horizontal' gap={2}>
@@ -230,7 +231,7 @@ function Equipe(props) {
                 {listaPaginas.map((v, i, o) => <Pagination.Item
                                                     id={'pag'+v}
                                                     key={i} 
-                                                    className={paginaAtual===v ? 'destaquePag' : ''}
+                                                    className={paginaAtual===v ? `pagDestaque-${usuarioLogin.acessibilidade.tema.titulo}` : `pag-${usuarioLogin.acessibilidade.tema.titulo}`}
                                                     onClick={(e) => MudaPaginaTabela(e)} >
                                                     {v}
                                                 </Pagination.Item>)}
@@ -340,7 +341,6 @@ function Equipe(props) {
                 ListaEquipes()
             })
         } else {
-            console.log(usuariosSelec)
             let dados = {
                 nome: nomeEquipe,
                 descricao: descricaoEquipe,
@@ -367,7 +367,6 @@ function Equipe(props) {
                     }
                 )
             }
-            console.log(dados)
             ServicoEquipe
             .InsereEquipe(dadosLogin, dados)
             .then((resp) => {
@@ -441,12 +440,14 @@ function Equipe(props) {
     }
 
     return (
-        <Container>
-            <MenuPrincipal usuario={nomeUsuario} />
+        <Container
+            className={`container-${usuarioLogin.acessibilidade.tema.titulo}`}>
+            <MenuPrincipal usuario={usuarioLogin} />
             <NavBarTela 
                 abas={abasEquipe}
                 abaInicial={abaComFocoInicial}
-                eventoAbaAlterada={AbaClicada} />            
+                eventoAbaAlterada={AbaClicada}
+                usuariologin={usuarioLogin} />            
             { loading ? <Loading /> : null }
             <Row>
                 <Col md={6}>
@@ -454,6 +455,7 @@ function Equipe(props) {
                         id='nomeequipe'
                         type="text" 
                         placeholder="Nome da equipe..."
+                        className={`form-control-${usuarioLogin.acessibilidade.tema.titulo}`}
                         disabled={loading}
                         value={nomeEquipe}
                         onChange={(e) => setNomeEquipe(e.target.value)} />
@@ -463,6 +465,7 @@ function Equipe(props) {
                         id={'situcao'}
                         type='checkbox'
                         label='Ativo'
+                        className={`form-check-${usuarioLogin.acessibilidade.tema.titulo}`}
                         disabled={ignorarSituacao}
                         checked={situacaoEquipe}
                         onChange={(e) => setSituacaoEquipe(e.target.checked)} />
@@ -472,6 +475,7 @@ function Equipe(props) {
                         id={'ignorarsitucao'}
                         type='checkbox'
                         label='Ignorar situação'
+                        className={`form-check-${usuarioLogin.acessibilidade.tema.titulo}`}
                         disabled={loading}
                         checked={ignorarSituacao}
                         onChange={(e) => setIgnorarSituacao(e.target.checked)} />
@@ -483,6 +487,7 @@ function Equipe(props) {
                         id='descricaoequipe'
                         type="text"
                         placeholder='Descrição da equipe...'
+                        className={`form-control-${usuarioLogin.acessibilidade.tema.titulo}`}
                         disabled={loading}
                         value={descricaoEquipe}
                         onChange={(e) => setDescricaoEquipe(e.target.value)} />
@@ -495,10 +500,11 @@ function Equipe(props) {
                             id='usuarios'
                             disabled={true}
                             placeholder="Escolha o usuário..."
+                            className={`form-control-${usuarioLogin.acessibilidade.tema.titulo}`}
                             value={usuarios} />
                         <Button 
-                            id="botao_usuarios" 
-                            variant="outline-secondary"
+                            id="botao_usuarios"                             
+                            variant={usuarioLogin.acessibilidade.tema.titulo}
                             disabled={loading}
                             onClick={() => AbreModalPesquisa()} >
                             Pesquisar
@@ -508,7 +514,8 @@ function Equipe(props) {
             </Row>
             <Row>
                 <Col>
-                    <Table striped>
+                    <Table
+                        variant={usuarioLogin.acessibilidade.tema.titulo}>
                         <thead>
                             <tr>
                                 <th>Equipe</th>
@@ -530,19 +537,19 @@ function Equipe(props) {
                 <Col>
                     <Stack direction="horizontal" className='d-flex flex-row-reverse' gap={2}>
                         <Button 
-                            variant="primary"
+                            variant={usuarioLogin.acessibilidade.tema.titulo}
                             disabled={loading}
                             onClick={() => SalvarDados()}>
                             {dadosParaAtualizar && dadosParaAtualizar._id ? 'Atualizar' : 'Adicionar'}
                         </Button>
                         <Button 
-                            variant="light" 
+                            variant={usuarioLogin.acessibilidade.tema.titulo} 
                             disabled={loading}
                             onClick={() => LimparTela()}>
                             Limpar
                         </Button>
                         <Button 
-                            variant="light" 
+                            variant={usuarioLogin.acessibilidade.tema.titulo} 
                             disabled={loading}
                             onClick={() => setClicouFiltrar(!clicouFiltrar)}>
                             Filtrar
@@ -561,6 +568,7 @@ function Equipe(props) {
                 onHide={(dadosSelecionados) => RetornaDadosModal(dadosSelecionados)}
             />
             <ModalIntegrantes
+                usuariologin={usuarioLogin}
                 integrantes={integrantesSelec}
                 show={mostrarModalIntegrantes}
                 onHide={() => setMostrarModalIntegrantes(false)}

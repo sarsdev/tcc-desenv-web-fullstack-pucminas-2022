@@ -72,7 +72,7 @@ function ModalApontamentosProjeto(props) {
                 {listaPaginas.map((v, i) => <Pagination.Item
                                                 id={'pag'+v}
                                                 key={i} 
-                                                className={paginaAtual===v ? 'destaquePag' : ''}
+                                                className={paginaAtual===v ? `pagDestaque-${props.usuario.acessibilidade.tema.titulo}` : `pag-${props.usuario.acessibilidade.tema.titulo}`}
                                                 onClick={(e) => MudaPagina(e)} >
                                                 {v}
                                             </Pagination.Item>)}
@@ -174,6 +174,7 @@ function ModalApontamentosProjeto(props) {
             {...props}
             size='md'
             aria-labelledby='contained-modal-title-vcenter'
+            className={`modal-${props.usuario.acessibilidade.tema.titulo}`}
             centered
             onExit={() => props.onHide()}>
             <Modal.Header closeButton>
@@ -185,7 +186,7 @@ function ModalApontamentosProjeto(props) {
             <Modal.Body>
                 <Row>
                     <Col>
-                        <Table striped responsive>
+                        <Table variant={props.usuario.acessibilidade.tema.titulo} responsive>
                             <thead>
                                 <tr>
                                     <th>Usuário</th>

@@ -6,13 +6,14 @@ import Menu from './../common/menu-principal/menu-principal'
 
 function Inicial(props) {
     const navigate = useNavigate()
-
-    const [nomeUsuario, setNomeUsuario] = useState('')
+    const [usuario, ] = useState(() => JSON.parse(sessionStorage.getItem('usuariologin')))
 
     useEffect(() => {
         let usuariologin = JSON.parse(sessionStorage.getItem('usuariologin'))
         if(usuariologin && usuariologin._id) {
-            setNomeUsuario(usuariologin.dados_pessoais.nome)     
+            let body = document.getElementsByTagName('body')
+            body[0].classList.forEach(v => body[0].classList.remove(v))            
+            body[0].classList.add(`body-${usuariologin.acessibilidade.tema.titulo}`)    
         } else {
             navigate('/app/acesso')
         }
@@ -20,7 +21,7 @@ function Inicial(props) {
 
     return (
         <Container>
-            <Menu usuario={nomeUsuario} />
+            <Menu usuario={usuario} />
         </Container>
     )
 }

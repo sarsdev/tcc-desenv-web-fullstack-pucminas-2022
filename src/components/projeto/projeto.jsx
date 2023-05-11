@@ -20,7 +20,6 @@ import { ServicoProjeto } from './../../service/servico'
 
 function Projeto(props) {
     const navigate = useNavigate()
-    const [nomeUsuario, setNomeUsuario] = useState('')
     const [usuario, ] = useState(() => JSON.parse(sessionStorage.getItem('usuariologin')))
     const [nomeProjeto, setNomeProjeto] = useState('')
     const [codigoProjeto, setCodigoProjeto] = useState('')
@@ -63,7 +62,9 @@ function Projeto(props) {
     useEffect(() => {
         let usuariologin = JSON.parse(sessionStorage.getItem('usuariologin'))
         if (usuariologin && usuariologin._id) {
-            setNomeUsuario(usuariologin.dados_pessoais.nome)
+            let body = document.getElementsByTagName('body')
+            body[0].classList.forEach(v => body[0].classList.remove(v))            
+            body[0].classList.add(`body-${usuariologin.acessibilidade.tema.titulo}`)
             AtivaInativaLoading(true)
             ListaProjetos()
         } else {
@@ -219,7 +220,7 @@ function Projeto(props) {
                     {v.valor.horas_estimadas}
                 </td>
                 <td>
-                    <Badge pill bg={v.valor.etapa === 'cancelado' ? 'danger' : 'primary'}>{v.valor.etapa}</Badge>
+                    <Badge pill className={`badge-${usuario.acessibilidade.tema.titulo}`}>{v.valor.etapa}</Badge>
                 </td>
                 <td>
                     <PencilSquare
@@ -254,7 +255,7 @@ function Projeto(props) {
                 {listaPaginas.map((v, i, o) => <Pagination.Item
                     id={'pag' + v}
                     key={i}
-                    className={paginaAtual === v ? 'destaquePag' : ''}
+                    className={paginaAtual===v ? `pagDestaque-${usuario.acessibilidade.tema.titulo}` : `pag-${usuario.acessibilidade.tema.titulo}`}
                     onClick={(e) => MudaPaginaTabela(e)} >
                     {v}
                 </Pagination.Item>)}
@@ -456,12 +457,14 @@ function Projeto(props) {
     }
 
     return (
-        <Container>
-            <MenuPrincipal usuario={nomeUsuario} />
+        <Container
+            className={`container-${usuario.acessibilidade.tema.titulo}`}>
+            <MenuPrincipal usuario={usuario} />
             <NavBarTela
                 abas={abasProjeto}
                 abaInicial={abaComFocoInicial}
-                eventoAbaAlterada={AbaClicada} />            
+                eventoAbaAlterada={AbaClicada}
+                usuariologin={usuario} />            
             { loading ? <Loading /> : null }
             <Row>
                 <Col>
@@ -471,6 +474,7 @@ function Projeto(props) {
                                 id='nomeprojeto'
                                 type='text'
                                 placeholder='Nome do projeto...'
+                                className={`form-control-${usuario.acessibilidade.tema.titulo}`}
                                 disabled={loading}
                                 value={nomeProjeto}
                                 onChange={(e) => setNomeProjeto(e.target.value)} />
@@ -480,6 +484,7 @@ function Projeto(props) {
                                 id='codigoexterno'
                                 type='text'
                                 placeholder='Código externo...'
+                                className={`form-control-${usuario.acessibilidade.tema.titulo}`}
                                 disabled={loading}
                                 value={codigoProjeto}
                                 onChange={(e) => setCodigoProjeto(e.target.value)} />
@@ -489,6 +494,7 @@ function Projeto(props) {
                                 id='nomecliente'
                                 type='text'
                                 placeholder='Nome do cliente...'
+                                className={`form-control-${usuario.acessibilidade.tema.titulo}`}
                                 disabled={loading}
                                 value={nomeCliente}
                                 onChange={(e) => setNomeCliente(e.target.value)} />
@@ -496,6 +502,7 @@ function Projeto(props) {
                         <Col>
                             <Form.Select
                                 id='etapaprojeto'
+                                className={`form-select-${usuario.acessibilidade.tema.titulo}`}
                                 value={etapaProjeto}
                                 disabled={loading}
                                 onChange={(e) => setEtapaProjeto(e.target.selectedOptions[0].value)}>
@@ -514,6 +521,7 @@ function Projeto(props) {
                                 id='descricaoprojeto'
                                 type='text'
                                 placeholder='Descrição do projeto...'
+                                className={`form-control-${usuario.acessibilidade.tema.titulo}`}
                                 disabled={loading}
                                 value={descricaoProjeto}
                                 onChange={(e) => setDescricaoProjeto(e.target.value)} />
@@ -521,6 +529,7 @@ function Projeto(props) {
                         <Col>
                             <Form.Select
                                 id='tipoprojeto'
+                                className={`form-select-${usuario.acessibilidade.tema.titulo}`}
                                 disabled={loading}
                                 value={tipoProjeto}
                                 onChange={(e) => setTipoProjeto(e.target.selectedOptions[0].value)}>
@@ -532,13 +541,17 @@ function Projeto(props) {
                         <Col>
                             <InputGroup
                                 className='m-0'>
-                                <InputGroup.Text>Horas estimadas</InputGroup.Text>
+                                <InputGroup.Text
+                                    className={`form-text-${usuario.acessibilidade.tema.titulo}`}>
+                                    Horas estimadas
+                                </InputGroup.Text>
                                 <Form.Control
                                     id='horasestimadas'
                                     type='number'
                                     max={8760}
                                     min={0}
                                     step={1}
+                                    className={`form-control-${usuario.acessibilidade.tema.titulo}`}
                                     disabled={loading}
                                     value={estimativaProjeto}
                                     onChange={(e) => setEstimativaProjeto(e.target.value ? +e.target.value : '')} />
@@ -549,10 +562,14 @@ function Projeto(props) {
                         <Col>
                             <InputGroup
                                 className='m-0'>
-                                <InputGroup.Text>Previsão de Conclusão</InputGroup.Text>
+                                <InputGroup.Text
+                                    className={`form-text-${usuario.acessibilidade.tema.titulo}`}>
+                                    Previsão de Conclusão
+                                </InputGroup.Text>
                                 <Form.Control
                                     id='previsaoconclusao'
                                     type='date'
+                                    className={`form-control-${usuario.acessibilidade.tema.titulo}`}
                                     disabled={loading}
                                     value={dataPrevista}
                                     onChange={(e) => setDataPrevista(e.target.value)} />
@@ -561,17 +578,25 @@ function Projeto(props) {
                         <Col>
                             <InputGroup
                                 className='m-0'>
-                                <InputGroup.Text>Vigência do Projeto</InputGroup.Text>
+                                <InputGroup.Text
+                                    className={`form-text-${usuario.acessibilidade.tema.titulo}`}>
+                                    Vigência do Projeto
+                                </InputGroup.Text>
                                 <Form.Control
                                     id='vigenciainicial'
                                     type='date'
+                                    className={`form-control-${usuario.acessibilidade.tema.titulo}`}
                                     disabled={loading}
                                     value={vigenciaInicial}
                                     onChange={(e) => setVigenciaInicial(e.target.value)} />
-                                <InputGroup.Text>até</InputGroup.Text>
+                                <InputGroup.Text
+                                    className={`form-text-${usuario.acessibilidade.tema.titulo}`}>
+                                    até
+                                </InputGroup.Text>
                                 <Form.Control
                                     id='vigenciafinal'
                                     type='date'
+                                    className={`form-control-${usuario.acessibilidade.tema.titulo}`}
                                     disabled={loading}
                                     value={vigenciaFinal}
                                     onChange={(e) => setVigenciaFinal(e.target.value)} />
@@ -582,7 +607,8 @@ function Projeto(props) {
             </Row>
             <Row className='mt-3 mb-3'>
                 <Col>
-                    <Table striped>
+                    <Table
+                        variant={usuario.acessibilidade.tema.titulo}>
                         <thead>
                             <tr>
                                 <th>Cod.Ext</th>
@@ -610,19 +636,19 @@ function Projeto(props) {
                 <Col>
                     <Stack direction='horizontal' className='d-flex flex-row-reverse' gap={2}>
                         <Button
-                            variant='primary'
+                            variant={usuario.acessibilidade.tema.titulo}
                             disabled={loading}
                             onClick={() => SalvarDados()}>
                             {dadosParaAtualizar && dadosParaAtualizar._id ? 'Atualizar' : 'Adicionar'}
                         </Button>
                         <Button
-                            variant='light'
+                            variant={usuario.acessibilidade.tema.titulo}
                             disabled={loading}
                             onClick={() => LimparTela()}>
                             Limpar
                         </Button>
                         <Button
-                            variant='light'
+                            variant={usuario.acessibilidade.tema.titulo}
                             disabled={loading}
                             onClick={() => setClicouFiltrar(!clicouFiltrar)}>
                             Filtrar

@@ -19,7 +19,6 @@ import { ServicoFuncao } from './../../service/servico'
 
 function Funcao(props) {
     const navigate = useNavigate()
-    const [nomeUsuario, setNomeUsuario] = useState('')
     const [usuario, ] = useState(() => JSON.parse(sessionStorage.getItem('usuariologin')))
     const [nomeFuncao, setNomeFuncao] = useState('')
     const [situacaoFuncao, setSituacaoFuncao] = useState(true)
@@ -55,7 +54,9 @@ function Funcao(props) {
     useEffect(() => {
         let usuariologin = JSON.parse(sessionStorage.getItem('usuariologin'))
         if(usuariologin && usuariologin._id) {
-            setNomeUsuario(usuariologin.dados_pessoais.nome)
+            let body = document.getElementsByTagName('body')
+            body[0].classList.forEach(v => body[0].classList.remove(v))            
+            body[0].classList.add(`body-${usuariologin.acessibilidade.tema.titulo}`)
             AtivaInativaLoading(true)
             ListaFuncoes()
         } else {
@@ -162,7 +163,7 @@ function Funcao(props) {
                     {v.valor.percentual_estimativa_esperado}
                 </td>
                 <td>
-                    <Badge pill bg={v.valor.situacao==='ativo'?'primary':'danger'}>{v.valor.situacao}</Badge>
+                    <Badge pill className={`badge-${usuario.acessibilidade.tema.titulo}`}>{v.valor.situacao}</Badge>
                 </td>
                 <td>
                     <PencilSquare 
@@ -188,7 +189,7 @@ function Funcao(props) {
                 {listaPaginas.map((v, i, o) => <Pagination.Item
                                                     id={'pag'+v}
                                                     key={i} 
-                                                    className={paginaAtual===v ? 'destaquePag' : ''}
+                                                    className={paginaAtual===v ? `pagDestaque-${usuario.acessibilidade.tema.titulo}` : `pag-${usuario.acessibilidade.tema.titulo}`}
                                                     onClick={(e) => MudaPaginaTabela(e)} >
                                                     {v}
                                                 </Pagination.Item>)}
@@ -330,12 +331,14 @@ function Funcao(props) {
     }
 
     return (
-        <Container>
-            <MenuPrincipal usuario={nomeUsuario} />
+        <Container
+            className={`container-${usuario.acessibilidade.tema.titulo}`}>
+            <MenuPrincipal usuario={usuario} />
             <NavBarTela 
                 abas={abasFuncao}
                 abaInicial={abaComFocoInicial}
-                eventoAbaAlterada={AbaClicada} />
+                eventoAbaAlterada={AbaClicada}
+                usuariologin={usuario} />
             { loading ? <Loading /> : null }
             <Row>
                 <Col md={6}>
@@ -343,6 +346,7 @@ function Funcao(props) {
                         id='nomefuncao'
                         type="text" 
                         placeholder="Nome da função..."
+                        className={`form-control-${usuario.acessibilidade.tema.titulo}`}
                         disabled={loading}
                         value={nomeFuncao}
                         onChange={(e) => setNomeFuncao(e.target.value)} />
@@ -352,6 +356,7 @@ function Funcao(props) {
                         id={'situcao'}
                         type='checkbox'
                         label='Ativo'
+                        className={`form-check-${usuario.acessibilidade.tema.titulo}`}
                         disabled={ignorarSituacao}
                         checked={situacaoFuncao}
                         onChange={(e) => setSituacaoFuncao(e.target.checked)} />
@@ -361,6 +366,7 @@ function Funcao(props) {
                         id={'ignorarsitucao'}
                         type='checkbox'
                         label='Ignorar situação'
+                        className={`form-check-${usuario.acessibilidade.tema.titulo}`}
                         checked={ignorarSituacao}
                         disabled={loading}
                         onChange={(e) => setIgnorarSituacao(e.target.checked)} />
@@ -376,7 +382,7 @@ function Funcao(props) {
                             max={10}
                             min={0}
                             step={0.1}
-                            className='tamanho-input ms-auto'
+                            className={`tamanho-input ms-auto form-control-${usuario.acessibilidade.tema.titulo}`}
                             disabled={loading}
                             value={fatorFuncao}
                             onChange={(e) => setFatorFuncao(e.target.value ? +e.target.value : '')} />
@@ -390,7 +396,7 @@ function Funcao(props) {
                             type="number"
                             max={100}
                             min={0}
-                            className='tamanho-input ms-auto'
+                            className={`tamanho-input ms-auto form-control-${usuario.acessibilidade.tema.titulo}`}
                             disabled={loading}
                             value={percSimulacaoFuncao}
                             onChange={(e) => setPercSimulacaoFuncao(e.target.value ? +e.target.value : '')} />
@@ -399,7 +405,8 @@ function Funcao(props) {
             </Row>
             <Row>
                 <Col>
-                    <Table striped>
+                    <Table
+                        variant={usuario.acessibilidade.tema.titulo}>
                         <thead>
                             <tr>
                                 <th>Função</th>
@@ -422,19 +429,19 @@ function Funcao(props) {
                 <Col>
                     <Stack direction="horizontal" className='d-flex flex-row-reverse' gap={2}>
                         <Button 
-                            variant="primary"
+                            variant={usuario.acessibilidade.tema.titulo}
                             disabled={loading}
                             onClick={() => SalvarDados()}>
                             {dadosParaAtualizar && dadosParaAtualizar._id ? 'Atualizar' : 'Adicionar'}
                         </Button>
                         <Button 
-                            variant="light" 
+                            variant={usuario.acessibilidade.tema.titulo} 
                             disabled={loading}
                             onClick={() => LimparTela()}>
                             Limpar
                         </Button>
                         <Button 
-                            variant="light" 
+                            variant={usuario.acessibilidade.tema.titulo} 
                             disabled={loading}
                             onClick={() => setClicouFiltrar(!clicouFiltrar)}>
                             Filtrar

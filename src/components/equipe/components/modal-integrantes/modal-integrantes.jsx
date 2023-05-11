@@ -56,7 +56,7 @@ function ModalIntegrantes(props) {
                 {listaPaginas.map((v, i, o) => <Pagination.Item
                                                     id={'pag'+v}
                                                     key={i} 
-                                                    className={paginaAtual===v ? 'destaquePag' : ''}
+                                                    className={paginaAtual===v ? `pagDestaque-${props.usuariologin.acessibilidade.tema.titulo}` : `pag-${props.usuariologin.acessibilidade.tema.titulo}`}
                                                     onClick={(e) => MudaPaginaTabela(e)} >
                                                     {v}
                                                 </Pagination.Item>)}
@@ -100,6 +100,7 @@ function ModalIntegrantes(props) {
             {...props}
             size='md'
             aria-labelledby='contained-modal-title-vcenter'
+            className={`modal-${props.usuariologin.acessibilidade.tema.titulo}`}
             centered>
             <Modal.Header closeButton>
                 <Modal.Title id='contained-modal-title-vcenter'>Integrantes</Modal.Title>
@@ -107,7 +108,8 @@ function ModalIntegrantes(props) {
             <Modal.Body>
                 <Row>
                     <Col>
-                        <Table striped>
+                        <Table
+                            variant={props.usuariologin.acessibilidade.tema.titulo}>
                             <thead>
                                 <tr>
                                     <th>Nome</th>

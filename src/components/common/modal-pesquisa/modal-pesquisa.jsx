@@ -1,4 +1,3 @@
-import './modal-pesquisa.css'
 import React, { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
@@ -212,7 +211,7 @@ function ModalPesquisa(props) {
                 {listaPaginas.map((v, i, o) => <Pagination.Item
                                                     id={'pag'+v}
                                                     key={i} 
-                                                    className={paginaAtual===v ? 'destaquePag' : ''}
+                                                    className={paginaAtual===v ? `pagDestaque-${props.usuario.acessibilidade.tema.titulo}` : `pag-${props.usuario.acessibilidade.tema.titulo}`}
                                                     onClick={(e) => MudaPaginaTabela(e)} >
                                                     {v}
                                                 </Pagination.Item>)}
@@ -271,6 +270,7 @@ function ModalPesquisa(props) {
             {...props}
             size='md'
             aria-labelledby='contained-modal-title-vcenter'
+            className={`modal-${props.usuario.acessibilidade.tema.titulo}`}
             centered>
             <Modal.Header closeButton>
                 <Modal.Title id='contained-modal-title-vcenter'>{props.titulo}</Modal.Title>
@@ -281,6 +281,7 @@ function ModalPesquisa(props) {
                         <Form.Control
                             id='codigo'
                             type='text'
+                            className={`form-control-${props.usuario.acessibilidade.tema.titulo}`}
                             value={modalCodigo}
                             hidden={ props.titulo === 'Usuários' }
                             placeholder='Código...'
@@ -291,6 +292,7 @@ function ModalPesquisa(props) {
                         <Form.Control
                             id='descricao'
                             type='text'
+                            className={`form-control-${props.usuario.acessibilidade.tema.titulo}`}
                             value={modalDescricao}
                             placeholder={ props.titulo === 'Usuários' ? 'Nome...' : 'Descrição...' }
                             isInvalid={descricaoInvalida}
@@ -299,7 +301,8 @@ function ModalPesquisa(props) {
                 </Row>
                 <Row>
                     <Col>
-                        <Table striped>
+                        <Table 
+                            variant={props.usuario.acessibilidade.tema.titulo}>
                             <thead>
                                 <tr>
                                     <th>*</th>
@@ -319,6 +322,7 @@ function ModalPesquisa(props) {
             </Modal.Body>
             <Modal.Footer>
                 <Button
+                    variant={props.usuario.acessibilidade.tema.titulo}
                     disabled={mostraLoading}
                     onClick={() => RetornarSelecionados()} >
                     <Spinner

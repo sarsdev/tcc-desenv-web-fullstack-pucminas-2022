@@ -10,7 +10,6 @@ import UsuarioVisaoMacro from './components/usuario-visao-macro/usuario-visao-ma
 
 function Usuario(props) {
     const navigate = useNavigate()
-    const [nomeUsuario, setNomeUsuario] = useState('')
     const [usuarioLogin, ] = useState(JSON.parse(sessionStorage.getItem('usuariologin')))
     const [telaExibida, setTelaExibida] = useState(<UsuarioCadastro usuariologin={usuarioLogin} />)
 
@@ -33,7 +32,9 @@ function Usuario(props) {
     useEffect(() => {
         let usuariologin = JSON.parse(sessionStorage.getItem('usuariologin'))
         if(usuariologin && usuariologin._id) {
-            setNomeUsuario(usuariologin.dados_pessoais.nome)
+            let body = document.getElementsByTagName('body')
+            body[0].classList.forEach(v => body[0].classList.remove(v))            
+            body[0].classList.add(`body-${usuariologin.acessibilidade.tema.titulo}`)
         } else {
             navigate('/app/acesso')
         }
@@ -58,11 +59,12 @@ function Usuario(props) {
     return (
         <Container>
             <MenuPrincipal
-                usuario={nomeUsuario} />
+                usuario={usuarioLogin} />
             <NavBarTela
                 abas={abasUsuario}
                 abaInicial={abaComFocoInicial}
-                eventoAbaAlterada={AbaClicada} />
+                eventoAbaAlterada={AbaClicada}
+                usuariologin={usuarioLogin} />
             <Row>
                 {telaExibida}
             </Row>

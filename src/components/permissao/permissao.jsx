@@ -9,8 +9,6 @@ import PermissaoManutencao from './components/permissao-manutencao/permissao-man
 
 function Permissao(props) {
     const navigate = useNavigate()
-
-    const [nomeUsuario, setNomeUsuario] = useState('')
     const [usuario, ] = useState(() => JSON.parse(sessionStorage.getItem('usuariologin')))
 
     const abaComFocoInicial = "aba001"
@@ -23,29 +21,29 @@ function Permissao(props) {
     const AbaClicada = function (evento) {
         console.log(evento.target.id)
     }
-    const VoltarClicado = function (evento) {
-        console.log(evento.target.dataset.elemento)
-    }
 
     useEffect(() => {
         let usuariologin = JSON.parse(sessionStorage.getItem('usuariologin'))
         if(usuariologin && usuariologin._id) {
-            setNomeUsuario(usuariologin.dados_pessoais.nome)
+            let body = document.getElementsByTagName('body')
+            body[0].classList.forEach(v => body[0].classList.remove(v))            
+            body[0].classList.add(`body-${usuariologin.acessibilidade.tema.titulo}`)
         } else {
             navigate('/app/acesso')
         }
       }, []);
 
     return (
-        <Container>
-            <Menu usuario={nomeUsuario}/>
+        <Container
+            className={`container-${usuario.acessibilidade.tema.titulo}`}>
+            <Menu usuario={usuario}/>
             <Row>
                 <Col>
                     <NavBarTela
                         abas={abasPermissao}
                         abaInicial={abaComFocoInicial}
                         eventoAbaAlterada={AbaClicada}
-                        eventoVoltarClicado={VoltarClicado} />
+                        usuariologin={usuario} />
                 </Col>
             </Row>
             <Row>

@@ -69,6 +69,7 @@ function ModalConfigAgenda(props) {
             {...props}
             size='md'
             aria-labelledby='contained-modal-title-vcenter'
+            className={`modal-${props.usuario.acessibilidade.tema.titulo}`}
             centered
             onExit={() => props.onHide()}>
             <Modal.Header closeButton>
@@ -83,34 +84,44 @@ function ModalConfigAgenda(props) {
                         type={'checkbox'}
                         id={'ordena_grid_por_ultimo'}                        
                         label={'Carregar grid ordenando por último apontamento'}
+                        className={`form-check-${props.usuario.acessibilidade.tema.titulo}`}
                         checked={ordenaPorUltimo}
                         onChange={(e) => setOrdenaPorUltimo(e.target.checked)} />
                     <Form.Check 
                         type={'checkbox'}
                         id={'mostra_obg_apos_apont'}                        
                         label={'Mostrar campo de observação ao parar um apontamento'}
+                        className={`form-check-${props.usuario.acessibilidade.tema.titulo}`}
                         checked={mostrarObsApont}
                         onChange={(e) => setMostrarObsApont(e.target.checked)} />
                     <Form.Check 
                         type={'checkbox'}
                         id={'encerra_apont_ao_iniciar_outro'}                        
                         label={'Encerrar automaticamente apontamento anterior ao iniciar um novo'}
+                        className={`form-check-${props.usuario.acessibilidade.tema.titulo}`}
                         checked={encerrarApontAuto}
                         onChange={(e) => setEncerrarApontAuto(e.target.checked)} />
                     <hr/>
                     <InputGroup>
-                        <InputGroup.Text>Total de horas da jornada</InputGroup.Text>
+                        <InputGroup.Text
+                            className={`form-text-${props.usuario.acessibilidade.tema.titulo}`}>
+                            Total de horas da jornada
+                        </InputGroup.Text>
                         <Form.Control
                             id='total_horas_jornada'
                             type='time'
+                            className={`form-control-${props.usuario.acessibilidade.tema.titulo}`}
                             value={horasJornada}
                             onChange={(e) => setMilisegundosJornada(e.target.valueAsNumber)} />
                     </InputGroup>
                     <Form.Group className='mt-2'>
-                        <Form.Label>Texto padrão para observações de apontamento</Form.Label>
+                        <Form.Label>
+                            Texto padrão para observações de apontamento
+                        </Form.Label>
                         <Form.Control
                             id='texto_padrao_obs'
                             type="text"
+                            className={`form-control-${props.usuario.acessibilidade.tema.titulo}`}
                             value={obsPadrao}
                             onChange={(e) => setObsPadrao(e.target.value)} />
                     </Form.Group>
@@ -118,7 +129,7 @@ function ModalConfigAgenda(props) {
             </Modal.Body>
             <Modal.Footer>
                 <Button
-                    variant='primary'
+                    variant={props.usuario.acessibilidade.tema.titulo}
                     onClick={() => props.onHide({
                         _id: props.configatual._id,
                         id_colaborador: props.configatual.id_colaborador,

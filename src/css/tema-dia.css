@@ -1,0 +1,141 @@
+.table-Dia {
+    background-color: white;
+}
+
+.body-Dia {
+    background-color: white;
+    color: black;
+}
+
+/* SINALIZAÇÕES */
+
+.badge-Dia .bg-primary {
+    background-color: #0000f8 !important;
+}
+
+/* BOTÕES */
+
+.btn-Dia {
+    background-color: white;
+    border: 1px solid gray;
+    color: gray;
+}
+
+.btn-Dia:hover {
+    background-color: gray;
+    border: 1px solid gray;
+    color: white;
+}
+
+/* CONTROLES DE FORMULÁRIO */
+.form-text-Dia {
+    background-color: white;
+    color: black;
+}
+
+.form-control-Dia,
+.form-control-Dia:focus,
+.form-control-Dia::placeholder,
+.form-control-Dia:disabled {
+    background-color: white;
+    color: black;
+}
+
+.form-select-Dia,
+.form-select-Dia:disabled {
+    background-color: white;
+    color: black;
+}
+
+.form-check-Dia > input[type='checkbox'],
+.form-check-Dia > input[type='checkbox']:focus {
+    background-color: white;
+    border-color: gray;
+}
+
+.form-check-Dia > input[type='checkbox']:checked {
+    background-color: blue;
+    border-color: blue;
+}
+
+/* GRID */
+
+.table-Dia {
+    margin-top: 1em;
+    background-color: white;
+    color: black;
+}
+
+.pag-Dia > .page-link {
+    background-color: white;
+    color: black;
+}
+
+.pagDestaque-Dia > .page-link {
+    background-color: white;
+    color: red;
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* CONTAINERS */
+
+.container-Dia {
+    background-color: white;
+}
+
+.menu-Dia, 
+.menu-Dia div, 
+.menu-Dia div:hover {
+    background-color: whitesmoke;
+}
+
+.menu-Dia * a, 
+.menu-Dia * a:hover {
+    background-color: whitesmoke;
+    color: black;
+}
+
+.menu-Dia span {
+    color: black;
+}
+
+.menu-Dia .nav-link.active, 
+.menu-Dia .nav-link {
+    background-color: whitesmoke;
+    color: black;
+    --bs-nav-link-color: black;
+    --bs-nav-link-hover-color: black;
+}
+
+.navbar-Dia {
+    margin-bottom: 1em;
+    padding: 0.5em;
+    background-color: #4543af;
+    border-radius: 2px;
+}
+
+.navbartitulo-Dia {
+    margin: 0em 1em;
+}
+
+.tituloinativo-Dia {
+    color: lightgray;
+}
+
+.tituloativo-Dia {
+    color: white;
+}
+
+.modal-Dia .modal-content {
+    background-color: white;
+    border: 1px solid black;
+}
+
+.modal-Dia .modal-content .btn-close {
+    background-color: white;
+}
+
+.cards-Dia {
+    background-color: white;
+}

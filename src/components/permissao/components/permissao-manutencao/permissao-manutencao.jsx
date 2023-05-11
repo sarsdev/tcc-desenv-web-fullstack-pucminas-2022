@@ -44,7 +44,7 @@ function PermissaoManutencao({usuariologin}) {
     const [msgAlerta, setMsgAlerta] = useState('')
 
     useEffect(() => {        
-        ListaAplicacoes()
+        ListaAplicacoes()        
     }, [])
 
     useEffect(() => {
@@ -201,6 +201,7 @@ function PermissaoManutencao({usuariologin}) {
                             id={'chk_'+v.valor._id}
                             key={'chk'+v.valor._id}
                             type='checkbox'
+                            className={`form-check-${usuariologin.acessibilidade.tema.titulo}`}
                             label={v.valor.titulo}
                             checked={CheckPaiMarcado(v.valor)}
                             onChange={(e) => SelecionaNodesTreeView(e)} />
@@ -216,6 +217,7 @@ function PermissaoManutencao({usuariologin}) {
                                     id={'func_'+v.valor._id+'_'+val}
                                     key={'func'+v.valor._id+val}
                                     type='checkbox'
+                                    className={`form-check-${usuariologin.acessibilidade.tema.titulo}`}
                                     label={val}
                                     checked={treeViewSelec.find((vlr, i, o) => vlr.id === v.valor._id && vlr.func === val) ? true : false}
                                     onChange={(e) => SelecionaNodesTreeView(e)} />
@@ -407,6 +409,7 @@ function PermissaoManutencao({usuariologin}) {
                         id={'check'+i}
                         type='checkbox'
                         label=''
+                        className={`form-check-${usuariologin.acessibilidade.tema.titulo}`}
                         value={v.valor._id}
                         checked={v.marcado}
                         onChange={(e) => SelecionarLinha(e)} />
@@ -417,33 +420,33 @@ function PermissaoManutencao({usuariologin}) {
                 <td>
                     {
                         v.valor.funcionalidade.todos ?
-                        <Badge pill bg="success">Todas</Badge> :
-                        v.valor.funcionalidade.selecionados.map((vlr, ind, obj) => <Badge pill bg="success" key={'func'+ind}>{vlr}</Badge>)
+                        <Badge pill className={`badge-${usuariologin.acessibilidade.tema.titulo}`}>Todas</Badge> :
+                        v.valor.funcionalidade.selecionados.map((vlr, ind, obj) => <Badge pill className={`badge-${usuariologin.acessibilidade.tema.titulo}`} key={'func'+ind}>{vlr}</Badge>)
                     }
                 </td>
                 <td>
                     {
                         v.valor.equipe.todos ?
-                        <Badge pill bg="success">Todas</Badge> :
-                        v.valor.equipe.selecionados.map((vlr, ind, obj) => <Badge pill bg="success" key={'equi'+ind}>{vlr.nome}</Badge>)
+                        <Badge pill className={`badge-${usuariologin.acessibilidade.tema.titulo}`}>Todas</Badge> :
+                        v.valor.equipe.selecionados.map((vlr, ind, obj) => <Badge pill className={`badge-${usuariologin.acessibilidade.tema.titulo}`} key={'equi'+ind}>{vlr.nome}</Badge>)
                     }
                 </td>
                 <td>
                     {
                         v.valor.funcao.todos ?
-                        <Badge pill bg="success">Todas</Badge> :
-                        v.valor.funcao.selecionados.map((vlr, ind, obj) => <Badge pill bg="success" key={'fcao'+ind}>{vlr.nome}</Badge>)
+                        <Badge pill className={`badge-${usuariologin.acessibilidade.tema.titulo}`}>Todas</Badge> :
+                        v.valor.funcao.selecionados.map((vlr, ind, obj) => <Badge pill className={`badge-${usuariologin.acessibilidade.tema.titulo}`} key={'fcao'+ind}>{vlr.nome}</Badge>)
                     }
                 </td>
                 <td>
                     {
                         v.valor.usuario.todos ?
-                        <Badge pill bg="success">Todas</Badge> :
-                        v.valor.usuario.selecionados.map((vlr, ind, obj) => <Badge pill bg="success" key={'usu'+ind}>{vlr.nome}</Badge>)
+                        <Badge pill className={`badge-${usuariologin.acessibilidade.tema.titulo}`}>Todas</Badge> :
+                        v.valor.usuario.selecionados.map((vlr, ind, obj) => <Badge pill className={`badge-${usuariologin.acessibilidade.tema.titulo}`} key={'usu'+ind}>{vlr.nome}</Badge>)
                     }
                 </td>
                 <td>
-                    <Badge pill bg={v.valor.acesso==='sim'?'primary':'danger'}>{v.valor.acesso}</Badge>
+                    <Badge pill className={`badge-${usuariologin.acessibilidade.tema.titulo}`}>{v.valor.acesso}</Badge>
                 </td>
             </tr>)
     }
@@ -462,7 +465,7 @@ function PermissaoManutencao({usuariologin}) {
                 {listaPaginas.map((v, i, o) => <Pagination.Item
                                                     id={'pag'+v}
                                                     key={i} 
-                                                    className={paginaAtual===v ? 'destaquePag' : ''}
+                                                    className={paginaAtual===v ? `pagDestaque-${usuariologin.acessibilidade.tema.titulo}` : `pag-${usuariologin.acessibilidade.tema.titulo}`}
                                                     onClick={(e) => MudaPaginaTabela(e)} >
                                                     {v}
                                                 </Pagination.Item>)}
@@ -675,7 +678,8 @@ function PermissaoManutencao({usuariologin}) {
     }
 
     return (
-        <Container>
+        <Container 
+            className={`container-${usuariologin.acessibilidade.tema.titulo}`}>
             { loading ? <Loading /> : null }
             <Row>
                 <Col>
@@ -683,7 +687,8 @@ function PermissaoManutencao({usuariologin}) {
                         <Stack direction="horizontal"  gap={4}>
                             <Form.Select  
                                 id='tipopermissao'
-                                size='sm'
+                                size='sm'                                
+                                className={`form-select-${usuariologin.acessibilidade.tema.titulo}`}
                                 disabled={loading}
                                 value={tipoPermissao}
                                 onChange={(e) => ValidaCampoForm(e)} >
@@ -694,6 +699,7 @@ function PermissaoManutencao({usuariologin}) {
                                 id={'permiteacesso'}
                                 type='checkbox'
                                 label='Permitir_acesso'
+                                className={`form-check-${usuariologin.acessibilidade.tema.titulo}`}
                                 disabled={loading}
                                 checked={permiteAcesso}
                                 onChange={(e) => setPermiteAcesso(e.target.checked)} />
@@ -701,12 +707,13 @@ function PermissaoManutencao({usuariologin}) {
                         <InputGroup>
                             <Form.Control
                                 id='equipes'
+                                className={`form-control-${usuariologin.acessibilidade.tema.titulo}`}
                                 disabled={true}
                                 placeholder="Escolha a equipe..."
                                 value={equipes} />
                             <Button 
                                 id="botao_equipes"
-                                variant="outline-secondary"
+                                variant={usuariologin.acessibilidade.tema.titulo}
                                 disabled={loading}
                                 onClick={(e) => AbreModalPesquisa(e.target.id)} >
                                 Pesquisar
@@ -715,12 +722,13 @@ function PermissaoManutencao({usuariologin}) {
                         <InputGroup>
                             <Form.Control
                                 id='funcoes'
+                                className={`form-control-${usuariologin.acessibilidade.tema.titulo}`}
                                 disabled={true}
                                 placeholder="Escolha a função..."
                                 value={funcoes} />
                             <Button 
                                 id="botao_funcoes" 
-                                variant="outline-secondary"
+                                variant={usuariologin.acessibilidade.tema.titulo}
                                 disabled={loading}
                                 onClick={(e) => AbreModalPesquisa(e.target.id)} >
                                 Pesquisar
@@ -729,12 +737,13 @@ function PermissaoManutencao({usuariologin}) {
                         <InputGroup>
                             <Form.Control
                                 id='usuarios'
+                                className={`form-control-${usuariologin.acessibilidade.tema.titulo}`}
                                 disabled={true}
                                 placeholder="Escolha o usuário..."
                                 value={usuarios} />
                             <Button 
                                 id="botao_usuarios" 
-                                variant="outline-secondary"
+                                variant={usuariologin.acessibilidade.tema.titulo}
                                 disabled={loading}
                                 onClick={(e) => AbreModalPesquisa(e.target.id)} >
                                 Pesquisar
@@ -750,7 +759,8 @@ function PermissaoManutencao({usuariologin}) {
             </Row>
             <Row>
                 <Col>
-                    <Table striped>
+                    <Table 
+                        variant={usuariologin.acessibilidade.tema.titulo}>
                         <thead>
                             <tr>
                                 <th>*</th>
@@ -775,19 +785,19 @@ function PermissaoManutencao({usuariologin}) {
                 <Col>
                     <Stack direction="horizontal" className='d-flex flex-row-reverse' gap={2}>
                         <Button 
-                            variant="danger" 
+                            variant={usuariologin.acessibilidade.tema.titulo}
                             disabled={loading}
                             onClick={() => RemoverPermissao()}>
                             Excluir
                         </Button>
                         <Button 
-                            variant="primary"
+                            variant={usuariologin.acessibilidade.tema.titulo}
                             disabled={loading}
                             onClick={() => SalvarPermissao()}>
                             Adicionar
                         </Button>
                         <Button 
-                            variant="light"
+                            variant={usuariologin.acessibilidade.tema.titulo}
                             disabled={loading}
                             onClick={() => LimparFiltros()}>
                             Limpar

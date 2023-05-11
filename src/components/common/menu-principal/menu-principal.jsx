@@ -1,14 +1,16 @@
 import './menu-principal.css'
-import React from 'react'
+import React, { useEffect } from 'react'
 import Container from 'react-bootstrap/Container'
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
 import NavDropdown from 'react-bootstrap/NavDropdown'
 import { Link } from 'react-router-dom'
 
-function MenuPrincipal({usuario}) {
+function MenuPrincipal({usuario, atualizar}) {
     return (
-        <Navbar bg="light" expand="lg">
+        <Navbar 
+            expand="lg"
+            className={usuario.acessibilidade ? `menu-${usuario.acessibilidade.tema.titulo}`:''}>
             <Container>
                 <Navbar.Brand href='/app/inicial'>ApontaDev</Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -23,10 +25,18 @@ function MenuPrincipal({usuario}) {
                             </NavDropdown.Item>
                         </NavDropdown>
                         <NavDropdown title="Cadastro">
-                            <NavDropdown.Item href="usuario">Usuário</NavDropdown.Item>
-                            <NavDropdown.Item href="funcao">Função</NavDropdown.Item>
-                            <NavDropdown.Item href="equipe">Equipe</NavDropdown.Item>
-                            <NavDropdown.Item href="projeto">Projeto</NavDropdown.Item>
+                            <NavDropdown.Item as={'div'}>
+                                <Link to={'/app/usuario'} className='link-menu'>Usuário</Link>
+                            </NavDropdown.Item>
+                            <NavDropdown.Item as={'div'}>
+                                <Link to={'/app/funcao'} className='link-menu'>Função</Link>
+                            </NavDropdown.Item>
+                            <NavDropdown.Item as={'div'}>
+                                <Link to={'/app/equipe'} className='link-menu'>Equipe</Link>
+                            </NavDropdown.Item>
+                            <NavDropdown.Item as={'div'}>
+                                <Link to={'/app/projeto'} className='link-menu'>Projeto</Link>
+                            </NavDropdown.Item>
                         </NavDropdown>
                         <NavDropdown title="Apontamento">
                             <NavDropdown.Item href="agenda">Agenda</NavDropdown.Item>
@@ -40,7 +50,7 @@ function MenuPrincipal({usuario}) {
                 </Navbar.Collapse>
                 <Navbar.Collapse className="justify-content-end">
                     <Navbar.Text>
-                        Usuário: {usuario}
+                        Usuário: {usuario.acessibilidade ? usuario.dados_pessoais.nome : usuario}
                     </Navbar.Text>
                 </Navbar.Collapse>
             </Container>
