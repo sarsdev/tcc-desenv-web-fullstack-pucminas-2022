@@ -235,7 +235,7 @@ function AcessibilidadeManutencao({usuariologin, onMudaTema}) {
             { AtualizaTemaTela() }
             { loading ? <Loading /> : null }
             <Row className='linha'>
-                <Col>
+                {/*<Col>
                     <Card className={`cartoes cards-${usuariologin.acessibilidade.tema.titulo}`}>
                         <Card.Header>Ajuste visual</Card.Header>
                         <Card.Body>
@@ -255,7 +255,7 @@ function AcessibilidadeManutencao({usuariologin, onMudaTema}) {
                                 onChange={(e) => ValidaCampoForm(e)} />
                         </Card.Footer>
                     </Card>
-                </Col>
+                </Col>*/}
                 <Col>
                     <Card className={`cartoes cards-${usuariologin.acessibilidade.tema.titulo}`}>
                         <Card.Header>Ajuste coordenação motora</Card.Header>
