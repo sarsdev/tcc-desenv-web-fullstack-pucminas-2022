@@ -59,7 +59,6 @@ async function BuscaUsuarioPorEmail(dadosForm) {
         let url = `${urlBase}/usuario?email=${dadosForm.usuario}`
         let resposta = await axios.get(url, { headers: {'Authorization': objToken.token} })
         if(resposta && resposta.data && resposta.data.length > 0) {
-            objUsuario = resposta.data[0]
             retorno.dados = resposta.data[0]
         } else if(resposta && resposta.data && resposta.data.msg) {
             retorno.erro = true
@@ -233,6 +232,31 @@ async function BuscaTodasPermissoes() {
     }
     try {
         let url = `${urlBase}/permissao`
+        let resposta = await axios.get(url, { headers: {'Authorization': objToken.token} })
+        if(resposta && resposta.data && resposta.data.length > 0) {
+            retorno.dados = resposta.data
+        } else if(resposta && resposta.data && resposta.data.msg) {
+            retorno.erro = true
+            retorno.msgErro = resposta.data.msg
+        } else {
+            retorno.erro = true
+            retorno.msgErro = 'Ocorreu um erro inesperado ao buscar os dados das permissões!'
+        }
+    } catch (err) {
+        retorno.erro = true
+        retorno.msgErro = err
+    }
+    return retorno
+}
+
+async function BuscaPermissoesPorUsuario(idUsuario) {
+    let retorno = {
+        erro: false,
+        msgErro: '',
+        dados: {}
+    }
+    try {
+        let url = `${urlBase}/permissao?idusuario=${idUsuario}`
         let resposta = await axios.get(url, { headers: {'Authorization': objToken.token} })
         if(resposta && resposta.data && resposta.data.length > 0) {
             retorno.dados = resposta.data
@@ -674,6 +698,25 @@ export const ServicoLogin = {
                     retorno.acessoValido = true
                     retorno.erro = false
                     retorno.msgErro = ''
+                    let respAcess = await ServicoAcessibilidade.RetornaPadraoAcessibilidade(dadosForm)
+                    if(respAcess.erro) {                        
+                        respUsuario.dados.acessibilidade = {
+                            tema: {
+                                titulo: 'Dia'
+                            },
+                            modo_leitura: false,
+                            modo_atalho_unico: false
+                        }
+                    } else {
+                        respUsuario.dados.acessibilidade = respAcess.dados
+                    }
+                    let respPerm = await ServicoPermissao.RetornaPermissaoPorIdUsuario(dadosForm, respUsuario.dados._id)
+                    if(respPerm.erro) {                        
+                        respUsuario.dados.permissao = []
+                    } else {
+                        respUsuario.dados.permissao = respPerm.dados
+                    }
+                    objUsuario = respUsuario.dados
                 }
             }
             return retorno
@@ -902,6 +945,26 @@ export const ServicoPermissao = {
             let respToken = await GeraToken(usuarioLogado)
             if(respToken.erro) { return respToken }
             let respPerm = await BuscaTodasPermissoes()
+            if(respPerm.erro) { return respPerm }
+            retorno.erro = false
+            retorno.msgErro = ''
+            retorno.dados = respPerm.dados
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
+    RetornaPermissaoPorIdUsuario: async function(usuarioLogado, idUsuario) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao buscar a permissão!',
+            dados: {}
+        }
+        try {
+            let respToken = await GeraToken(usuarioLogado)
+            if(respToken.erro) { return respToken }
+            let respPerm = await BuscaPermissoesPorUsuario(idUsuario)
             if(respPerm.erro) { return respPerm }
             retorno.erro = false
             retorno.msgErro = ''
