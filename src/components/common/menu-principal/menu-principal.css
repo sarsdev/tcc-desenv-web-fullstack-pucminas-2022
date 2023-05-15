@@ -6,3 +6,7 @@
 .link-menu:hover {
     color: rgb(58, 58, 63);
 }
+
+.dropdown-item.disabled a{
+    font-style: italic;
+}

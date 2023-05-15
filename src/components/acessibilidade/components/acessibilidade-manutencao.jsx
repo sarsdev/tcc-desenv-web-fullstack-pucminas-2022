@@ -10,6 +10,7 @@ import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 import Loading from '../../common/loading/loading'
 import { ServicoAcessibilidade } from './../../../service/servico'
+import { Utils } from './../../../service/utils'
 
 function AcessibilidadeManutencao({usuariologin, onMudaTema}) {
     const [listaTemas, setListaTemas] = useState([])
@@ -21,9 +22,11 @@ function AcessibilidadeManutencao({usuariologin, onMudaTema}) {
     const [mostrarAlerta, setMostrarAlerta] = useState(false)
     const [tipoAlerta, setTipoAlerta] = useState('')    
     const [msgAlerta, setMsgAlerta] = useState('')
+    const [permAcaoAdicionar, setPermAcaoAdicionar] = useState(false)
 
-    useEffect(() => {
+    useEffect(() => {        
         AtivaInativaLoading(true)
+        AplicaPermissao(usuariologin)
         CarregaTemas()
         .then(() => {
             CarregaDadosAcessibilidade()
@@ -39,6 +42,10 @@ function AcessibilidadeManutencao({usuariologin, onMudaTema}) {
             AlertaErro(err)
         }).finally(() => AtivaInativaLoading(false))
     }, [])
+
+    function AplicaPermissao(usuariologin) {
+        setPermAcaoAdicionar(Utils.TemPermissaoNaAcao(usuariologin, 'Acessibilidade', 'Adicionar'))
+    }
 
     async function CarregaTemas() {
         try {
@@ -256,7 +263,7 @@ function AcessibilidadeManutencao({usuariologin, onMudaTema}) {
                         </Card.Footer>
                     </Card>
                 </Col>*/}
-                <Col>
+                {/*<Col>
                     <Card className={`cartoes cards-${usuariologin.acessibilidade.tema.titulo}`}>
                         <Card.Header>Ajuste coordenação motora</Card.Header>
                         <Card.Body>
@@ -276,7 +283,7 @@ function AcessibilidadeManutencao({usuariologin, onMudaTema}) {
                                 onChange={(e) => ValidaCampoForm(e)} />                            
                         </Card.Footer>
                     </Card>
-                </Col>
+                </Col>*/}
                 <Col>
                     <Card className={`cartoes cards-${usuariologin.acessibilidade.tema.titulo}`}>
                         <Card.Header>Ajuste visual</Card.Header>
@@ -305,7 +312,7 @@ function AcessibilidadeManutencao({usuariologin, onMudaTema}) {
                     <Stack direction="horizontal" className='d-flex flex-row-reverse'>
                         <Button 
                             variant={usuariologin.acessibilidade.tema.titulo} 
-                            disabled={loading}
+                            disabled={!permAcaoAdicionar || loading}
                             onClick={(e) => SalvarPadrao(e)}>Salvar</Button>
                     </Stack>
                 </Col>

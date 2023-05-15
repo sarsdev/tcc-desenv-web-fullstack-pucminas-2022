@@ -16,6 +16,7 @@ import MenuPrincipal from './../common/menu-principal/menu-principal'
 import NavBarTela from './../common/navbar-tela/navbar-tela'
 import Loading from '../common/loading/loading'
 import { ServicoFuncao } from './../../service/servico'
+import { Utils } from './../../service/utils'
 
 function Funcao(props) {
     const navigate = useNavigate()
@@ -37,6 +38,10 @@ function Funcao(props) {
     const [mostrarAlerta, setMostrarAlerta] = useState(false)
     const [tipoAlerta, setTipoAlerta] = useState('')    
     const [msgAlerta, setMsgAlerta] = useState('')
+    const [permAcaoAdicionar, setPermAcaoAdicionar] = useState(false)
+    const [permAcaoLimpar, setPermAcaoLimpar] = useState(false)
+    const [permAcaoEditar, setPermAcaoEditar] = useState(false)
+    const [permAcaoPesquisar, setPermAcaoPesquisar] = useState(false)
     
     const qtdLinhasPaginacao = 5
     const abaComFocoInicial = "aba001"
@@ -58,6 +63,7 @@ function Funcao(props) {
             body[0].classList.forEach(v => body[0].classList.remove(v))            
             body[0].classList.add(`body-${usuariologin.acessibilidade.tema.titulo}`)
             AtivaInativaLoading(true)
+            AplicaPermissao(usuariologin)
             ListaFuncoes()
         } else {
             navigate('/app/acesso')
@@ -95,6 +101,13 @@ function Funcao(props) {
 
     const AbaClicada = function (evento) {
         console.log(evento.target.id)
+    }
+
+    function AplicaPermissao(usuariologin) {
+        setPermAcaoAdicionar(Utils.TemPermissaoNaAcao(usuariologin, 'Função', 'Adicionar'))
+        setPermAcaoLimpar(Utils.TemPermissaoNaAcao(usuariologin, 'Função', 'Limpar'))
+        setPermAcaoEditar(Utils.TemPermissaoNaAcao(usuariologin, 'Função', 'Editar'))
+        setPermAcaoPesquisar(Utils.TemPermissaoNaAcao(usuariologin, 'Função', 'Pesquisar'))
     }
 
     function ListaFuncoes() {
@@ -166,10 +179,12 @@ function Funcao(props) {
                     <Badge pill className={`badge-${usuario.acessibilidade.tema.titulo}`}>{v.valor.situacao}</Badge>
                 </td>
                 <td>
-                    <PencilSquare 
-                        id={v.valor._id}
-                        size={20}
-                        onClick={(e) => IniciaEdicao(e)} />
+                    <div hidden={!permAcaoEditar}>
+                        <PencilSquare 
+                            id={v.valor._id}
+                            size={20}
+                            onClick={(e) => IniciaEdicao(e)} />
+                    </div>
                 </td>
             </tr>)
         )
@@ -430,19 +445,19 @@ function Funcao(props) {
                     <Stack direction="horizontal" className='d-flex flex-row-reverse' gap={2}>
                         <Button 
                             variant={usuario.acessibilidade.tema.titulo}
-                            disabled={loading}
+                            disabled={!permAcaoAdicionar || loading}
                             onClick={() => SalvarDados()}>
                             {dadosParaAtualizar && dadosParaAtualizar._id ? 'Atualizar' : 'Adicionar'}
                         </Button>
                         <Button 
                             variant={usuario.acessibilidade.tema.titulo} 
-                            disabled={loading}
+                            disabled={!permAcaoLimpar || loading}
                             onClick={() => LimparTela()}>
                             Limpar
                         </Button>
                         <Button 
                             variant={usuario.acessibilidade.tema.titulo} 
-                            disabled={loading}
+                            disabled={!permAcaoPesquisar || loading}
                             onClick={() => setClicouFiltrar(!clicouFiltrar)}>
                             Filtrar
                         </Button>

@@ -17,6 +17,7 @@ import NavBarTela from './../common/navbar-tela/navbar-tela'
 import ModalGerenciarIntegrantes from './components/modal-gerenciar-integrantes/modal-gerenciar-integrantes'
 import Loading from '../common/loading/loading'
 import { ServicoProjeto } from './../../service/servico'
+import { Utils } from './../../service/utils'
 
 function Projeto(props) {
     const navigate = useNavigate()
@@ -45,6 +46,12 @@ function Projeto(props) {
     const [mostrarAlerta, setMostrarAlerta] = useState(false)
     const [tipoAlerta, setTipoAlerta] = useState('')    
     const [msgAlerta, setMsgAlerta] = useState('')
+    const [permAcaoAdicionar, setPermAcaoAdicionar] = useState(false)
+    const [permAcaoLimpar, setPermAcaoLimpar] = useState(false)
+    const [permAcaoAlterarEtapa, setPermAcaoAlterarEtapa] = useState(false)
+    const [permAcaoPesquisar, setPermAcaoPesquisar] = useState(false)
+    const [permAcaoVerLog, setPermAcaoVerLog] = useState(false)
+    const [permAcaoAlterarIntegrantes, setPermAcaoAlterarIntegrantes] = useState(false)
 
     const qtdLinhasPaginacao = 5
     const abaComFocoInicial = 'aba001'
@@ -66,6 +73,7 @@ function Projeto(props) {
             body[0].classList.forEach(v => body[0].classList.remove(v))            
             body[0].classList.add(`body-${usuariologin.acessibilidade.tema.titulo}`)
             AtivaInativaLoading(true)
+            AplicaPermissao(usuariologin)
             ListaProjetos()
         } else {
             navigate('/app/acesso')
@@ -112,6 +120,15 @@ function Projeto(props) {
         }
         MontaLinhasGridProjeto(listaDadosProjeto, filtros)
     }, [clicouNavegacaoGrid])
+
+    function AplicaPermissao(usuariologin) {
+        setPermAcaoAdicionar(Utils.TemPermissaoNaAcao(usuariologin, 'Projeto', 'Adicionar'))
+        setPermAcaoLimpar(Utils.TemPermissaoNaAcao(usuariologin, 'Projeto', 'Limpar'))
+        setPermAcaoAlterarEtapa(Utils.TemPermissaoNaAcao(usuariologin, 'Projeto', 'Alterar etapa'))
+        setPermAcaoPesquisar(Utils.TemPermissaoNaAcao(usuariologin, 'Projeto', 'Pesquisar'))
+        setPermAcaoVerLog(Utils.TemPermissaoNaAcao(usuariologin, 'Projeto', 'Ver Log'))
+        setPermAcaoAlterarIntegrantes(Utils.TemPermissaoNaAcao(usuariologin, 'Projeto', 'Alterar Integrantes'))
+    }
 
     function ListaProjetos() {
         let dadosLogin = {
@@ -223,19 +240,23 @@ function Projeto(props) {
                     <Badge pill className={`badge-${usuario.acessibilidade.tema.titulo}`}>{v.valor.etapa}</Badge>
                 </td>
                 <td>
-                    <PencilSquare
-                        id={v.valor._id}
-                        size={20}
-                        onClick={(e) => IniciaEdicao(e)} />
-                    {v.valor && v.valor.colaboradores && v.valor.colaboradores.length > 0 ?
-                    <PeopleFill
-                        id={v.valor._id}
-                        size={20}
-                        onClick={(e) => AbreModalIntegrantes(e)} /> :
-                    <People
-                        id={v.valor._id}
-                        size={20}
-                        onClick={(e) => AbreModalIntegrantes(e)} />}
+                    <div hidden={!permAcaoVerLog}>
+                        <PencilSquare
+                            id={v.valor._id}
+                            size={20}
+                            onClick={(e) => IniciaEdicao(e)} />
+                    </div>
+                    <div hidden={!permAcaoAlterarIntegrantes}>
+                        {v.valor && v.valor.colaboradores && v.valor.colaboradores.length > 0 ?
+                        <PeopleFill
+                            id={v.valor._id}
+                            size={20}
+                            onClick={(e) => AbreModalIntegrantes(e)} /> :
+                        <People
+                            id={v.valor._id}
+                            size={20}
+                            onClick={(e) => AbreModalIntegrantes(e)} />}
+                    </div>
                 </td>
             </tr>)
         )
@@ -504,7 +525,7 @@ function Projeto(props) {
                                 id='etapaprojeto'
                                 className={`form-select-${usuario.acessibilidade.tema.titulo}`}
                                 value={etapaProjeto}
-                                disabled={loading}
+                                disabled={!permAcaoAlterarEtapa || loading}
                                 onChange={(e) => setEtapaProjeto(e.target.selectedOptions[0].value)}>
                                 <option value=''>Etapa do projeto...</option>
                                 <option value='backlog'>Backlog</option>
@@ -637,19 +658,19 @@ function Projeto(props) {
                     <Stack direction='horizontal' className='d-flex flex-row-reverse' gap={2}>
                         <Button
                             variant={usuario.acessibilidade.tema.titulo}
-                            disabled={loading}
+                            disabled={!permAcaoAdicionar || loading}
                             onClick={() => SalvarDados()}>
                             {dadosParaAtualizar && dadosParaAtualizar._id ? 'Atualizar' : 'Adicionar'}
                         </Button>
                         <Button
                             variant={usuario.acessibilidade.tema.titulo}
-                            disabled={loading}
+                            disabled={!permAcaoLimpar || loading}
                             onClick={() => LimparTela()}>
                             Limpar
                         </Button>
                         <Button
                             variant={usuario.acessibilidade.tema.titulo}
-                            disabled={loading}
+                            disabled={!permAcaoPesquisar || loading}
                             onClick={() => setClicouFiltrar(!clicouFiltrar)}>
                             Filtrar
                         </Button>

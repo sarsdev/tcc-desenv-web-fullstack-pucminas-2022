@@ -15,6 +15,7 @@ import { NodeMinus, NodePlus } from 'react-bootstrap-icons'
 import ModalPesquisa from './../../../common/modal-pesquisa/modal-pesquisa'
 import Loading from '../../../common/loading/loading'
 import { ServicoPermissao } from './../../../../service/servico'
+import { Utils } from './../../../../service/utils'
 
 function PermissaoManutencao({usuariologin}) {
     const qtdLinhasPaginacao = 5
@@ -42,8 +43,12 @@ function PermissaoManutencao({usuariologin}) {
     const [mostrarAlerta, setMostrarAlerta] = useState(false)
     const [tipoAlerta, setTipoAlerta] = useState('')
     const [msgAlerta, setMsgAlerta] = useState('')
+    const [permAcaoAdicionar, setPermAcaoAdicionar] = useState(false)
+    const [permAcaoLimpar, setPermAcaoLimpar] = useState(false)
+    const [permAcaoExcluir, setPermAcaoExcluir] = useState(false)
 
-    useEffect(() => {        
+    useEffect(() => {    
+        AplicaPermissao(usuariologin)    
         ListaAplicacoes()        
     }, [])
 
@@ -76,6 +81,12 @@ function PermissaoManutencao({usuariologin}) {
             setUsuarios('')
         }     
     }, [usuariosSelec])
+
+    function AplicaPermissao(usuariologin) {
+        setPermAcaoAdicionar(Utils.TemPermissaoNaAcao(usuariologin, 'Permissão', 'Adicionar'))
+        setPermAcaoLimpar(Utils.TemPermissaoNaAcao(usuariologin, 'Permissão', 'Limpar'))
+        setPermAcaoExcluir(Utils.TemPermissaoNaAcao(usuariologin, 'Permissão', 'Excluir'))
+    }
 
     function ListaAplicacoes() {
         AtivaInativaLoading(true)
@@ -522,6 +533,10 @@ function PermissaoManutencao({usuariologin}) {
             senha: usuariologin.dados_acesso.senha
         }
         let dados = MontaDadosParaInclusao()
+        if(!(dados && dados.length > 0)) {
+            AtivaInativaLoading(false)
+            return
+        }
         let qtdExecucoes = dados.length
         let qtdFinalizada = 0
         let msgErro = ''
@@ -553,19 +568,19 @@ function PermissaoManutencao({usuariologin}) {
         let aplicacao = [...new Set(treeViewSelec.map(item => item.obj))]
         
         if(!(aplicacao && aplicacao.length > 0)) {
-            console.error('Selecione ao menos uma aplicação!')
+            AlertaErro('Selecione ao menos uma aplicação!')
             return listaPermissao 
         }
         if(!(equipesSelec && equipesSelec.length > 0)) {
-            console.error('Selecione ao menos uma equipe!')
+            AlertaErro('Selecione ao menos uma equipe!')
             return listaPermissao
         }
         if(!(funcoesSelec && funcoesSelec.length > 0)) {
-            console.error('Selecione ao menos uma função!')
+            AlertaErro('Selecione ao menos uma função!')
             return listaPermissao
         }
         if(!(usuariosSelec && usuariosSelec.length > 0)) {
-            console.error('Selecione ao menos um usuário!')
+            AlertaErro('Selecione ao menos um usuário!')
             return listaPermissao
         }
 
@@ -671,7 +686,9 @@ function PermissaoManutencao({usuariologin}) {
     function AlertaErro(msg) {
         setTipoAlerta('danger')
         setMsgAlerta(msg)
+        setMostrarAlerta(true)
         setTimeout(() => {
+            setMostrarAlerta(false)
             setTipoAlerta('')
             setMsgAlerta('')
         }, 5000)
@@ -689,7 +706,7 @@ function PermissaoManutencao({usuariologin}) {
                                 id='tipopermissao'
                                 size='sm'                                
                                 className={`form-select-${usuariologin.acessibilidade.tema.titulo}`}
-                                disabled={loading}
+                                disabled={true || loading}
                                 value={tipoPermissao}
                                 onChange={(e) => ValidaCampoForm(e)} >
                                 <option key='1001' value='cadastrado'>Permissão para usuários cadastrados</option>
@@ -786,19 +803,19 @@ function PermissaoManutencao({usuariologin}) {
                     <Stack direction="horizontal" className='d-flex flex-row-reverse' gap={2}>
                         <Button 
                             variant={usuariologin.acessibilidade.tema.titulo}
-                            disabled={loading}
+                            disabled={!permAcaoExcluir || loading}
                             onClick={() => RemoverPermissao()}>
                             Excluir
                         </Button>
                         <Button 
                             variant={usuariologin.acessibilidade.tema.titulo}
-                            disabled={loading}
+                            disabled={!permAcaoAdicionar || loading}
                             onClick={() => SalvarPermissao()}>
                             Adicionar
                         </Button>
                         <Button 
                             variant={usuariologin.acessibilidade.tema.titulo}
-                            disabled={loading}
+                            disabled={!permAcaoLimpar || loading}
                             onClick={() => LimparFiltros()}>
                             Limpar
                         </Button>

@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Alert from 'react-bootstrap/Alert'
 import Spinner from 'react-bootstrap/Spinner'
-import { ServicoLogin, ServicoAcessibilidade } from '../../service/servico'
+import { ServicoLogin } from '../../service/servico'
 import CriacaoSenha from './components/criacao-senha/criacao-senha'
 import RecuperacaoSenha from './components/recuperacao-senha/recuperacao-senha'
 
@@ -24,6 +24,7 @@ function Login() {
     const [paramUsuario, setParamUsuario] = useState({})
 
     useEffect(() => {
+        console.log(paramUsuario)
         if(paramUsuario._id) {
             sessionStorage.setItem('usuariologin', JSON.stringify(paramUsuario))
             navigate('/app/inicial')
@@ -55,33 +56,7 @@ function Login() {
                 setTextoAlerta(resp.msgErro)
                 setMostrarAlerta(true)
             } else {
-                let retorno = ServicoLogin.RetornaDadosUsuario()
-                let dadosUsuario = retorno.dados
-                ServicoAcessibilidade.RetornaPadraoAcessibilidade(dados)
-                .then(v => {
-                    if(v.erro) {
-                        dadosUsuario.acessibilidade = {
-                            tema: {
-                                titulo: 'Dia'
-                            },
-                            modo_leitura: false,
-                            modo_atalho_unico: false
-                        }
-                        setParamUsuario(dadosUsuario)                        
-                    } else {
-                        dadosUsuario.acessibilidade = v.dados
-                        setParamUsuario(dadosUsuario)
-                    }
-                }).catch(() => {
-                    dadosUsuario.acessibilidade = {
-                        tema: {
-                            titulo: 'Dia'
-                        },
-                        modo_leitura: false,
-                        modo_atalho_unico: false
-                    }
-                    setParamUsuario(dadosUsuario) 
-                })
+                setParamUsuario(ServicoLogin.RetornaDadosUsuario().dados)
             }
         })
         .catch((err) => {

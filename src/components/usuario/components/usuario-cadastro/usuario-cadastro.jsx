@@ -15,6 +15,7 @@ import { PencilSquare } from 'react-bootstrap-icons'
 import ModalPesquisa from '../../../common/modal-pesquisa/modal-pesquisa'
 import Loading from '../../../common/loading/loading'
 import { ServicoUsuario } from '../../../../service/servico'
+import { Utils } from './../../../../service/utils'
 
 function UsuarioCadastro(props) {
     const [nomeUsuario, setNomeUsuario] = useState('')
@@ -41,11 +42,15 @@ function UsuarioCadastro(props) {
     const [mostrarAlerta, setMostrarAlerta] = useState(false)
     const [tipoAlerta, setTipoAlerta] = useState('')    
     const [msgAlerta, setMsgAlerta] = useState('')
+    const [permAcaoAdicionar, setPermAcaoAdicionar] = useState(false)
+    const [permAcaoLimpar, setPermAcaoLimpar] = useState(false)
+    const [permAcaoPesquisar, setPermAcaoPesquisar] = useState(false)
 
     const qtdLinhasPaginacao = 5
 
-    useEffect(() => {        
+    useEffect(() => {
         AtivaInativaLoading(true)
+        AplicaPermissao(props.usuariologin)
         ListaUsuarios()
     }, [])
 
@@ -99,6 +104,12 @@ function UsuarioCadastro(props) {
             setFuncaoUsuario('')
         }      
     }, [funcaoSelec])
+
+    function AplicaPermissao(usuariologin) {
+        setPermAcaoAdicionar(Utils.TemPermissaoNaAcao(usuariologin, 'Usuário', 'Adicionar'))
+        setPermAcaoLimpar(Utils.TemPermissaoNaAcao(usuariologin, 'Usuário', 'Limpar'))
+        setPermAcaoPesquisar(Utils.TemPermissaoNaAcao(usuariologin, 'Usuário', 'Pesquisar'))
+    }
 
     function ListaUsuarios() {
         let dadosLogin = {
@@ -623,19 +634,19 @@ function UsuarioCadastro(props) {
                     <Stack direction='horizontal' className='d-flex flex-row-reverse' gap={2}>
                         <Button                             
                             variant={props.usuariologin.acessibilidade.tema.titulo}
-                            disabled={loading}
+                            disabled={!permAcaoAdicionar || loading}
                             onClick={() => SalvarDados()}>
                             {dadosParaAtualizar && dadosParaAtualizar._id ? 'Atualizar' : 'Adicionar'}
                         </Button>
                         <Button 
                             variant={props.usuariologin.acessibilidade.tema.titulo}
-                            disabled={loading}
+                            disabled={!permAcaoLimpar || loading}
                             onClick={() => LimparTela()}>
                             Limpar
                         </Button>
                         <Button 
                             variant={props.usuariologin.acessibilidade.tema.titulo}
-                            disabled={loading}
+                            disabled={!permAcaoPesquisar || loading}
                             onClick={() => setClicouFiltrar(!clicouFiltrar)}>
                             Filtrar
                         </Button>

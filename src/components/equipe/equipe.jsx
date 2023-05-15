@@ -19,6 +19,7 @@ import ModalPesquisa from './../common/modal-pesquisa/modal-pesquisa'
 import ModalIntegrantes from './components/modal-integrantes/modal-integrantes'
 import Loading from '../common/loading/loading'
 import { ServicoEquipe } from './../../service/servico'
+import { Utils } from './../../service/utils'
 
 function Equipe(props) {
     const navigate = useNavigate()
@@ -46,6 +47,9 @@ function Equipe(props) {
     const [mostrarAlerta, setMostrarAlerta] = useState(false)
     const [tipoAlerta, setTipoAlerta] = useState('')    
     const [msgAlerta, setMsgAlerta] = useState('')
+    const [permAcaoAdicionar, setPermAcaoAdicionar] = useState(false)
+    const [permAcaoLimpar, setPermAcaoLimpar] = useState(false)
+    const [permAcaoPesquisar, setPermAcaoPesquisar] = useState(false)
 
     const qtdLinhasPaginacao = 5
     const abaComFocoInicial = "aba001"
@@ -67,6 +71,7 @@ function Equipe(props) {
             body[0].classList.forEach(v => body[0].classList.remove(v))            
             body[0].classList.add(`body-${usuariologin.acessibilidade.tema.titulo}`)
             AtivaInativaLoading(true)
+            AplicaPermissao(usuariologin)
             ListaEquipes()
         } else {
             navigate('/app/acesso')
@@ -114,6 +119,12 @@ function Equipe(props) {
 
     const AbaClicada = function (evento) {
         console.log(evento.target.id)
+    }
+
+    function AplicaPermissao(usuariologin) {
+        setPermAcaoAdicionar(Utils.TemPermissaoNaAcao(usuariologin, 'Equipe', 'Adicionar'))
+        setPermAcaoLimpar(Utils.TemPermissaoNaAcao(usuariologin, 'Equipe', 'Limpar'))
+        setPermAcaoPesquisar(Utils.TemPermissaoNaAcao(usuariologin, 'Equipe', 'Pesquisar'))
     }
 
     function ListaEquipes() {
@@ -538,19 +549,19 @@ function Equipe(props) {
                     <Stack direction="horizontal" className='d-flex flex-row-reverse' gap={2}>
                         <Button 
                             variant={usuarioLogin.acessibilidade.tema.titulo}
-                            disabled={loading}
+                            disabled={!permAcaoAdicionar || loading}
                             onClick={() => SalvarDados()}>
                             {dadosParaAtualizar && dadosParaAtualizar._id ? 'Atualizar' : 'Adicionar'}
                         </Button>
                         <Button 
                             variant={usuarioLogin.acessibilidade.tema.titulo} 
-                            disabled={loading}
+                            disabled={!permAcaoLimpar || loading}
                             onClick={() => LimparTela()}>
                             Limpar
                         </Button>
                         <Button 
                             variant={usuarioLogin.acessibilidade.tema.titulo} 
-                            disabled={loading}
+                            disabled={!permAcaoPesquisar || loading}
                             onClick={() => setClicouFiltrar(!clicouFiltrar)}>
                             Filtrar
                         </Button>

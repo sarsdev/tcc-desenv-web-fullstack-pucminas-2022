@@ -25,6 +25,7 @@ import ModalApontamentosDia from './components/modal-apontamentos-dia/modal-apon
 import ModalObservacao from './components/modal-observacao/modal-observacao'
 import Loading from '../common/loading/loading'
 import { ServicoAgenda } from './../../service/servico'
+import { Utils } from './../../service/utils'
 
 function Agenda(props) {
     const navigate = useNavigate()
@@ -55,6 +56,8 @@ function Agenda(props) {
     const [mostrarAlerta, setMostrarAlerta] = useState(false)
     const [tipoAlerta, setTipoAlerta] = useState('')    
     const [msgAlerta, setMsgAlerta] = useState('')
+    const [permAcaoRegistrarApontamento, setPermAcaoRegistrarApontamento] = useState(false)
+    const [permAcaoAlterarConfiguracoes, setPermAcaoAlterarConfiguracoes] = useState(false)
 
     const qtdLinhasPaginacao = 5
     const abaComFocoInicial = 'aba001'
@@ -72,6 +75,7 @@ function Agenda(props) {
             body[0].classList.forEach(v => body[0].classList.remove(v))            
             body[0].classList.add(`body-${usuariologin.acessibilidade.tema.titulo}`)
             AtivaInativaLoading(true)
+            AplicaPermissao(usuariologin)
             ListaConfigAgenda()            
         } else {
             navigate('/app/acesso')
@@ -89,6 +93,11 @@ function Agenda(props) {
     useEffect(() => {
         MontaLinhasGridAgenda(linhasDadosAgenda)
     }, [clicouNavegacaoGrid])
+
+    function AplicaPermissao(usuariologin) {
+        setPermAcaoRegistrarApontamento(Utils.TemPermissaoNaAcao(usuariologin, 'Agenda', 'Registrar apontamento'))
+        setPermAcaoAlterarConfiguracoes(Utils.TemPermissaoNaAcao(usuariologin, 'Agenda', 'Alterar configurações'))
+    }
 
     function ListaAgenda() {
         let dadosLogin = {
@@ -213,16 +222,18 @@ function Agenda(props) {
                     {v.valor.projeto.descricao}
                 </td>
                 <td>
-                    <Stack direction='horizontal' gap={2}>                        
-                        {v.apontando ?
-                        <StopCircle
-                            id={v.valor._id}
-                            size={20}
-                            onClick={(e) => FinalizaApontamento(e)} /> :
-                        <PlayCircle
-                            id={v.valor._id}
-                            size={20}
-                            onClick={(e) => IniciaApontamento(e)} />}
+                    <Stack direction='horizontal' gap={2}>
+                        <div hidden={!permAcaoRegistrarApontamento}>                      
+                            {v.apontando ?
+                            <StopCircle
+                                id={v.valor._id}
+                                size={20}
+                                onClick={(e) => FinalizaApontamento(e)} /> :
+                            <PlayCircle
+                                id={v.valor._id}
+                                size={20}
+                                onClick={(e) => IniciaApontamento(e)} />}
+                        </div>
                         <FileEarmarkPptFill
                             id={v.valor._id}
                             size={20}
@@ -598,7 +609,7 @@ function Agenda(props) {
                         <Col md="auto">
                             <GearFill 
                                 size={20}
-                                disabled={loading}
+                                disabled={!permAcaoAlterarConfiguracoes || loading}
                                 onClick={() => AbreModalConfiguracoes()} />
                             <FileEarmarkSpreadsheetFill 
                                 size={20}
