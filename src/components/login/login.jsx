@@ -5,6 +5,7 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Alert from 'react-bootstrap/Alert'
 import Spinner from 'react-bootstrap/Spinner'
+import { useGoogleLogin } from '@react-oauth/google'
 import { ServicoLogin } from '../../service/servico'
 import CriacaoSenha from './components/criacao-senha/criacao-senha'
 import RecuperacaoSenha from './components/recuperacao-senha/recuperacao-senha'
@@ -22,9 +23,34 @@ function Login() {
     const [textoAlerta, setTextoAlerta] = useState('')
     const [mostraLoading, setMostraLoading] = useState(false)
     const [paramUsuario, setParamUsuario] = useState({})
+    const [user, setUser] = useState({})
+    const [profile, setProfile] = useState({})
+
+    const login = useGoogleLogin({
+        onSuccess: (codeResponse) => setUser(codeResponse),
+        onError: (error) => console.log('Login Failed:', error)
+    })
 
     useEffect(() => {
-        console.log(paramUsuario)
+        if (user && user.access_token) {
+            ServicoLogin.RetornaDadosUsuarioGmail(user)
+            .then((res) => {
+                setProfile(res.data)
+            })
+            .catch((err) => {
+                setTextoAlerta(err)
+                setMostrarAlerta(true)
+            })
+        }
+    }, [user])
+
+    useEffect(() => {
+        if (profile && profile.email) {
+            BuscaDadosUsuarioGmail(profile.email)
+        }
+    }, [profile])
+
+    useEffect(() => {
         if(paramUsuario._id) {
             sessionStorage.setItem('usuariologin', JSON.stringify(paramUsuario))
             navigate('/app/inicial')
@@ -66,6 +92,24 @@ function Login() {
         .finally(() => setMostraLoading(false))
     }
 
+    function BuscaDadosUsuarioGmail(emailUsuario) {
+        setMostraLoading(true)
+        ServicoLogin.ValidarAcessoComGmail(emailUsuario)
+        .then((resp) => {
+            if(resp.erro) {
+                setTextoAlerta(resp.msgErro)
+                setMostrarAlerta(true)
+            } else {
+                setParamUsuario(ServicoLogin.RetornaDadosUsuario().dados)
+            }
+        })
+        .catch((err) => {
+            setTextoAlerta(err)
+            setMostrarAlerta(true)
+        })
+        .finally(() => setMostraLoading(false))
+    }
+
     function ValidaCampoForm(e) {
         const campo = e.target.id
         const valor = e.target.value
@@ -87,11 +131,11 @@ function Login() {
         }        
     }
 
-    function AcessarComGmail() {
+    /* function AcessarComGmail() {
         if(ServicoLogin.DeveCriarSenha()) {
             setMostrarCriacaoSenha(true)
         }
-    }
+    } */
     
     return (
         <div className='retangulo-externo col-xxl-3 col-lg-4 col-md-6 col-sm-8 mx-auto'>
@@ -140,13 +184,14 @@ function Login() {
                         Esqueci minha senha
                     </Button>
                 </div>
-                <hr hidden={true} />
-                <Button 
+                <hr />
+                <Button
                     variant='danger'
-                    className='col-sm-12 mx-auto'
-                    disabled={true}
-                    hidden={true}
-                    onClick={() => AcessarComGmail()}>Acessar com GMail</Button>
+                    className='w-100'
+                    disabled={mostraLoading}
+                    onClick={() => login()}>
+                    Acessar com o Gmail
+                </Button>
             </Form>
                         
             {/* Alertas */}

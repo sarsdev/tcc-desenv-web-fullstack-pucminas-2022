@@ -4,7 +4,8 @@ import './css/tema-dia.css'
 import './css/tema-noite.css'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import Login from './components/login/login'
 import Inicial from './components/inicial/inicial'
 import Permissao from './components/permissao/permissao'
@@ -22,25 +23,27 @@ import PaginaInexistente from './components/pagina-inexistente/pagina-inexistent
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/app/" element={<Login />} />
-        <Route path="/app/acesso" element={<Login />} />
-        <Route path="/app/inicial" element={<Inicial />} />
-        <Route path="/app/permissao" element={<Permissao />} />
-        <Route path="/app/acessibilidade" element={<Acessibilidade />} />
-        <Route path="/app/usuario" element={<Usuario />} />
-        <Route path="/app/funcao" element={<Funcao />} />
-        <Route path="/app/equipe" element={<Equipe />} />
-        <Route path="/app/projeto" element={<Projeto />} />
-        <Route path="/app/agenda" element={<Agenda />} />
-        <Route path="/app/manutencao" element={<Manutencao />} />
-        <Route path="/app/acompanhamento" element={<Acompanhamento />} />
-        <Route path="/app/simulador" element={<Simulador />} />
-        <Route path="*" element={<PaginaInexistente />} />
-      </Routes>
-    </BrowserRouter>
-  </React.StrictMode>
+  <GoogleOAuthProvider clientId="850184964406-rofngcvqdhi5cr29o6v6a6v3cph3jsls.apps.googleusercontent.com">
+    <React.StrictMode>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/app/" element={<Login />} />
+          <Route path="/app/acesso" element={<Login />} />
+          <Route path="/app/inicial" element={<Inicial />} />
+          <Route path="/app/permissao" element={<Permissao />} />
+          <Route path="/app/acessibilidade" element={<Acessibilidade />} />
+          <Route path="/app/usuario" element={<Usuario />} />
+          <Route path="/app/funcao" element={<Funcao />} />
+          <Route path="/app/equipe" element={<Equipe />} />
+          <Route path="/app/projeto" element={<Projeto />} />
+          <Route path="/app/agenda" element={<Agenda />} />
+          <Route path="/app/manutencao" element={<Manutencao />} />
+          <Route path="/app/acompanhamento" element={<Acompanhamento />} />
+          <Route path="/app/simulador" element={<Simulador />} />
+          <Route path="*" element={<PaginaInexistente />} />
+        </Routes>
+      </BrowserRouter>
+    </React.StrictMode>
+  </GoogleOAuthProvider>
 );

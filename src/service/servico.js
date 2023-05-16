@@ -725,6 +725,56 @@ export const ServicoLogin = {
             throw retorno
         }
     },
+    ValidarAcessoComGmail: async function(emailUsuario) {
+        let retorno = {
+            erro: true,
+            msgErro: 'Ocorreu um erro ao validar os dados!',
+            acessoValido: false
+        }
+        try {
+            let respToken = await GeraToken(dadosAcessoApp)
+            if(respToken.erro) { return respToken }
+            let respUsuario = await BuscaUsuarioPorEmail({usuario: emailUsuario})
+            if(respUsuario.erro) { return respUsuario }
+            if(respUsuario.dados) {
+                let usuario = respUsuario.dados
+                if(usuario.situacao !== 'ativo') {
+                    retorno.msgErro = 'Usuário inativo. Acesso negado!'
+                } else if(usuario.dados_acesso && usuario.dados_acesso.situacao === 'rejeitado') {
+                    retorno.msgErro = 'Usuário sem autorização. Acesso negado!'
+                } else if(usuario.dados_acesso && usuario.dados_acesso.situacao === 'pendente') {
+                    retorno.msgErro = 'Usuário pendente de autorização. Acesso negado!'
+                } else if(usuario.dados_acesso && usuario.dados_acesso.situacao === 'aprovado') {
+                    retorno.acessoValido = true
+                    retorno.erro = false
+                    retorno.msgErro = ''
+                    let respAcess = await BuscaPadraoAcessibilidade({usuario: emailUsuario})
+                    if(respAcess.erro) {                        
+                        respUsuario.dados.acessibilidade = {
+                            tema: {
+                                titulo: 'Dia'
+                            },
+                            modo_leitura: false,
+                            modo_atalho_unico: false
+                        }
+                    } else {
+                        respUsuario.dados.acessibilidade = respAcess.dados
+                    }
+                    let respPerm = await BuscaPermissoesPorUsuario(respUsuario.dados._id)
+                    if(respPerm.erro) {                        
+                        respUsuario.dados.permissao = []
+                    } else {
+                        respUsuario.dados.permissao = respPerm.dados
+                    }
+                    objUsuario = respUsuario.dados
+                }
+            }
+            return retorno
+        } catch (err) {
+            retorno.msgErro = err
+            throw retorno
+        }
+    },
     DeveCriarSenha: function(dadosModal) {
         return true
     },
@@ -769,6 +819,20 @@ export const ServicoLogin = {
                 dados: {}
             }
         }
+    },
+    RetornaDadosUsuarioGmail: async function(user) {
+        try {
+            let retorno = await axios
+            .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`, {
+                headers: {
+                    Authorization: `Bearer ${user.access_token}`,
+                    Accept: 'application/json'
+                }
+            })
+            return retorno
+        } catch (err) {
+            throw new Error(err)
+        }        
     }
 }
 
