@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Stack from 'react-bootstrap/Stack'
-import Form from 'react-bootstrap/Form';
+import Form from 'react-bootstrap/Form'
+import GraficoPizza from '../../../common/grafico/grafico-pizza/grafico-pizza'
 
 function UsuarioVisaoMacro(props) {
+    const [dadosGraficoPizza, ] = useState([
+        {chave: 'Equipe A', valor: 45.0}, 
+        {chave: 'Equipe B', valor: 23.5},
+        {chave: 'Equipe C', valor: 11.5},
+        {chave: 'Equipe D', valor: 20.0}
+    ])
     return (
         <Container>
             <Row>
@@ -35,7 +42,8 @@ function UsuarioVisaoMacro(props) {
                     <h3>Gráfico 1</h3>
                 </Col>
                 <Col>
-                    <h3>Gráfico 2</h3>
+                    <GraficoPizza
+                        dados={dadosGraficoPizza} />
                 </Col>
             </Row>
         </Container>
