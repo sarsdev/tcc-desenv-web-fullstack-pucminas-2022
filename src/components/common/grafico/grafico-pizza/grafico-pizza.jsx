@@ -5,7 +5,7 @@ import * as d3 from 'd3'
 function GraficoPizza({dados}) {
     const arc = d3.arc()
     const pie = d3.pie().value(function(d) { return d.valor })
-    let scale = d3.scaleOrdinal().domain(dados).range(['#ffd384','#94ebcd','#fbaccc','#d3e0ea','#fa7f72'])
+    let scale = d3.scaleOrdinal().domain(dados).range(['#ffd384','#94ebcd','#fbaccc','#d3e0ea','#fa7f72', '#f0d384','#940bcd','#f0accc','#f3e0ea','#ffff72'])
     
     let angulos = pie(dados)
     let paths = angulos.map(v => {

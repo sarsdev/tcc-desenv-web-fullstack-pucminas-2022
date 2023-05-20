@@ -11,7 +11,8 @@ import UsuarioVisaoMacro from './components/usuario-visao-macro/usuario-visao-ma
 function Usuario(props) {
     const navigate = useNavigate()
     const [usuarioLogin, ] = useState(JSON.parse(sessionStorage.getItem('usuariologin')))
-    const [telaExibida, setTelaExibida] = useState(<UsuarioCadastro usuariologin={usuarioLogin} />)
+    const [telaExibida, setTelaExibida] = useState(<UsuarioCadastro usuariologin={usuarioLogin} onObtemDados={(dados) => setDadosCadastro(dados)} />)
+    const [dadosCadastro, setDadosCadastro] = useState([])
 
     const abaComFocoInicial = "aba001"
     const abasUsuario = [
@@ -43,13 +44,13 @@ function Usuario(props) {
     const AbaClicada = function (evento) {
         switch(evento.target.id) {
             case 'aba001':
-                setTelaExibida(<UsuarioCadastro usuariologin={usuarioLogin} />)
+                setTelaExibida(<UsuarioCadastro usuariologin={usuarioLogin} onObtemDados={(dados) => setDadosCadastro(dados)} />)
                 break
             case 'aba002':
                 setTelaExibida(<UsuarioAutonomos usuariologin={usuarioLogin} />)
                 break
             case 'aba003':
-                setTelaExibida(<UsuarioVisaoMacro usuariologin={usuarioLogin} />)
+                setTelaExibida(<UsuarioVisaoMacro usuariologin={usuarioLogin} dados={dadosCadastro} />)
                 break
             default:
                 break

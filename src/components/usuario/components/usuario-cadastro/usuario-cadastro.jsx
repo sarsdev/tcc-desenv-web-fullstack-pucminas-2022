@@ -57,6 +57,7 @@ function UsuarioCadastro(props) {
     useEffect(() => {
         MontaLinhasGridUsuario(listaDadosUsuario, null)
         setfiltrou(false)
+        props.onObtemDados(listaDadosUsuario)
     }, [listaDadosUsuario])
 
     useEffect(() => {
